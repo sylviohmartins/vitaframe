@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="VitaFrame organiza dados de corpo, alimentação, rotina e treino de forma privada, estruturada e orientada por evidências.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <title>VitaFrame — Seu contexto de saúde, bem estruturado</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="VitaFrame — início">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VitaFrame</span>
+      </a>
+      <div class="topbar-actions">
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema">◐</button>
+        <button class="privacy-chip" id="privacyButton" type="button"><span class="status-dot" aria-hidden="true"></span> Local e privado</button>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <div id="app" aria-live="polite"></div>
+    </main>
+
+    <footer class="site-footer">
+      <p>VitaFrame V1 · Ferramenta de organização e educação. Não substitui avaliação profissional.</p>
+      <nav aria-label="Links do rodapé">
+        <a href="#references">Referências</a>
+        <a href="#privacy">Privacidade</a>
+      </nav>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="./src/app.mjs"></script>
+</body>
+</html>

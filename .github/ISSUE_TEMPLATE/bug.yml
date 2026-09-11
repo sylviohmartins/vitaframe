@@ -1,0 +1,22 @@
+name: Bug
+about: Reportar comportamento incorreto
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: O que aconteceu?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Como reproduzir?
+      placeholder: Passos mínimos e determinísticos.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Navegador / dispositivo
+  - type: textarea
+    attributes:
+      label: Evidências
+      description: Screenshots, logs e contexto sem dados pessoais sensíveis.
