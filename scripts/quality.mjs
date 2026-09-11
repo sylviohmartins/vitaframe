@@ -5,6 +5,7 @@ const advanced = await readFile('advanced.html', 'utf8');
 const meals = await readFile('meals.html', 'utf8');
 const adaptive = await readFile('adaptive.html', 'utf8');
 const css = await readFile('assets/styles.css', 'utf8');
+const navigationCss = await readFile('assets/navigation.css', 'utf8');
 const advancedCss = await readFile('assets/advanced.css', 'utf8');
 const mealsCss = await readFile('assets/meals.css', 'utf8');
 const adaptiveCss = await readFile('assets/adaptive.css', 'utf8');
@@ -35,12 +36,14 @@ for (const [name, html] of htmlFiles) {
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'Reduced motion support is required.');
 assert(css.includes('focus-visible'), 'Visible focus treatment is required.');
 assert(css.includes('min-height: 46px') || css.includes('height: 42px'), 'Comfortable touch target sizing expected.');
+assert(navigationCss.includes('@media (max-width: 820px)'), 'Main secondary navigation must collapse on narrower screens.');
 assert(advancedCss.includes('@media (max-width: 640px)'), 'Advanced center must have mobile-specific layout.');
 assert(mealsCss.includes('@media (max-width: 640px)'), 'Meal timeline must have mobile-specific layout.');
 assert(adaptiveCss.includes('@media (max-width: 800px)'), 'Adaptive interview must have mobile-specific layout.');
 assert(app.includes('não prescreve') || app.includes('não transforma esses dados em prescrição'), 'Safety boundary must be visible in UI copy.');
 assert(app.includes('Não fazemos diagnóstico'), 'Diagnostic boundary must be visible.');
 assert(sw.includes("event.request.method !== 'GET'"), 'Service worker must not cache mutation requests.');
+assert(sw.includes("new URL(event.request.url).origin !== location.origin"), 'Service worker must limit caching to same-origin requests.');
 
 for (const [name, runtime] of [['assessment', app], ['advanced', advancedApp], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
   assert(!runtime.includes('XMLHttpRequest'), `${name} runtime must not use XHR.`);
@@ -57,10 +60,13 @@ assert(adaptiveLogic.includes('days != null && days > 0'), 'Adaptive interview m
 assert(adaptiveApp.includes('adaptiveSkipped'), 'Adaptive interview must support explicit skip state.');
 
 for (const file of [
-  'assets/styles.css','assets/advanced.css','assets/meals.css','assets/adaptive.css','src/app.mjs','src/advanced.mjs','src/advanced-logic.mjs',
-  'src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs',
-  'manifest.webmanifest','sw.js','README.md','PRODUCT.md','DATA_MODEL.md','PRIVACY.md','SECURITY.md','AI_GUARDRAILS.md','TESTING.md','ACCESSIBILITY.md',
-  'PERFORMANCE.md','VALIDATION.md','docs/RESEARCH.md','docs/REGULATORY.md','advanced.html','meals.html','adaptive.html'
+  'assets/styles.css','assets/navigation.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
+  'src/app.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
+  'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
+  'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/e2e.mjs','scripts/e2e-extended.mjs',
+  'README.md','PRODUCT.md','ARCHITECTURE.md','DATA_MODEL.md','DESIGN.md','UX.md','PRIVACY.md','SECURITY.md','AI_GUARDRAILS.md',
+  'TESTING.md','ACCESSIBILITY.md','PERFORMANCE.md','VALIDATION.md','ROADMAP.md','REQUIREMENTS.md','CI.md','DECISIONS.md',
+  'docs/RESEARCH.md','docs/REGULATORY.md','advanced.html','meals.html','adaptive.html'
 ]) {
   try { await access(file); } catch { failures.push(`Missing required file: ${file}`); }
 }
