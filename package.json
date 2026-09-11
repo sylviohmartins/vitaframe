@@ -5,10 +5,14 @@
   "type": "module",
   "description": "Privacy-first structured health, nutrition and training assessment V1.",
   "scripts": {
+    "format:check": "node scripts/format-check.mjs",
     "syntax": "node scripts/syntax.mjs",
+    "lint": "node scripts/lint.mjs",
     "test": "node --test tests/*.test.mjs",
     "quality": "node scripts/quality.mjs",
-    "ci": "npm run syntax && npm test && npm run quality",
+    "audit": "npm audit --audit-level=high",
+    "build": "node scripts/build.mjs",
+    "ci": "npm run format:check && npm run syntax && npm run lint && npm test && npm run quality && npm run audit && npm run build",
     "e2e": "node scripts/e2e.mjs && node scripts/e2e-extended.mjs"
   },
   "engines": {
