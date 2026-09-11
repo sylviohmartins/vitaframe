@@ -1,6 +1,25 @@
-const CACHE = 'vitaframe-v1.0.0';
+const CACHE = 'vitaframe-v1.1.0';
 const ASSETS = [
-  './', './index.html', './assets/styles.css', './src/app.mjs', './src/catalog.mjs', './src/logic.mjs', './src/storage.mjs', './manifest.webmanifest'
+  './',
+  './index.html',
+  './advanced.html',
+  './meals.html',
+  './adaptive.html',
+  './assets/styles.css',
+  './assets/advanced.css',
+  './assets/meals.css',
+  './assets/adaptive.css',
+  './src/app.mjs',
+  './src/catalog.mjs',
+  './src/logic.mjs',
+  './src/storage.mjs',
+  './src/local-metrics.mjs',
+  './src/advanced.mjs',
+  './src/advanced-logic.mjs',
+  './src/meals.mjs',
+  './src/adaptive-interview.mjs',
+  './src/adaptive-interview-logic.mjs',
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', event => {
@@ -14,6 +33,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin) return;
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
+    if (!response || response.status !== 200 || response.type === 'opaque') return response;
     const copy = response.clone();
     caches.open(CACHE).then(cache => cache.put(event.request, copy));
     return response;
