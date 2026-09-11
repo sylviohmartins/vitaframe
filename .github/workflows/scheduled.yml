@@ -16,7 +16,7 @@ jobs:
   extended:
     name: extended-validation
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,12 +27,16 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --ignore-scripts
-      - name: Static and unit quality
+      - name: Static, unit, audit and build quality
         run: npm run ci
-      - name: Browser E2E and visual artifacts
+      - name: Browser E2E, accessibility, performance and visual regression
         run: npm run e2e
-      - name: Impeccable detector
-        run: npx --yes impeccable@4.0.1 detect index.html --json > impeccable-index.json && npx --yes impeccable@4.0.1 detect advanced.html --json > impeccable-advanced.json
+      - name: Impeccable detector — all V1 surfaces
+        run: |
+          npx --yes impeccable@4.0.1 detect index.html --json > impeccable-index.json
+          npx --yes impeccable@4.0.1 detect advanced.html --json > impeccable-advanced.json
+          npx --yes impeccable@4.0.1 detect adaptive.html --json > impeccable-adaptive.json
+          npx --yes impeccable@4.0.1 detect meals.html --json > impeccable-meals.json
       - name: Upload validation artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -40,7 +44,6 @@ jobs:
           name: scheduled-validation-artifacts
           path: |
             e2e-artifacts/
-            impeccable-index.json
-            impeccable-advanced.json
+            impeccable-*.json
           if-no-files-found: ignore
           retention-days: 14
