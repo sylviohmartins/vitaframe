@@ -23,11 +23,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "fdc3e817edd77bc1aa8d1044be6503b8facaf76e26c2962e19b5010e013ef1c8  .v1part02a" | sha256sum -c -
-          echo "81c62af275ebb7eef8cad0032540a2f9dcfe7bad5169c4030e42ec9c6e93c310  .v1part02b" | sha256sum -c -
-          echo "462b9ba81723dd9600b71983e6b5c3af5f5b14bd0072abea483e2098e82e1762  .v1part02c" | sha256sum -c -
-          echo "b8f27914d5de0a61105f14671ea095fb1dbe2d7e4dd3737603ad2ca5c3417282  .v1part02d" | sha256sum -c -
-          cat .v1part00 .v1part01 .v1part02a .v1part02b .v1part02c .v1part02d .v1part03 .v1part04 .v1part05 .v1part06 .v1part07 .v1part08 .v1part09 .v1part10 .v1part11 .v1part12 > /tmp/vitaframe-v1.b64
+          echo "23ec27aad5e2ad0fc1e0af8f7c65357bc23280293cccb14bd57efef57b7d48ba  .v1part02d0" | sha256sum -c -
+          echo "c6ca076654d348b23ebea1121190e93e32fb3d6e50c678db95225812d9270dff  .v1part02d1" | sha256sum -c -
+          echo "42d9c8e837d895e5775549a9bae19c1e4a6df00c6281eafcdbce706eb715b50c  .v1part02d2" | sha256sum -c -
+          echo "d6a88a2692b813890574d8118307203be10f818d0ab1aad00c3148b0ee092242  .v1part02d3" | sha256sum -c -
+          cat .v1part00 .v1part01 .v1part02a .v1part02b .v1part02c .v1part02d0 .v1part02d1 .v1part02d2 .v1part02d3 .v1part03 .v1part04 .v1part05 .v1part06 .v1part07 .v1part08 .v1part09 .v1part10 .v1part11 .v1part12 > /tmp/vitaframe-v1.b64
           echo "a525cde533e2a056cb06dabf6a03a0706cbb966f8a2b6a8157c9dc400e4b59d1  /tmp/vitaframe-v1.b64" | sha256sum -c -
           base64 --decode /tmp/vitaframe-v1.b64 > /tmp/vitaframe-v1.tgz
           echo "bdd954026ecbb5abd28d585149cfc53c21907dc411a2d3b2815e09c362f90529  /tmp/vitaframe-v1.tgz" | sha256sum -c -
