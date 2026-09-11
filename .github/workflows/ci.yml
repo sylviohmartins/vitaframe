@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -83,10 +84,24 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  security:
+    name: security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        with:
+          languages: javascript-typescript
+      - name: Analyze
+        uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+
   quality-gate:
     name: quality-gate
     if: always()
-    needs: [quality, e2e, impeccable]
+    needs: [quality, e2e, impeccable, security]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -95,10 +110,13 @@ jobs:
           QUALITY: ${{ needs.quality.result }}
           E2E: ${{ needs.e2e.result }}
           IMPECCABLE: ${{ needs.impeccable.result }}
+          SECURITY: ${{ needs.security.result }}
         run: |
           echo "quality=$QUALITY"
           echo "e2e=$E2E"
           echo "impeccable=$IMPECCABLE"
+          echo "security=$SECURITY"
           test "$QUALITY" = success
           test "$E2E" = success
           test "$IMPECCABLE" = success
+          test "$SECURITY" = success
