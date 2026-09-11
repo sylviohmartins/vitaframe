@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, feat/v1-complete]
+    branches: [main, 'feat/**', 'fix/**', 'refactor/**', 'chore/**']
   merge_group:
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,11 +48,11 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Browser E2E
         run: npm run e2e
-      - name: Upload E2E screenshots
+      - name: Upload E2E and performance artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: e2e-screenshots
+          name: e2e-artifacts
           path: e2e-artifacts/
           if-no-files-found: ignore
           retention-days: 7
@@ -60,7 +60,7 @@ jobs:
   impeccable:
     name: impeccable
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -68,15 +68,19 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22.16.0'
-      - name: Impeccable design detector
-        run: npx --yes impeccable@4.0.1 detect index.html --json > impeccable.json
-      - name: Upload Impeccable report
+      - name: Impeccable design detector — all V1 surfaces
+        run: |
+          npx --yes impeccable@4.0.1 detect index.html --json > impeccable-index.json
+          npx --yes impeccable@4.0.1 detect advanced.html --json > impeccable-advanced.json
+          npx --yes impeccable@4.0.1 detect meals.html --json > impeccable-meals.json
+          npx --yes impeccable@4.0.1 detect adaptive.html --json > impeccable-adaptive.json
+      - name: Upload Impeccable reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: impeccable-report
-          path: impeccable.json
-          if-no-files-found: ignore
+          path: impeccable-*.json
+          if-no-files-found: error
           retention-days: 7
 
   quality-gate:
