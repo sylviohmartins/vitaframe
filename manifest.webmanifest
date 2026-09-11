@@ -1,11 +1,10 @@
 {
   "name": "VitaFrame",
   "short_name": "VitaFrame",
-  "description": "Avaliação estruturada de nutrição, rotina, corpo e treino — local, privada e orientada por evidências.",
-  "lang": "pt-BR",
-  "start_url": "./",
+  "description": "Avaliação estruturada e local-first para corpo, alimentação, rotina e treino.",
+  "start_url": "./#home",
   "display": "standalone",
   "background_color": "#f5f5f7",
-  "theme_color": "#ffffff",
-  "icons": []
+  "theme_color": "#f5f5f7",
+  "lang": "pt-BR"
 }

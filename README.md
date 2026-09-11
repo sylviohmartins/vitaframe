@@ -2,19 +2,19 @@
 
 > **V1 — avaliação estruturada, local-first e orientada por evidências para corpo, alimentação, rotina e treino.**
 
-VitaFrame existe para organizar contexto antes de qualquer plano. A V1 conduz uma avaliação progressiva, registra preferências alimentares sem depender de memória espontânea, separa medição de estimativa, identifica red flags e gera um perfil portátil para revisão pessoal ou profissional.
+VitaFrame existe para organizar contexto antes de qualquer plano. A V1 conduz uma avaliação progressiva, registra preferências alimentares sem depender de memória espontânea, separa medição de estimativa, identifica situações de atenção e gera um perfil portátil para revisão pessoal ou profissional.
 
-## Por que este posicionamento
+## Decisão de produto
 
-A investigação de mercado concluiu **GO COM AJUSTES**: trackers de alimentação, treino e softwares profissionais já são fortes em seus domínios. O espaço mais coerente para VitaFrame é a camada de **anamnese inteligente + estruturação + handoff**, não um prescritor automático de dieta/treino.
+A investigação concluiu **GO COM AJUSTES**: trackers de alimentação, treino e softwares profissionais já são fortes em seus domínios. O espaço mais coerente para VitaFrame é **anamnese inteligente + estruturação + handoff**, não prescrição autônoma.
 
-Veja [`docs/RESEARCH.md`](docs/RESEARCH.md).
+Veja [`docs/RESEARCH.md`](docs/RESEARCH.md) e [`docs/REGULATORY.md`](docs/REGULATORY.md).
 
 ## V1
 
-- avaliação em 10 etapas;
-- autosave local após consentimento;
-- objetivos e composição corporal com origem do dado;
+- avaliação progressiva em 10 etapas;
+- autosave local somente após consentimento;
+- objetivos e composição corporal com proveniência;
 - saúde, restrições e red flags;
 - alimentação atual e contexto social;
 - catálogo amplo de preferências por reconhecimento;
@@ -43,18 +43,17 @@ npm ci
 npm run ci
 ```
 
-E2E:
+E2E usa Chrome/Chromium headless via Chrome DevTools Protocol, sem biblioteca de browser adicional:
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
-python3 -m playwright install chromium
-python3 -m http.server 4173 &
-python3 e2e/test_vitaframe.py
+npm run e2e
 ```
+
+O CI executa E2E em runner GitHub com Chrome disponível e captura screenshots mobile/desktop como artefatos.
 
 ## Arquitetura
 
-HTML + CSS + ES Modules nativos. A escolha deliberadamente reduz dependências e superfície de ataque na fase de validação.
+HTML + CSS + ES Modules nativos. A escolha reduz dependências, custo de build e superfície de supply chain na fase de validação.
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - [`DESIGN.md`](DESIGN.md)
@@ -62,22 +61,23 @@ HTML + CSS + ES Modules nativos. A escolha deliberadamente reduz dependências e
 - [`SECURITY.md`](SECURITY.md)
 - [`AI_GUARDRAILS.md`](AI_GUARDRAILS.md)
 - [`TESTING.md`](TESTING.md)
+- [`CI.md`](CI.md)
 
-## Limites de segurança e profissão
+## Limites
 
-VitaFrame V1 **não diagnostica, não prescreve dieta, suplemento ou treino e não é prontuário clínico**. Dados de saúde são sensíveis; por isso a V1 não os envia a um backend. Produção comercial/multiusuário exige arquitetura e governança adicionais.
+VitaFrame V1 **não diagnostica, não prescreve dieta, suplemento ou treino e não é prontuário clínico**. Produção comercial/multiusuário exige arquitetura e governança adicionais.
 
 ## CI
 
 PRs e `main` executam:
 
 1. syntax + unit + quality;
-2. Playwright E2E em Chromium;
-3. Impeccable detector 3.2.1;
+2. E2E real em Chrome;
+3. Impeccable CLI `detect` fixado em versão explícita;
 4. `quality-gate` agregador;
 5. CodeQL em workflow de segurança.
 
-As actions oficiais são fixadas por SHA completo. Consulte [`.github/workflows/`](.github/workflows/).
+As GitHub Actions oficiais são fixadas por SHA completo.
 
 ## Licença
 

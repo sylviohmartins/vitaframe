@@ -3,19 +3,20 @@
 ## Local
 
 ```bash
+npm ci
 npm run ci
-python3 -m http.server 4173
-python3 e2e/test_vitaframe.py
 ```
+
+O `npm run e2e` requer Chrome/Chromium. Em ambientes que bloqueiam navegação loopback do navegador, o E2E deve ser considerado inconclusivo localmente e validado no runner do GitHub.
 
 ## Cobertura
 
-- sintaxe de todos módulos JS;
-- unit tests para números, IMC, TMB, composição, completude e red flags;
+- sintaxe de módulos JS;
+- testes unitários de parsing numérico, IMC, Mifflin-St Jeor, composição derivada, completude e red flags;
 - quality checks para CSP, semântica base, reduced motion, ausência de scripts remotos e limites de segurança;
-- E2E com Playwright em viewport mobile e smoke visual desktop/dark mode;
-- screenshot de diagnóstico em E2E.
+- E2E via CDP para consentimento, roteamento, avanço de etapa, layout mobile sem overflow, nomes acessíveis básicos, perfil e dark mode;
+- screenshots mobile e desktop produzidos pelo E2E.
 
-## Limite
+## Acessibilidade
 
-Automação não prova conformidade WCAG completa nem excelência visual. Revisão manual continua necessária antes de release comercial.
+Alvo de design: WCAG 2.2 AA. Automação cobre invariantes objetivos, mas não comprova conformidade integral. Revisão manual com teclado, leitor de tela e inspeção visual continua necessária antes de release comercial.

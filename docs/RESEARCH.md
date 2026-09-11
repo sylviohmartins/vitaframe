@@ -1,103 +1,95 @@
-# VitaFrame V1 — Pesquisa de oportunidade
+# VitaFrame — Research & Opportunity Assessment
 
-Data de corte: 11/09/2026.
+Data da revisão: 2026-09-11.
 
 ## Decisão
 
-**GO COM AJUSTES.** Existe oportunidade, mas não como “IA que prescreve dieta e treino sozinha”. A oportunidade mais defensável é uma camada de **avaliação estruturada + organização + educação + handoff profissional**, com automação progressiva e revisão humana quando entrar em prescrição.
+**GO COM AJUSTES.**
 
-## Problema observado
+O mercado já possui soluções fortes para registro de alimentação, treino e gestão profissional. A oportunidade mais coerente não é competir como “mais um gerador de dieta/treino”, e sim ocupar a camada de **coleta estruturada + organização de contexto + portabilidade + handoff profissional**.
 
-O mercado está fragmentado entre três famílias:
+## Problema validado
 
-1. trackers de alimentação e calorias, como MyFitnessPal, Fitia e Lifesum;
-2. trackers/planejadores de treino, como Hevy;
-3. sistemas profissionais, como Dietbox, WebDiet, Nutrium e Trainerize.
+Informações úteis para decisões de saúde e treino costumam ficar espalhadas entre memória, notas, apps de tracking, exames, balanças e conversas. Usuários nem sempre sabem quais dados são relevantes; profissionais gastam tempo reconstruindo contexto; apps focados em tracking tendem a otimizar registro contínuo, e softwares profissionais tendem a iniciar já dentro do fluxo clínico/coaching.
 
-Eles resolvem muito bem partes da jornada, mas há espaço para uma experiência consumer-first que transforme informações dispersas de alimentação, corpo, rotina, treino, preferências e limitações em um perfil estruturado, portátil e explicitamente preparado para revisão profissional.
+## Mercado observado
 
-## Concorrência resumida
+| Produto / categoria | Força principal | Lacuna que VitaFrame explora |
+|---|---|---|
+| MyFitnessPal | tracking nutricional, base ampla e recursos de IA | forte em registro/calorias; não é uma camada neutra de anamnese/handoff |
+| Nutrium | gestão, avaliação e planejamento para nutricionistas | excelente lado profissional; VitaFrame V1 foca pré-avaliação local e portátil do usuário |
+| ABC Trainerize | fitness, nutrição, hábitos e acompanhamento para coaches | orientado ao relacionamento coach-cliente; não prioriza um perfil local-first universal |
+| Hevy e trackers de treino | registro e progresso de musculação | treino é um domínio específico, não contexto integrado de saúde/rotina/alimentação |
+| apps de dieta com IA | recomendações e automação | risco de comoditização e maior exposição regulatória/segurança quando avançam para prescrição |
 
-- **MyFitnessPal**: logging amplo, macros, medidas, integrações, Meal Scan, Voice Logging e, no Premium+, planejamento de refeições/lista de compras. Forte em tracking; menos centrado em uma anamnese holística pré-plano.
-- **Fitia**: tracking com IA por foto/voz/texto, meal planner, progresso e lista de compras. Forte em automação de alimentação.
-- **Lifesum**: food tracking, meal plans, dietas, receitas, habit trackers e integrações com wearables.
-- **Hevy**: referência forte para logging de treino, rotinas, progressão, medidas corporais e fotos. Foco claro em treino, não em anamnese integrada.
-- **ABC Trainerize**: plataforma para coaches com treino, hábitos, nutrição, meal tracking/planning e IA para criação de workouts.
-- **Dietbox / WebDiet / Nutrium**: ecossistemas profissionais completos com anamnese, pré-consulta, antropometria, prontuário, plano alimentar e acompanhamento. São fortes no lado do profissional.
+Fontes primárias/atuais consultadas:
 
-## Lacuna recomendada
-
-O diferencial de V1 não é competir em banco de alimentos, contador de calorias ou biblioteca de exercícios. É:
-
-- entrevista guiada mobile-first;
-- preferências por reconhecimento, não lembrança espontânea;
-- proveniência dos dados (autorreferido, balança, profissional, relatório);
-- separação entre medição e estimativa;
-- identificação de lacunas e inconsistências;
-- privacidade local-first no protótipo;
-- relatório legível para o usuário e útil como preparação de consulta;
-- limites explícitos entre educação e prescrição.
+- MyFitnessPal: https://www.myfitnesspal.com/
+- Nutrium para profissionais: https://nutrium.com/pt-br/professionals
+- ABC Trainerize: https://www.trainerize.com/
 
 ## Jobs to be Done
 
 ### Usuário
-“Quando eu for organizar minha alimentação e treino, quero uma forma simples de registrar tudo que realmente importa, para não esquecer informações, entender meu contexto e chegar melhor preparado a uma decisão ou consulta.”
 
-### Nutricionista
-“Quando um paciente chega, quero receber contexto pré-consulta organizado e com origem clara, para usar tempo de consulta em análise e escuta, não em coleta mecânica.”
+- “Quero organizar tudo que é relevante sem precisar saber previamente o que perguntar.”
+- “Quero responder de forma simples, inclusive por reconhecimento de alimentos.”
+- “Quero distinguir o que medi do que foi estimado.”
+- “Quero levar um resumo melhor para um profissional sem recontar tudo do zero.”
+- “Quero controlar meus dados e conseguir exportá-los.”
 
-### Profissional de Educação Física
-“Quando vou avaliar uma pessoa, quero rotina, histórico, objetivos, dor/limitações e experiência de treino de forma estruturada, para saber o que precisa de aprofundamento.”
+### Profissional
 
-## Regulatório e privacidade
+- “Quero receber contexto prévio estruturado e identificar rapidamente lacunas, preferências, rotina e sinais de atenção.”
+- “Quero que o sistema não invente conclusões clínicas nem esconda origem do dado.”
 
-- A Lei 8.234/1991 define atividades privativas dos nutricionistas, incluindo assistência/educação nutricional e, para enfermos, assistência dietoterápica com prescrição e planejamento de dietas.
-- A Resolução CFN 666/2020 explicita que avaliação/diagnóstico nutricional e plano alimentar devem ser realizados pelo nutricionista, com registro adequado.
-- A Resolução CONFEF 046/2002 delimita intervenção do profissional de Educação Física; documentos do CONFEF tratam treinamento, avaliação e prescrição de exercício como competências profissionais.
-- A LGPD classifica dados referentes à saúde como dados pessoais sensíveis.
-
-Por isso, a V1 **não prescreve dieta, suplemento ou treino**. Ela organiza dados, faz cálculos educacionais claramente rotulados e produz handoff.
-
-## Score de oportunidade (0–10)
+## Opportunity score (0–10)
 
 | Critério | Nota | Leitura |
 |---|---:|---|
-| Problema real | 8 | Coleta e organização pré-plano são recorrentes. |
-| Frequência | 8 | Ocorre a cada novo acompanhamento e revisão. |
-| Público potencial | 9 | Fitness, nutrição e saúde têm público amplo. |
-| Pressão competitiva | 9 | Mercado muito competitivo; nota alta = pressão alta. |
-| Diferenciação possível | 7 | Boa se focar contexto/handoff, fraca se virar contador genérico. |
-| Valor para usuário | 8 | Reduz esquecimento e melhora clareza. |
-| Valor para profissional | 8 | Pré-consulta organizada é operacionalmente útil. |
-| Facilidade de aquisição | 5 | CAC pode ser difícil sem canal profissional/comunidade. |
-| Viabilidade técnica | 9 | MVP local-first é simples e barato. |
-| Complexidade operacional | 5 | Baixa na V1, cresce muito com prontuário/prescrição. |
-| Risco regulatório | 7 | Material se entrar em prescrição automática. |
-| Risco clínico | 7 | Controlável com limites e escalonamento. |
-| Monetização | 7 | B2C, Pro e B2B2C são possíveis. |
-| Retenção | 6 | Precisa evoluir de avaliação pontual para acompanhamento. |
+| Problema real | 8 | fragmentação e baixa qualidade de anamnese são plausíveis e recorrentes |
+| Frequência | 7 | especialmente relevante em início de acompanhamento ou mudança de objetivo |
+| Público potencial | 8 | fitness/nutrição têm público amplo |
+| Concorrência | 4 | alta; reduz atratividade de um app genérico |
+| Diferenciação possível | 8 | local-first + anamnese inteligente + proveniência + handoff é combinação menos comum |
+| Valor para usuário | 8 | organização e portabilidade são tangíveis |
+| Valor para profissional | 7 | pode reduzir coleta repetitiva se a informação for de qualidade |
+| Aquisição | 5 | mercado ruidoso; exige posicionamento claro |
+| Viabilidade técnica | 9 | V1 estática é simples |
+| Complexidade operacional | 8 | baixa na V1 local-first; sobe muito com cloud/profissionais |
+| Risco regulatório | 5 | administrável se não houver prescrição/diagnóstico automático |
+| Risco clínico | 6 | reduzido por limites explícitos e red flags |
+| Monetização | 6 | ainda precisa validação real de disposição a pagar |
+| Retenção | 5 | anamnese é episódica; retenção futura depende de acompanhamento/histórico |
 
-## Fontes de mercado
+## Diferencial recomendado
 
-- MyFitnessPal: https://support.myfitnesspal.com/hc/en-us/articles/34889191368077-The-difference-between-Free-Premium-and-Premium
-- Fitia: https://fitia.app/features/
-- Lifesum: https://lifesum.com/features/
-- Hevy: https://www.hevyapp.com/features/
-- ABC Trainerize: https://www.trainerize.com/features/
-- Dietbox: https://dietbox.me/pt-BR
-- WebDiet: https://webdiet.com.br/site/
-- Nutrium: https://nutrium.com/pt-br/professionals
+> **VitaFrame transforma informações dispersas sobre corpo, alimentação, rotina e treino em um perfil estruturado, transparente e portátil — antes de qualquer plano.**
 
-## Fontes regulatórias e técnicas
+A V1 deve provar qualidade da coleta, experiência e utilidade do resultado. Prescrição autônoma não faz parte do escopo.
 
-- Lei 8.234/1991: https://www.planalto.gov.br/ccivil_03/leis/1989_1994/l8234.htm
-- LGPD: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm
-- ANPD — segurança: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-sobre-seguranca-da-informacao-para-agentes-de-tratamento-de-pequeno-porte
-- CONFEF 046/2002: https://www.confef.org.br/confef/resolucoes/res-pdf/82.pdf
-- CFN 666/2020 (DOU): https://cfn.org.br/wp-content/uploads/resolucoes/DOU_666.pdf
+## MVP aprovado
 
-## Evidência de exercício relevante ao posicionamento
+1. onboarding e privacidade;
+2. objetivo;
+3. corpo e composição com proveniência;
+4. saúde e red flags;
+5. alimentação atual;
+6. preferências por reconhecimento;
+7. rotina e praticidade;
+8. treino e limitações;
+9. sono/recuperação;
+10. revisão e perfil;
+11. export/import JSON e impressão/PDF;
+12. persistência local opcional.
 
-A atualização ACSM 2026 sintetizou 137 revisões e mais de 30 mil participantes e reforçou consistência, individualização e adequação de carga/volume ao objetivo. Para V1, isso sustenta a decisão de coletar contexto e não fingir que uma única receita serve a todos.
+## Hipóteses ainda não validadas por pesquisa com usuários
 
-Fonte: https://acsm.org/resistance-training-guidelines-update-2026/
+A investigação documental não substitui entrevistas e testes reais. Antes de produto comercial, validar pelo menos:
+
+- tempo aceitável para preencher;
+- utilidade percebida do relatório por nutricionistas e profissionais de Educação Física;
+- disposição a retornar para atualizar dados;
+- disposição a pagar;
+- impacto real do catálogo de preferências na taxa de conclusão;
+- quais dados profissionais consideram essenciais versus ruído.

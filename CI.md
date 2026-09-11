@@ -4,11 +4,15 @@
 
 `CI / quality-gate` agrega:
 
-- `quality`: syntax, unit tests e regras estáticas;
-- `e2e`: fluxo real em Chromium;
-- `impeccable`: detector determinístico de design.
+- `quality`: `npm ci`, sintaxe, unit tests e regras estáticas;
+- `e2e`: fluxo real em Chrome via CDP + screenshots;
+- `impeccable`: `npx impeccable@4.0.1 detect index.html --json`.
 
-`Security / codeql` executa em PR, main e semanalmente.
+`Security / codeql` executa em PR, `main` e semanalmente.
+
+## Supply chain
+
+Ações de terceiros usadas nos workflows são oficiais e fixadas por SHA completo. O GitHub recomenda SHA completo como forma imutável de referenciar actions.
 
 ## Branch protection recomendada
 
@@ -21,8 +25,8 @@ Configurar Ruleset para `main` exigindo:
 - bloqueio de force push/delete;
 - squash merge como método preferido.
 
-A API disponível ao agente nesta sessão não expõe mutação de Rulesets/branch protection; portanto os workflows estão implementados, mas o enforcement da regra de merge depende da configuração do repositório no GitHub.
+A conexão disponível ao agente não expõe mutação de Rulesets/branch protection; o enforcement depende da configuração do repositório.
 
 ## Deploy
 
-V1 é host-agnostic e funciona em qualquer servidor estático. GitHub Pages pode ser habilitado depois sem alterar a aplicação. Não foi criado workflow de produção que falharia por ausência de configuração de Pages/environment.
+V1 é host-agnostic e funciona em qualquer servidor estático. Nenhum deploy automático obrigatório foi criado porque não há ambiente/Pages configurado e um workflow propositalmente vermelho não deve fazer parte do quality gate.
