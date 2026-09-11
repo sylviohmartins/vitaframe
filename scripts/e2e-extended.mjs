@@ -72,20 +72,34 @@ async function waitForPage(cdp, predicate, description, attempts = 100) {
   throw new Error(`Timeout waiting for ${description}: ${JSON.stringify(diagnostics)}`);
 }
 
+async function assertAX(cdp, label) {
+  const ax = await cdp.send('Accessibility.getFullAXTree');
+  const interactiveRoles = new Set(['button','link','textbox','combobox','radio','checkbox']);
+  const unnamed = ax.nodes.filter(node => interactiveRoles.has(node.role?.value) && !String(node.name?.value || '').trim() && !node.ignored);
+  if (unnamed.length) throw new Error(`${label}: accessibility tree has ${unnamed.length} unnamed interactive node(s).`);
+  const overflow = await cdp.evaluate(`document.documentElement.scrollWidth>document.documentElement.clientWidth`);
+  if (overflow) throw new Error(`${label}: horizontal overflow detected.`);
+}
+
 async function assertBudgets() {
   const sizes = {};
   for (const file of [
-    'index.html','advanced.html','meals.html','assets/styles.css','assets/advanced.css','assets/meals.css',
-    'src/app.mjs','src/local-metrics.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/meals.mjs'
+    'index.html','advanced.html','adaptive.html','meals.html','assets/styles.css','assets/navigation.css','assets/advanced.css','assets/adaptive.css','assets/meals.css',
+    'src/app.mjs','src/local-metrics.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
   ]) sizes[file] = (await stat(file)).size;
 
   const assertions = [
     [sizes['index.html'] <= 50_000, 'index.html exceeds 50 KB'],
     [sizes['advanced.html'] <= 50_000, 'advanced.html exceeds 50 KB'],
+    [sizes['adaptive.html'] <= 50_000, 'adaptive.html exceeds 50 KB'],
     [sizes['meals.html'] <= 50_000, 'meals.html exceeds 50 KB'],
     [sizes['src/app.mjs'] + sizes['src/local-metrics.mjs'] <= 150_000, 'main JS exceeds 150 KB'],
     [sizes['src/advanced.mjs'] + sizes['src/advanced-logic.mjs'] <= 150_000, 'advanced JS exceeds 150 KB'],
+    [sizes['src/adaptive-interview.mjs'] + sizes['src/adaptive-interview-logic.mjs'] <= 100_000, 'adaptive JS exceeds 100 KB'],
+    [sizes['src/meals.mjs'] <= 80_000, 'meal JS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/navigation.css'] <= 80_000, 'main CSS exceeds 80 KB'],
     [sizes['assets/styles.css'] + sizes['assets/advanced.css'] <= 80_000, 'advanced CSS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/adaptive.css'] <= 80_000, 'adaptive CSS exceeds 80 KB'],
     [sizes['assets/styles.css'] + sizes['assets/meals.css'] <= 80_000, 'meal CSS exceeds 80 KB'],
   ];
   const failed = assertions.filter(([ok]) => !ok).map(([, message]) => message);
@@ -94,9 +108,9 @@ async function assertBudgets() {
 }
 
 function rectSignature(value) {
-  return Object.fromEntries(Object.entries(value).map(([key, rect]) => [key, {
+  return Object.fromEntries(Object.entries(value).map(([key, rect]) => [key, rect ? {
     x: Math.round(rect.x), y: Math.round(rect.y), width: Math.round(rect.width), height: Math.round(rect.height)
-  }]));
+  } : null]));
 }
 
 function compareLayout(actual, baseline, tolerance = 8) {
@@ -106,7 +120,7 @@ function compareLayout(actual, baseline, tolerance = 8) {
     if (!actualSelectors) { diffs.push(`missing viewport ${viewport}`); continue; }
     for (const [selector, expected] of Object.entries(expectedSelectors)) {
       const got = actualSelectors[selector];
-      if (!got) { diffs.push(`${viewport}: missing ${selector}`); continue; }
+      if (!got || !expected) { if (got !== expected) diffs.push(`${viewport}: mismatch ${selector}`); continue; }
       for (const key of ['x','y','width','height']) {
         if (Math.abs(got[key] - expected[key]) > tolerance) diffs.push(`${viewport} ${selector} ${key}: ${got[key]} vs ${expected[key]}`);
       }
@@ -165,35 +179,40 @@ try {
   if (mobileVitals.vitals.cls > 0.1) throw new Error(`CLS budget failed: ${mobileVitals.vitals.cls}`);
   if (mobileVitals.vitals.lcp > 2500) throw new Error(`LCP budget failed: ${mobileVitals.vitals.lcp}ms`);
   if (mobileVitals.requests > 12) throw new Error(`Critical request budget failed: ${mobileVitals.requests}`);
-
-  const ax = await cdp.send('Accessibility.getFullAXTree');
-  const unnamedInteractive = ax.nodes.filter(node => ['button','link','textbox','combobox','radio','checkbox'].includes(node.role?.value) && !String(node.name?.value || '').trim() && !node.ignored);
-  if (unnamedInteractive.length) throw new Error(`Accessibility tree has ${unnamedInteractive.length} unnamed interactive node(s).`);
+  await assertAX(cdp, 'mobile home');
 
   await cdp.evaluate(`(() => {
     localStorage.setItem('vitaframe:v1:consent','yes');
     localStorage.setItem('vitaframe:v1:assessment',JSON.stringify({
-      meta:{version:1,createdAt:new Date(Date.now()-600000).toISOString(),updatedAt:new Date().toISOString(),lastStep:8},
+      meta:{version:1,createdAt:new Date(Date.now()-600000).toISOString(),updatedAt:new Date().toISOString(),lastStep:8,adaptiveSkipped:{}},
       goal:{primary:'fat-loss',pace:'balanced'},
       body:{age:'29',sex:'male',heightCm:'178',weightKg:'90',usualWeightKg:'87',waistCm:'96',bodyFatPct:'28.2',bodyFatSource:'',bodyFatDate:''},
       health:{answered:true},currentDiet:{answered:true},foodPreferences:{'fruits-1':3},foodNotes:{},
-      routine:{answered:true,workMode:'hybrid'},training:{answered:true,daysPerWeek:'4',time:'',experience:''},
+      routine:{answered:true,workMode:'hybrid'},lifestyle:{},training:{answered:true,daysPerWeek:'4',time:'',experience:''},
       recovery:{answered:true,sleepHours:'7'}
     }));
   })()`);
 
   await cdp.send('Page.navigate', { url: `${origin}/advanced.html` });
   await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#adaptiveList .adaptive-item')`, 'advanced adaptive list');
+  await assertAX(cdp, 'advanced center');
   await cdp.evaluate(`(() => { const t=document.querySelector('#healthText'); t.value='Zepp Life\\nPeso 89,65 kg\\nGordura corporal 28,2 %\\nÁgua 49,2 %\\nMetabolismo basal 1815 kcal'; document.querySelector('#detectButton').click(); })()`);
   await waitForPage(cdp, `document.querySelectorAll('#detectedResults tbody tr').length>=4`, 'detected imported fields');
   await cdp.evaluate(`document.querySelector('#applyDetectedButton').click()`);
   await cdp.evaluate(`document.querySelector('#snapshotButton').click()`);
   await waitForPage(cdp, `document.querySelectorAll('#historyList .history-row').length===1`, 'history snapshot');
-  const advancedOverflow = await cdp.evaluate(`document.documentElement.scrollWidth>document.documentElement.clientWidth`);
-  if (advancedOverflow) throw new Error('Advanced page has horizontal overflow on mobile.');
+
+  await cdp.send('Page.navigate', { url: `${origin}/adaptive.html` });
+  await waitForPage(cdp, `document.readyState==='complete' && document.querySelector('#questionHost h2')?.textContent.includes('bebida alcoólica')`, 'adaptive alcohol question');
+  await assertAX(cdp, 'adaptive interview');
+  await cdp.evaluate(`(() => { const select=document.querySelector('#adaptiveAnswer'); select.value='no'; document.querySelector('#adaptiveForm').requestSubmit(); })()`);
+  await waitForPage(cdp, `document.querySelector('#questionHost h2') && !document.querySelector('#questionHost h2').textContent.includes('bebida alcoólica')`, 'adaptive branch after alcohol no');
+  const adaptiveState = await cdp.evaluate(`JSON.parse(localStorage.getItem('vitaframe:v1:assessment')).lifestyle`);
+  if (adaptiveState.alcoholUse !== 'no' || adaptiveState.alcoholFrequency) throw new Error(`Adaptive branch persisted unexpected data: ${JSON.stringify(adaptiveState)}`);
 
   await cdp.send('Page.navigate', { url: `${origin}/meals.html` });
   await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#seedMeals')`, 'meal timeline');
+  await assertAX(cdp, 'meal timeline');
   await cdp.evaluate(`document.querySelector('#seedMeals').click()`);
   await waitForPage(cdp, `document.querySelectorAll('.meal-card').length===4`, 'seeded meals');
   await cdp.evaluate(`document.querySelector('#addMeal').click()`);
@@ -205,12 +224,11 @@ try {
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await cdp.send('Page.navigate', { url: `${origin}/index.html#profile` });
   await waitForPage(cdp, `!!document.querySelector('.profile-page')`, 'desktop profile');
+  await assertAX(cdp, 'desktop profile');
   const desktopLayout = rectSignature(await cdp.evaluate(`(() => {
     const pick=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height}:null};
     return {'.topbar':pick('.topbar'),'.profile-page':pick('.profile-page'),'.profile-hero':pick('.profile-hero'),'.profile-columns':pick('.profile-columns')};
   })()`));
-  const desktopOverflow = await cdp.evaluate(`document.documentElement.scrollWidth>document.documentElement.clientWidth`);
-  if (desktopOverflow) throw new Error('Desktop profile has horizontal overflow.');
 
   const signature = { mobile: mobileLayout, desktop: desktopLayout };
   await writeFile('e2e-artifacts/layout-signature.json', JSON.stringify(signature, null, 2));
@@ -221,7 +239,7 @@ try {
     if (diffs.length) throw new Error(`Visual layout regression: ${diffs.slice(0, 12).join('; ')}`);
   }
 
-  console.log('Extended E2E OK: adaptive review, assisted import, history, meal timeline, AX tree, performance budgets and layout signature.');
+  console.log('Extended E2E OK: adaptive branching, assisted import, history, meal timeline, AX tree, performance budgets and layout signature.');
 } finally {
   cdp?.close();
   chrome?.kill('SIGTERM');
