@@ -1,4 +1,4 @@
-const CACHE = 'vitaframe-v1.1.0';
+const CACHE = 'vitaframe-v1.1.1';
 const ASSETS = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
   './meals.html',
   './adaptive.html',
   './assets/styles.css',
+  './assets/navigation.css',
   './assets/advanced.css',
   './assets/meals.css',
   './assets/adaptive.css',
