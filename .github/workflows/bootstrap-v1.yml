@@ -1,4 +1,5 @@
 # one-time V1 materializer — removes itself after successful delivery
+# retry after verified repair of final staged segment
 name: Bootstrap V1
 
 on:
