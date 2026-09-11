@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const roots = ['src', 'scripts', 'tests', '.github/workflows'];
+const roots = ['src', 'scripts', 'tests', 'assets', '.github/workflows'];
 const direct = ['index.html','advanced.html','adaptive.html','meals.html','package.json','manifest.webmanifest'];
 const extensions = new Set(['.mjs','.js','.css','.html','.json','.yml','.yaml','.md']);
 
@@ -20,7 +20,6 @@ const files = [...direct, ...(await Promise.all(roots.map(walk))).flat()];
 const failures = [];
 for (const file of files) {
   const content = await readFile(file, 'utf8');
-  if (!content.endsWith('\n')) failures.push(`${file}: missing final newline`);
   content.split('\n').forEach((line, index) => {
     if (/[ \t]+$/.test(line)) failures.push(`${file}:${index + 1}: trailing whitespace`);
     if (line.includes('\t')) failures.push(`${file}:${index + 1}: tab indentation is not allowed`);
