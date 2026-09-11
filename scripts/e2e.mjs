@@ -5,6 +5,7 @@ import process from 'node:process';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const port = 4173;
 const debugPort = 9222;
+const appUrl = `http://127.0.0.1:${port}/#home`;
 
 function findChrome() {
   const candidates = [process.env.CHROME_BIN, 'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'].filter(Boolean);
@@ -59,6 +60,19 @@ class CDP {
   close() { this.socket.close(); }
 }
 
+async function waitForPage(cdp, predicate, description, attempts = 80) {
+  let value;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      value = await cdp.evaluate(predicate);
+      if (value) return value;
+    } catch {}
+    await delay(100);
+  }
+  const diagnostics = await cdp.evaluate(`({href:location.href,title:document.title,readyState:document.readyState,body:document.body?.textContent?.slice(0,160)})`);
+  throw new Error(`Timeout waiting for ${description}: ${JSON.stringify(diagnostics)}`);
+}
+
 const server = spawn('python3', ['-m', 'http.server', String(port), '--bind', '127.0.0.1'], { stdio: 'ignore' });
 let chrome;
 let cdp;
@@ -67,32 +81,32 @@ try {
   const chromeBin = findChrome();
   chrome = spawn(chromeBin, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--no-proxy-server', `--remote-debugging-port=${debugPort}`,
-    '--remote-debugging-address=127.0.0.1', '--user-data-dir=/tmp/vitaframe-cdp', '--window-size=390,844', 'about:blank'
+    '--remote-debugging-address=127.0.0.1', '--remote-allow-origins=*', '--user-data-dir=/tmp/vitaframe-cdp',
+    '--window-size=390,844', appUrl
   ], { stdio: 'ignore' });
   const listResponse = await waitFor(`http://127.0.0.1:${debugPort}/json/list`);
   const pages = await listResponse.json();
-  if (!pages[0]?.webSocketDebuggerUrl) throw new Error('No CDP page target found.');
-  cdp = new CDP(pages[0].webSocketDebuggerUrl);
+  const page = pages.find(item => item.type === 'page' && item.webSocketDebuggerUrl) ?? pages[0];
+  if (!page?.webSocketDebuggerUrl) throw new Error('No CDP page target found.');
+  cdp = new CDP(page.webSocketDebuggerUrl);
   await cdp.open();
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/#home` });
-  await delay(800);
+  await cdp.send('Page.navigate', { url: appUrl });
+  await waitForPage(cdp, `document.readyState === 'complete' && document.title.includes('VitaFrame') && !!document.querySelector('h1')`, 'VitaFrame home');
 
   const home = await cdp.evaluate(`({title:document.title,h1:document.querySelector('h1')?.textContent,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth})`);
   if (!home.title.includes('VitaFrame') || !home.h1 || home.overflow) throw new Error(`Home smoke failed: ${JSON.stringify(home)}`);
 
   await cdp.evaluate(`document.querySelector('[data-action="start"]').click()`);
-  await delay(250);
-  if (!(await cdp.evaluate(`location.hash`)).includes('privacy')) throw new Error('Start must route to privacy before consent.');
+  await waitForPage(cdp, `location.hash.includes('privacy')`, 'privacy route');
   await cdp.evaluate(`document.querySelector('[data-action="consent"]').click()`);
-  await delay(200);
+  await waitForPage(cdp, `location.hash.includes('assessment') || location.hash.includes('home')`, 'post-consent route');
   await cdp.evaluate(`location.hash='#assessment?step=1'`);
-  await delay(350);
+  await waitForPage(cdp, `location.hash.includes('step=1') && !!document.querySelector('input[name="goal.primary"]')`, 'assessment step 1');
   await cdp.evaluate(`(() => { const x=document.querySelector('input[name="goal.primary"][value="fat-loss"]'); x.checked=true; x.dispatchEvent(new Event('change',{bubbles:true})); document.querySelector('[data-action="next"]').click(); })()`);
-  await delay(350);
-  if (!(await cdp.evaluate(`location.hash`)).includes('step=2')) throw new Error('Assessment did not advance to step 2.');
+  await waitForPage(cdp, `location.hash.includes('step=2')`, 'assessment step 2');
 
   const a11y = await cdp.evaluate(`(() => {
     const els=[...document.querySelectorAll('button,a,input:not([type="hidden"]),select,textarea')].filter(el=>!el.disabled && el.offsetParent!==null);
@@ -107,15 +121,15 @@ try {
 
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await cdp.evaluate(`location.hash='#profile'`);
-  await delay(400);
+  await waitForPage(cdp, `!!document.querySelector('.profile-page')`, 'profile page');
   await cdp.evaluate(`document.querySelector('#themeToggle').click()`);
-  await delay(100);
+  await waitForPage(cdp, `document.documentElement.dataset.theme === 'dark'`, 'dark theme');
   const desktop = await cdp.evaluate(`({profile:!!document.querySelector('.profile-page'),theme:document.documentElement.dataset.theme,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth})`);
   if (!desktop.profile || desktop.theme !== 'dark' || desktop.overflow) throw new Error(`Desktop/profile smoke failed: ${JSON.stringify(desktop)}`);
   const desktopShot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   await writeFile('e2e-artifacts/desktop-profile-dark.png', Buffer.from(desktopShot.data, 'base64'));
 
-  console.log('E2E OK: consent, assessment navigation, persistence path, mobile layout, accessible names, profile and dark theme.');
+  console.log('E2E OK: home, consent, assessment navigation, mobile layout/accessibility, profile and dark theme.');
 } finally {
   cdp?.close();
   chrome?.kill('SIGTERM');
