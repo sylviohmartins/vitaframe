@@ -23,7 +23,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .bootstrap.part00 .bootstrap.part01 .bootstrap.part02 .bootstrap.part03 .bootstrap.part04 .bootstrap.part05 | base64 --decode | tar -xzf -
+          sha256sum .bootstrap.part00 .bootstrap.part01 .bootstrap.part02 .bootstrap.part03 .bootstrap.part04 .bootstrap.part05
+          cat .bootstrap.part00 .bootstrap.part01 .bootstrap.part02 .bootstrap.part03 .bootstrap.part04 .bootstrap.part05 > /tmp/vitaframe.b64
+          sha256sum /tmp/vitaframe.b64
+          base64 --decode /tmp/vitaframe.b64 > /tmp/vitaframe.tgz
+          sha256sum /tmp/vitaframe.tgz
+          tar -xzf /tmp/vitaframe.tgz
           rm -f .bootstrap.tgz.b64 .bootstrap.part00 .bootstrap.part01 .bootstrap.part02 .bootstrap.part03 .bootstrap.part04 .bootstrap.part05 .github/workflows/bootstrap-v1.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
