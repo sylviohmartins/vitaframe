@@ -102,7 +102,7 @@ try {
   await cdp.evaluate(`document.querySelector('[data-action="start"]').click()`);
   await waitForPage(cdp, `location.hash.includes('privacy')`, 'privacy route');
   await cdp.evaluate(`document.querySelector('[data-action="consent"]').click()`);
-  await waitForPage(cdp, `location.hash.includes('assessment') || location.hash.includes('home')`, 'post-consent route');
+  await waitForPage(cdp, `location.hash.includes('privacy') && document.querySelector('#privacyButton')?.textContent.includes('Salvo neste dispositivo')`, 'consent enabled');
   await cdp.evaluate(`location.hash='#assessment?step=1'`);
   await waitForPage(cdp, `location.hash.includes('step=1') && !!document.querySelector('input[name="goal.primary"]')`, 'assessment step 1');
   await cdp.evaluate(`(() => { const x=document.querySelector('input[name="goal.primary"][value="fat-loss"]'); x.checked=true; x.dispatchEvent(new Event('change',{bubbles:true})); document.querySelector('[data-action="next"]').click(); })()`);
