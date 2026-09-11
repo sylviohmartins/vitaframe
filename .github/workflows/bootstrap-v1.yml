@@ -1,5 +1,4 @@
-# one-time V1 materializer — removes itself after successful delivery
-# retry after verified repair of final staged segment
+# one-time V1 materializer — workflow files are installed separately
 name: Bootstrap V1
 
 on:
@@ -32,11 +31,11 @@ jobs:
           echo "a525cde533e2a056cb06dabf6a03a0706cbb966f8a2b6a8157c9dc400e4b59d1  /tmp/vitaframe-v1.b64" | sha256sum -c -
           base64 --decode /tmp/vitaframe-v1.b64 > /tmp/vitaframe-v1.tgz
           echo "bdd954026ecbb5abd28d585149cfc53c21907dc411a2d3b2815e09c362f90529  /tmp/vitaframe-v1.tgz" | sha256sum -c -
-          tar -xzf /tmp/vitaframe-v1.tgz
-          rm -f .v1part* .bootstrap.part* .bootstrap.tgz.b64 .github/workflows/bootstrap-v1.yml
+          tar --exclude='.github/workflows/*' -xzf /tmp/vitaframe-v1.tgz
+          rm -f .v1part* .bootstrap.part* .bootstrap.tgz.b64
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && exit 0
-          git commit -m "feat: deliver VitaFrame V1"
+          git commit -m "feat: deliver VitaFrame V1 application"
           git push origin HEAD:feat/v1-complete
