@@ -1,4 +1,4 @@
-# one-time V1 materializer — diagnostic pass
+# one-time V1 materializer — removes itself after successful delivery
 name: Bootstrap V1
 
 on:
@@ -19,13 +19,23 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: feat/v1-complete
-      - name: Diagnose staged archive parts
+      - name: Verify and materialize V1 snapshot
         shell: bash
         run: |
           set -euo pipefail
-          wc -c .v1part*
-          sha256sum .v1part*
-          cat .v1part00 .v1part01 .v1part02 .v1part03 .v1part04 .v1part05 .v1part06 .v1part07 .v1part08 .v1part09 .v1part10 .v1part11 .v1part12 > /tmp/vitaframe-v1.b64
-          wc -c /tmp/vitaframe-v1.b64
-          sha256sum /tmp/vitaframe-v1.b64
-          exit 1
+          echo "fdc3e817edd77bc1aa8d1044be6503b8facaf76e26c2962e19b5010e013ef1c8  .v1part02a" | sha256sum -c -
+          echo "81c62af275ebb7eef8cad0032540a2f9dcfe7bad5169c4030e42ec9c6e93c310  .v1part02b" | sha256sum -c -
+          echo "462b9ba81723dd9600b71983e6b5c3af5f5b14bd0072abea483e2098e82e1762  .v1part02c" | sha256sum -c -
+          echo "b8f27914d5de0a61105f14671ea095fb1dbe2d7e4dd3737603ad2ca5c3417282  .v1part02d" | sha256sum -c -
+          cat .v1part00 .v1part01 .v1part02a .v1part02b .v1part02c .v1part02d .v1part03 .v1part04 .v1part05 .v1part06 .v1part07 .v1part08 .v1part09 .v1part10 .v1part11 .v1part12 > /tmp/vitaframe-v1.b64
+          echo "a525cde533e2a056cb06dabf6a03a0706cbb966f8a2b6a8157c9dc400e4b59d1  /tmp/vitaframe-v1.b64" | sha256sum -c -
+          base64 --decode /tmp/vitaframe-v1.b64 > /tmp/vitaframe-v1.tgz
+          echo "bdd954026ecbb5abd28d585149cfc53c21907dc411a2d3b2815e09c362f90529  /tmp/vitaframe-v1.tgz" | sha256sum -c -
+          tar -xzf /tmp/vitaframe-v1.tgz
+          rm -f .v1part* .bootstrap.part* .bootstrap.tgz.b64 .github/workflows/bootstrap-v1.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: deliver VitaFrame V1"
+          git push origin HEAD:feat/v1-complete
