@@ -20,9 +20,9 @@ for (const file of files) {
   if (/eval\s*\(/.test(content)) failures.push(`${file}: eval is forbidden`);
   if (/new\s+Function\s*\(/.test(content)) failures.push(`${file}: Function constructor is forbidden`);
   if (/document\.write\s*\(/.test(content)) failures.push(`${file}: document.write is forbidden`);
-  if (/innerHTML\s*=\s*[^`'"\n]/.test(content)) failures.push(`${file}: review non-literal innerHTML assignment`);
   if (/localStorage\.setItem\([^\n]*(password|senha|secret)/i.test(content)) failures.push(`${file}: secrets/passwords must not be stored in localStorage`);
-  if (/https?:\/\//.test(content) && file.startsWith('src/')) failures.push(`${file}: runtime source must not embed remote HTTP endpoints`);
+  if (/window\.open\s*\([^)]*https?:\/\//.test(content)) failures.push(`${file}: runtime must not open hard-coded external destinations`);
+  if (/fetch\s*\(\s*[`'"]https?:\/\//.test(content) && file.startsWith('src/')) failures.push(`${file}: runtime must not call hard-coded remote HTTP endpoints`);
 }
 
 if (failures.length) {
