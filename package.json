@@ -13,7 +13,7 @@
     "audit": "npm audit --audit-level=high",
     "build": "node scripts/build.mjs",
     "ci": "npm run format:check && npm run syntax && npm run lint && npm test && npm run quality && npm run audit && npm run build",
-    "e2e": "node scripts/e2e.mjs && node scripts/e2e-extended.mjs"
+    "e2e": "node scripts/e2e.mjs && node scripts/e2e-extended.mjs && node scripts/e2e-viewports.mjs"
   },
   "engines": {
     "node": ">=22"
