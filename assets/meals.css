@@ -1,6 +1,6 @@
 .meal-page { width: min(980px, calc(100% - 40px)); margin: 0 auto; padding: 68px 0 20px; }
 .meal-header { max-width: 800px; }
-.meal-header h1 { margin: 0; font-size: clamp(42px, 7vw, 72px); line-height: 1.02; letter-spacing: -.05em; }
+.meal-header h1 { margin: 0; font-size: clamp(42px, 7vw, 72px); line-height: 1.02; letter-spacing: -.025em; }
 .meal-header > p:last-child { max-width: 720px; color: var(--text-2); font-size: 18px; }
 .meal-toolbar { margin: 32px 0 46px; display: flex; flex-wrap: wrap; gap: 10px; }
 .meal-timeline { position: relative; display: grid; gap: 14px; margin-top: 24px; }
