@@ -74,6 +74,16 @@ export const foodCatalog = [
     ]
   },
   {
+    id: 'restaurants',
+    label: 'Restaurantes e contextos sociais',
+    items: [
+      'Restaurante por quilo / self-service', 'Prato feito / executivo', 'Churrascaria', 'Hamburgueria',
+      'Pizzaria', 'Restaurante japonês', 'Temakeria', 'Poke', 'Restaurante italiano', 'Comida mexicana',
+      'Padaria', 'Lanchonete', 'Fast-food', 'Cafeteria', 'Bar / petiscos', 'Rodízio', 'Delivery',
+      'Churrasco em família', 'Festa / aniversário', 'Happy hour'
+    ]
+  },
+  {
     id: 'meals',
     label: 'Refeições e comidas sociais',
     items: [
