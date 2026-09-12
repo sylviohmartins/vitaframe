@@ -16,8 +16,11 @@ const viewports = [
 ];
 
 const surfaces = [
-  ['home', '/index.html#home', '.hero'],
-  ['assessment', '/index.html#assessment?step=5', '.assessment-shell'],
+  ['home', '/index.html#home', '[data-vf-time-estimate]'],
+  ['preferences', '/index.html#assessment?step=5', '.food-category'],
+  ['training', '/index.html#assessment?step=7', '[data-vf-training-extra]'],
+  ['recovery', '/index.html#assessment?step=8', '[data-vf-behavior-extra]'],
+  ['profile', '/index.html#profile', '[data-vf-prompt-profile]'],
   ['adaptive', '/adaptive.html', '#questionHost'],
   ['meals', '/meals.html', '.meal-page'],
   ['advanced', '/advanced.html', '.advanced-page'],
