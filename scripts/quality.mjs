@@ -12,6 +12,7 @@ const adaptiveCss = await readFile('assets/adaptive.css', 'utf8');
 const app = await readFile('src/app.mjs', 'utf8');
 const promptCompliance = await readFile('src/prompt-compliance.mjs', 'utf8');
 const advancedApp = await readFile('src/advanced.mjs', 'utf8');
+const importConflictGuard = await readFile('src/import-conflict-guard.mjs', 'utf8');
 const mealsApp = await readFile('src/meals.mjs', 'utf8');
 const adaptiveApp = await readFile('src/adaptive-interview.mjs', 'utf8');
 const adaptiveLogic = await readFile('src/adaptive-interview-logic.mjs', 'utf8');
@@ -35,6 +36,7 @@ for (const [name, html] of htmlFiles) {
 }
 
 assert(index.includes('src/prompt-compliance.mjs'), 'Independent prompt-closure enhancements must load on the assessment surface.');
+assert(advanced.includes('src/import-conflict-guard.mjs'), 'Import conflict guard must load on the data-center surface.');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'Reduced motion support is required.');
 assert(css.includes('focus-visible'), 'Visible focus treatment is required.');
 assert(css.includes('min-height: 46px') || css.includes('height: 42px'), 'Comfortable touch target sizing expected.');
@@ -47,8 +49,9 @@ assert(app.includes('Não fazemos diagnóstico'), 'Diagnostic boundary must be v
 assert(sw.includes("event.request.method !== 'GET'"), 'Service worker must not cache mutation requests.');
 assert(sw.includes("new URL(event.request.url).origin !== location.origin"), 'Service worker must limit caching to same-origin requests.');
 assert(sw.includes("'./src/prompt-compliance.mjs'"), 'Offline cache must include the prompt compliance runtime.');
+assert(sw.includes("'./src/import-conflict-guard.mjs'"), 'Offline cache must include import conflict handling.');
 
-for (const [name, runtime] of [['assessment', app], ['prompt-compliance', promptCompliance], ['advanced', advancedApp], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
+for (const [name, runtime] of [['assessment', app], ['prompt-compliance', promptCompliance], ['advanced', advancedApp], ['import-conflict', importConflictGuard], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
   assert(!runtime.includes('XMLHttpRequest'), `${name} runtime must not use XHR.`);
   assert(!runtime.includes('navigator.sendBeacon'), `${name} runtime must not send analytics beacons.`);
   assert(!runtime.includes('fetch('), `${name} runtime must not send user health data to network.`);
@@ -56,6 +59,8 @@ for (const [name, runtime] of [['assessment', app], ['prompt-compliance', prompt
 assert(advancedApp.includes("'TextDetector' in window"), 'Image import must feature-detect local browser OCR.');
 assert(advancedApp.includes("name: 'AES-GCM'"), 'Secure export must use authenticated encryption.');
 assert(advancedApp.includes("name: 'PBKDF2'"), 'Secure export must derive keys from passphrases locally.');
+assert(importConflictGuard.includes("checkbox.checked = false"), 'Conflicting imported measurements must not overwrite current values by default.');
+assert(importConflictGuard.includes('Conflito:'), 'Import conflicts must be explained to the user.');
 assert(mealsApp.includes('mealTimeline'), 'Meal timeline data structure must be implemented.');
 assert(mealsApp.includes('foodSearch'), 'Meal timeline must support food search.');
 assert(mealsApp.includes('quantity'), 'Meal timeline must capture approximate quantity.');
@@ -73,7 +78,7 @@ assert(promptCompliance.includes('Tempo estimado:'), 'Onboarding must expose a c
 
 for (const file of [
   'assets/styles.css','assets/navigation.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
-  'src/app.mjs','src/prompt-compliance.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
+  'src/app.mjs','src/prompt-compliance.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/import-conflict-guard.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
   'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
   'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/e2e.mjs','scripts/e2e-extended.mjs','scripts/e2e-viewports.mjs',
   'tests/accessibility-contrast.test.mjs','tests/performance-static.test.mjs',
