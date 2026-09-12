@@ -1,33 +1,73 @@
 import { readFile, access } from 'node:fs/promises';
 
 const index = await readFile('index.html', 'utf8');
+const advanced = await readFile('advanced.html', 'utf8');
+const meals = await readFile('meals.html', 'utf8');
+const adaptive = await readFile('adaptive.html', 'utf8');
 const css = await readFile('assets/styles.css', 'utf8');
+const navigationCss = await readFile('assets/navigation.css', 'utf8');
+const advancedCss = await readFile('assets/advanced.css', 'utf8');
+const mealsCss = await readFile('assets/meals.css', 'utf8');
+const adaptiveCss = await readFile('assets/adaptive.css', 'utf8');
 const app = await readFile('src/app.mjs', 'utf8');
+const advancedApp = await readFile('src/advanced.mjs', 'utf8');
+const mealsApp = await readFile('src/meals.mjs', 'utf8');
+const adaptiveApp = await readFile('src/adaptive-interview.mjs', 'utf8');
+const adaptiveLogic = await readFile('src/adaptive-interview-logic.mjs', 'utf8');
+const localMetrics = await readFile('src/local-metrics.mjs', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
+const htmlFiles = [['index.html', index], ['advanced.html', advanced], ['meals.html', meals], ['adaptive.html', adaptive]];
 
-assert(index.includes('lang="pt-BR"'), 'HTML must declare pt-BR language.');
-assert(index.includes('viewport-fit=cover'), 'Viewport must support safe areas.');
-assert(index.includes('Content-Security-Policy'), 'CSP must be present.');
-assert(index.includes('default-src \'self\''), 'CSP must default to self.');
-assert(index.includes('connect-src \'self\''), 'CSP must restrict network connections.');
-assert(index.includes('class="skip-link"'), 'Skip link is required.');
-assert(index.includes('<main id="main"'), 'Main landmark is required.');
-assert(!/<script[^>]+src=["']https?:/i.test(index), 'Runtime remote scripts are forbidden.');
-assert(!/<link[^>]+href=["']https?:/i.test(index), 'Runtime remote styles/fonts are forbidden.');
+for (const [name, html] of htmlFiles) {
+  assert(html.includes('lang="pt-BR"'), `${name} must declare pt-BR language.`);
+  assert(html.includes('viewport-fit=cover'), `${name} viewport must support safe areas.`);
+  assert(html.includes('Content-Security-Policy'), `${name} CSP must be present.`);
+  assert(html.includes('default-src \'self\''), `${name} CSP must default to self.`);
+  assert(html.includes('connect-src \'self\''), `${name} CSP must restrict network connections.`);
+  assert(html.includes('class="skip-link"'), `${name} skip link is required.`);
+  assert(html.includes('<main id="main"'), `${name} main landmark is required.`);
+  assert(!/<script[^>]+src=["']https?:/i.test(html), `${name} runtime remote scripts are forbidden.`);
+  assert(!/<link[^>]+href=["']https?:/i.test(html), `${name} runtime remote styles/fonts are forbidden.`);
+}
+
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'Reduced motion support is required.');
 assert(css.includes('focus-visible'), 'Visible focus treatment is required.');
 assert(css.includes('min-height: 46px') || css.includes('height: 42px'), 'Comfortable touch target sizing expected.');
+assert(navigationCss.includes('@media (max-width: 820px)'), 'Main secondary navigation must collapse on narrower screens.');
+assert(advancedCss.includes('@media (max-width: 640px)'), 'Advanced center must have mobile-specific layout.');
+assert(mealsCss.includes('@media (max-width: 640px)'), 'Meal timeline must have mobile-specific layout.');
+assert(adaptiveCss.includes('@media (max-width: 800px)'), 'Adaptive interview must have mobile-specific layout.');
 assert(app.includes('não prescreve') || app.includes('não transforma esses dados em prescrição'), 'Safety boundary must be visible in UI copy.');
 assert(app.includes('Não fazemos diagnóstico'), 'Diagnostic boundary must be visible.');
 assert(sw.includes("event.request.method !== 'GET'"), 'Service worker must not cache mutation requests.');
-assert(!app.includes('fetch('), 'Assessment runtime must not send user data to network.');
-assert(!app.includes('XMLHttpRequest'), 'Assessment runtime must not use XHR.');
-assert(!app.includes('navigator.sendBeacon'), 'Assessment runtime must not send analytics beacons.');
+assert(sw.includes("new URL(event.request.url).origin !== location.origin"), 'Service worker must limit caching to same-origin requests.');
 
-for (const file of ['assets/styles.css','src/app.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js','README.md','PRIVACY.md','SECURITY.md']) {
+for (const [name, runtime] of [['assessment', app], ['advanced', advancedApp], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
+  assert(!runtime.includes('XMLHttpRequest'), `${name} runtime must not use XHR.`);
+  assert(!runtime.includes('navigator.sendBeacon'), `${name} runtime must not send analytics beacons.`);
+  assert(!runtime.includes('fetch('), `${name} runtime must not send user health data to network.`);
+}
+assert(advancedApp.includes("'TextDetector' in window"), 'Image import must feature-detect local browser OCR.');
+assert(advancedApp.includes("name: 'AES-GCM'"), 'Secure export must use authenticated encryption.');
+assert(advancedApp.includes("name: 'PBKDF2'"), 'Secure export must derive keys from passphrases locally.');
+assert(mealsApp.includes('mealTimeline'), 'Meal timeline data structure must be implemented.');
+assert(localMetrics.includes('stepVisits'), 'Local funnel metrics must track abstract step visits.');
+assert(adaptiveLogic.includes("lifestyle.alcoholUse === 'yes'"), 'Adaptive interview must branch alcohol follow-up on prior answer.');
+assert(adaptiveLogic.includes('days != null && days > 0'), 'Adaptive interview must omit training detail questions when training does not apply.');
+assert(adaptiveApp.includes('adaptiveSkipped'), 'Adaptive interview must support explicit skip state.');
+
+for (const file of [
+  'assets/styles.css','assets/navigation.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
+  'src/app.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
+  'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
+  'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/e2e.mjs','scripts/e2e-extended.mjs',
+  'README.md','PRODUCT.md','ARCHITECTURE.md','DATA_MODEL.md','DESIGN.md','UX.md','PRIVACY.md','SECURITY.md','AI_GUARDRAILS.md',
+  'TESTING.md','ACCESSIBILITY.md','PERFORMANCE.md','VALIDATION.md','ROADMAP.md','REQUIREMENTS.md','CI.md','DECISIONS.md',
+  'docs/RESEARCH.md','docs/REGULATORY.md','advanced.html','meals.html','adaptive.html'
+]) {
   try { await access(file); } catch { failures.push(`Missing required file: ${file}`); }
 }
 

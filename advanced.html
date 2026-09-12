@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Centro local de inteligência, histórico, importação e revisão profissional do VitaFrame.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <title>VitaFrame — Centro de dados e revisão</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <link rel="stylesheet" href="./assets/advanced.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html#home" aria-label="VitaFrame — início">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VitaFrame</span>
+      </a>
+      <div class="topbar-actions">
+        <a class="button secondary compact" href="./index.html#profile">Meu perfil</a>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema">◐</button>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1" class="advanced-page">
+      <section class="advanced-hero">
+        <h1>Dados mais úteis, processados no seu dispositivo.</h1>
+        <p>Histórico, revisão adaptativa, importação assistida, exportação criptografada e handoff profissional — sem enviar seus dados de saúde para terceiros.</p>
+        <div class="advanced-status" id="privacyStatus" role="status"></div>
+      </section>
+
+      <nav class="advanced-nav" aria-label="Seções do centro de dados">
+        <a href="#adaptive">Revisão adaptativa</a>
+        <a href="#import">Importar</a>
+        <a href="#history">Histórico</a>
+        <a href="#professional">Revisão profissional</a>
+        <a href="#secure">Compartilhar com proteção</a>
+        <a href="#metrics">Métricas locais</a>
+      </nav>
+
+      <section id="adaptive" class="advanced-section" aria-labelledby="adaptive-title">
+        <div class="section-copy">
+          <p class="eyebrow">Branching local</p>
+          <h2 id="adaptive-title">Pergunte apenas o que ainda faz diferença.</h2>
+          <p>O motor adaptativo procura lacunas e inconsistências no perfil atual. Ele não diagnostica e não inventa respostas.</p>
+        </div>
+        <div id="adaptiveList" class="adaptive-list"></div>
+      </section>
+
+      <section id="import" class="advanced-section" aria-labelledby="import-title">
+        <div class="section-copy">
+          <p class="eyebrow">Importação inteligente</p>
+          <h2 id="import-title">Extraia localmente quando o navegador permitir.</h2>
+          <p>Imagens podem ser processadas pelo recurso nativo <code>TextDetector</code> quando disponível. Caso contrário, cole o texto extraído pelo próprio aparelho. Nada é enviado para uma API externa.</p>
+        </div>
+        <div class="advanced-card">
+          <label class="field field-wide">
+            <span>Screenshot de balança / app de saúde</span>
+            <input id="healthImage" type="file" accept="image/*">
+            <small>Suporta OCR nativo apenas em navegadores que oferecem TextDetector.</small>
+          </label>
+          <div id="imagePreviewWrap" hidden>
+            <img id="imagePreview" class="image-preview" src="./assets/import-preview-placeholder.svg" alt="Prévia do screenshot selecionado">
+          </div>
+          <label class="field field-wide">
+            <span>Ou cole aqui o texto do relatório</span>
+            <textarea id="healthText" rows="8" placeholder="Ex.: Peso 89,65 kg · Gordura corporal 28,2% · Água 49,2% ..."></textarea>
+          </label>
+          <div class="inline-actions">
+            <button class="button primary" id="detectButton" type="button">Identificar dados</button>
+            <button class="button secondary" id="clearImportButton" type="button">Limpar</button>
+          </div>
+          <div id="detectedResults" class="detected-results" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="history" class="advanced-section" aria-labelledby="history-title">
+        <div class="section-copy">
+          <p class="eyebrow">Versionamento</p>
+          <h2 id="history-title">Preserve medições em vez de sobrescrevê-las.</h2>
+          <p>Salve um snapshot explícito para acompanhar peso, cintura, gordura estimada e contexto de treino ao longo do tempo.</p>
+        </div>
+        <div class="advanced-card">
+          <div class="inline-actions">
+            <button class="button primary" id="snapshotButton" type="button">Salvar medição atual no histórico</button>
+            <button class="button secondary" id="exportHistoryButton" type="button">Exportar histórico</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+
+      <section id="professional" class="advanced-section" aria-labelledby="professional-title">
+        <div class="section-copy">
+          <p class="eyebrow">Handoff</p>
+          <h2 id="professional-title">Uma camada de revisão, não uma prescrição automática.</h2>
+          <p>Use o espaço abaixo para registrar observações de um profissional habilitado sem misturá-las com as respostas originais do usuário.</p>
+        </div>
+        <form id="professionalForm" class="advanced-card form-grid">
+          <label class="field">
+            <span>Tipo de revisão</span>
+            <select name="type">
+              <option value="">Selecione</option>
+              <option value="nutrition">Nutrição</option>
+              <option value="physical-education">Educação Física</option>
+              <option value="medical">Médica</option>
+              <option value="other">Outra</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Status</span>
+            <select name="status">
+              <option value="pending">Pendente</option>
+              <option value="reviewed">Revisado</option>
+              <option value="clarification">Precisa de esclarecimentos</option>
+            </select>
+          </label>
+          <label class="field field-wide">
+            <span>Pontos a esclarecer</span>
+            <textarea name="clarifications" rows="4" placeholder="Ex.: confirmar data da bioimpedância; detalhar dor durante agachamento..."></textarea>
+          </label>
+          <label class="field field-wide">
+            <span>Observações profissionais</span>
+            <textarea name="notes" rows="5" placeholder="Não use este campo para simular prescrição por IA."></textarea>
+          </label>
+          <div class="field-wide inline-actions">
+            <button class="button primary" type="submit">Salvar revisão local</button>
+            <button class="button secondary" id="clearReviewButton" type="button">Limpar revisão</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="secure" class="advanced-section" aria-labelledby="secure-title">
+        <div class="section-copy">
+          <p class="eyebrow">Portabilidade</p>
+          <h2 id="secure-title">Compartilhe um arquivo criptografado, não um link público.</h2>
+          <p>A V1 usa PBKDF2 + AES-GCM via Web Crypto para proteger uma cópia exportada. A senha não é armazenada.</p>
+        </div>
+        <div class="advanced-card form-grid">
+          <label class="field field-wide">
+            <span>Senha do arquivo</span>
+            <input id="securePassword" type="password" autocomplete="new-password" minlength="10" placeholder="Use uma senha longa e envie-a por outro canal">
+          </label>
+          <div class="field-wide inline-actions">
+            <button class="button primary" id="encryptedExportButton" type="button">Exportar arquivo criptografado</button>
+          </div>
+          <label class="field field-wide">
+            <span>Abrir arquivo .vfsecure</span>
+            <input id="encryptedImportFile" type="file" accept="application/json,.vfsecure">
+          </label>
+          <button class="button secondary field-wide" id="encryptedImportButton" type="button">Descriptografar e importar</button>
+          <p class="field-wide microcopy" id="secureStatus" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="metrics" class="advanced-section" aria-labelledby="metrics-title">
+        <div class="section-copy">
+          <p class="eyebrow">Analytics privacy-first</p>
+          <h2 id="metrics-title">Métricas úteis sem telemetria de saúde.</h2>
+          <p>Os indicadores abaixo são calculados localmente. Nenhum evento ou resposta é transmitido para um servidor.</p>
+        </div>
+        <div id="metricsGrid" class="metrics-grid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>VitaFrame V1 · dados locais por padrão.</p>
+      <nav aria-label="Links do rodapé">
+        <a href="./index.html#references">Referências</a>
+        <a href="./index.html#privacy">Privacidade</a>
+        <a href="./index.html#home">Início</a>
+      </nav>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="./src/advanced.mjs"></script>
+</body>
+</html>

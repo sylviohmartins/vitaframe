@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Entrevista adaptativa local do VitaFrame que pergunta somente o que ainda é relevante.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <title>VitaFrame — Entrevista adaptativa</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <link rel="stylesheet" href="./assets/adaptive.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html#home" aria-label="VitaFrame — início"><span class="brand-mark" aria-hidden="true">V</span><span>VitaFrame</span></a>
+      <div class="topbar-actions">
+        <a class="button secondary compact" href="./advanced.html">Centro de dados</a>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema">◐</button>
+      </div>
+    </header>
+    <main id="main" tabindex="-1" class="adaptive-page">
+      <section class="adaptive-shell">
+        <div class="adaptive-intro">
+          <h1>Só o que ainda faz diferença.</h1>
+          <p>Esta entrevista adapta a próxima pergunta ao que você já informou. O que deixa de ser relevante é omitido, e qualquer pergunta pode ser pulada sem inventar uma resposta.</p>
+          <div id="adaptiveProgress" class="adaptive-progress" aria-live="polite"></div>
+        </div>
+        <div id="questionHost" class="question-host"></div>
+      </section>
+    </main>
+    <footer class="site-footer"><p>VitaFrame V1 · branching local e transparente.</p><nav aria-label="Links do rodapé"><a href="./index.html#assessment?step=1">Avaliação completa</a><a href="./advanced.html">Centro de dados</a></nav></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="./src/adaptive-interview.mjs"></script>
+</body>
+</html>

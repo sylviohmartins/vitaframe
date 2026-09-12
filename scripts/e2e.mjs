@@ -4,7 +4,6 @@ import process from 'node:process';
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const port = 4173;
-const debugPort = 9222;
 const appUrl = `http://127.0.0.1:${port}/#home`;
 
 function findChrome() {
@@ -16,7 +15,7 @@ function findChrome() {
   throw new Error('Chrome/Chromium not found.');
 }
 
-async function waitFor(url, attempts = 80) {
+async function waitFor(url, attempts = 100) {
   for (let i = 0; i < attempts; i += 1) {
     try {
       const response = await fetch(url);
@@ -25,6 +24,33 @@ async function waitFor(url, attempts = 80) {
     await delay(100);
   }
   throw new Error(`Timeout waiting for ${url}`);
+}
+
+function waitForDevTools(child, timeoutMs = 12000) {
+  return new Promise((resolve, reject) => {
+    let stderr = '';
+    let settled = false;
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn(value);
+    };
+    const timer = setTimeout(() => {
+      finish(reject, new Error(`Timeout waiting for Chrome DevTools endpoint. Chrome stderr: ${stderr.slice(-2000)}`));
+    }, timeoutMs);
+
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', chunk => {
+      stderr = `${stderr}${chunk}`.slice(-6000);
+      const match = stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/);
+      if (match) finish(resolve, match[1]);
+    });
+    child.once('error', error => finish(reject, error));
+    child.once('exit', (code, signal) => {
+      if (!settled) finish(reject, new Error(`Chrome exited before DevTools became ready (code=${code}, signal=${signal}). ${stderr.slice(-2000)}`));
+    });
+  });
 }
 
 class CDP {
@@ -60,7 +86,7 @@ class CDP {
   close() { this.socket.close(); }
 }
 
-async function waitForPage(cdp, predicate, description, attempts = 80) {
+async function waitForPage(cdp, predicate, description, attempts = 100) {
   let value;
   for (let i = 0; i < attempts; i += 1) {
     try {
@@ -80,11 +106,14 @@ try {
   await waitFor(`http://127.0.0.1:${port}/`);
   const chromeBin = findChrome();
   chrome = spawn(chromeBin, [
-    '--headless=new', '--no-sandbox', '--disable-gpu', '--no-proxy-server', `--remote-debugging-port=${debugPort}`,
-    '--remote-debugging-address=127.0.0.1', '--remote-allow-origins=*', '--user-data-dir=/tmp/vitaframe-cdp',
-    '--window-size=390,844', appUrl
-  ], { stdio: 'ignore' });
-  const listResponse = await waitFor(`http://127.0.0.1:${debugPort}/json/list`);
+    '--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-proxy-server',
+    '--remote-debugging-port=0', '--remote-debugging-address=127.0.0.1', '--remote-allow-origins=*',
+    `--user-data-dir=/tmp/vitaframe-cdp-${process.pid}`, '--window-size=390,844', appUrl
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+
+  const browserWs = await waitForDevTools(chrome);
+  const debuggerUrl = new URL(browserWs);
+  const listResponse = await waitFor(`http://${debuggerUrl.hostname}:${debuggerUrl.port}/json/list`);
   const pages = await listResponse.json();
   const page = pages.find(item => item.type === 'page' && item.webSocketDebuggerUrl) ?? pages[0];
   if (!page?.webSocketDebuggerUrl) throw new Error('No CDP page target found.');

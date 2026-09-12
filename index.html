@@ -10,6 +10,7 @@
   <title>VitaFrame — Seu contexto de saúde, bem estruturado</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./assets/styles.css">
+  <link rel="stylesheet" href="./assets/navigation.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Pular para o conteúdo</a>
@@ -20,6 +21,8 @@
         <span>VitaFrame</span>
       </a>
       <div class="topbar-actions">
+        <a class="button secondary compact" href="./adaptive.html">Entrevista adaptativa</a>
+        <a class="button secondary compact" href="./advanced.html">Centro de dados</a>
         <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema">◐</button>
         <button class="privacy-chip" id="privacyButton" type="button"><span class="status-dot" aria-hidden="true"></span> Local e privado</button>
       </div>
@@ -32,6 +35,9 @@
     <footer class="site-footer">
       <p>VitaFrame V1 · Ferramenta de organização e educação. Não substitui avaliação profissional.</p>
       <nav aria-label="Links do rodapé">
+        <a href="./adaptive.html">Entrevista adaptativa</a>
+        <a href="./meals.html">Meu dia alimentar</a>
+        <a href="./advanced.html">Centro de dados</a>
         <a href="#references">Referências</a>
         <a href="#privacy">Privacidade</a>
       </nav>
@@ -40,5 +46,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="./src/app.mjs"></script>
+  <script type="module" src="./src/local-metrics.mjs"></script>
 </body>
 </html>
