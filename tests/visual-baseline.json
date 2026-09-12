@@ -1,0 +1,54 @@
+{
+  "mobile": {
+    ".topbar": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 88
+    },
+    ".hero h1": {
+      "x": 16,
+      "y": 76,
+      "width": 358,
+      "height": 191
+    },
+    ".hero-actions": {
+      "x": 16,
+      "y": 437,
+      "width": 358,
+      "height": 102
+    },
+    ".hero-panel": {
+      "x": 16,
+      "y": 653,
+      "width": 358,
+      "height": 403
+    }
+  },
+  "desktop": {
+    ".topbar": {
+      "x": 0,
+      "y": 0,
+      "width": 1425,
+      "height": 64
+    },
+    ".profile-page": {
+      "x": 123,
+      "y": 64,
+      "width": 1180,
+      "height": 1973
+    },
+    ".profile-hero": {
+      "x": 123,
+      "y": 486,
+      "width": 1180,
+      "height": 126
+    },
+    ".profile-columns": {
+      "x": 123,
+      "y": 641,
+      "width": 1180,
+      "height": 584
+    }
+  }
+}
