@@ -24,20 +24,21 @@
     <main id="main" tabindex="-1" class="meal-page">
       <section class="meal-header">
         <h1>Mapeie um dia real, refeição por refeição.</h1>
-        <p>Adicione, remova e reordene refeições. Horário e quantidade podem ficar como “não sei”. O objetivo é representar sua rotina alimentar atual, não montar uma dieta.</p>
+        <p>Adicione, remova e reordene refeições. Busque alimentos para lembrar opções e, quando souber, informe quantidade e frequência. Horário ou quantidade também podem ficar como “não sei”. O objetivo é representar sua rotina alimentar atual, não montar uma dieta.</p>
       </section>
       <section class="meal-toolbar" aria-label="Ações do mapa alimentar">
         <button class="button primary" id="addMeal" type="button">Adicionar refeição</button>
         <button class="button secondary" id="seedMeals" type="button">Usar estrutura comum</button>
         <button class="button secondary" id="clearMeals" type="button">Limpar mapa</button>
       </section>
+      <datalist id="mealFoodOptions"></datalist>
       <section aria-labelledby="timelineTitle">
         <div class="section-title"><div><p class="eyebrow">Dia típico</p><h2 id="timelineTitle">Linha do tempo</h2></div><span id="mealCount"></span></div>
         <div id="mealTimeline" class="meal-timeline" aria-live="polite"></div>
       </section>
       <section class="meal-footer-card">
         <h2>Como usar este mapa</h2>
-        <p>Descreva o que normalmente acontece. Se a quantidade não for conhecida, marque a opção correspondente. Uma futura análise deve tratar “não sei” como dado ausente, nunca como zero.</p>
+        <p>Descreva o que normalmente acontece. A busca é apenas um auxílio de memória. Se a quantidade não for conhecida, marque a opção correspondente. Uma futura análise deve tratar “não sei” como dado ausente, nunca como zero.</p>
         <a class="button primary" href="./index.html#assessment?step=5">Continuar para preferências</a>
       </section>
     </main>
