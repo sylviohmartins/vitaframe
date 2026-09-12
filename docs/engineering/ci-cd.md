@@ -2,106 +2,55 @@
 
 ## CI obrigatório
 
-`CI / quality-gate` agrega três jobs materiais:
+`CI / quality-gate` agrega quatro jobs materiais:
 
-- `quality`: instalação determinística, sintaxe, unit tests e quality checks;
-- `e2e`: E2E principal + estendido, acessibilidade objetiva, performance laboratorial, screenshots e regressão visual quando baseline existe;
-- `impeccable`: detector fixado em versão explícita para todas as superfícies V1.
+- `quality`: instalação determinística, formatação, sintaxe, lint, unit/quality tests, estrutura, links, regras de qualidade, audit e build;
+- `e2e`: E2E principal + estendido + matriz de viewports, acessibilidade objetiva, performance e regressão visual;
+- `impeccable`: detector fixado em versão explícita para todas as superfícies V1;
+- `security`: CodeQL no próprio workflow principal.
 
-O job estável `quality-gate` somente passa se os três concluírem com `success`.
+O job estável `quality-gate` somente passa se todos concluírem com `success`.
 
 ## Triggers
 
-CI executa em:
-- Pull Requests contra `main`;
-- push em `main`;
-- branches `feat/**`, `fix/**`, `refactor/**`, `chore/**`;
-- `merge_group` quando usado.
-
-`concurrency` cancela execuções obsoletas fora da `main`.
+CI executa em Pull Requests contra `main`, push em `main`, branches de trabalho reconhecidas e `merge_group`. `concurrency` cancela execuções obsoletas fora da `main`.
 
 ## Security
 
-`Security / codeql` executa:
-- em PR contra `main`;
-- em push para `main`;
-- semanalmente.
+O workflow independente `Security / codeql` executa em PR contra `main`, push para `main` e semanalmente.
 
 ## Preview
 
-`.github/workflows/preview.yml` valida PRs e publica um **artifact de preview estático** com a aplicação pronta para inspeção. A V1 não inventa uma URL pública de preview porque nenhum provedor externo foi configurado.
+`.github/workflows/preview.yml` valida PRs e publica um artifact de preview estático. A V1 não inventa URL pública de preview sem provedor configurado.
 
 ## Production deploy
 
-`.github/workflows/deploy.yml` implementa GitHub Pages com:
-- permissões mínimas necessárias a Pages/OIDC;
-- environment `production`;
-- upload do site estático;
-- deploy;
-- smoke test HTTP pós-deploy.
-
-Para evitar workflow propositalmente quebrado em repositório sem Pages configurado, o deploy só executa quando a variável de repositório:
-
-`ENABLE_PAGES_DEPLOY=true`
-
-estiver configurada e Pages estiver habilitado. Essa configuração administrativa é uma dependência externa, não algo que deve ser falsificado no código.
+`.github/workflows/deploy.yml` implementa GitHub Pages com environment `production`, upload do site estático, deploy e smoke test. O deploy só executa quando `ENABLE_PAGES_DEPLOY=true` e Pages estiver habilitado.
 
 ## Scheduled validation
 
-`.github/workflows/scheduled.yml` roda semanalmente e também aceita `workflow_dispatch`:
-- CI;
-- E2E ampliado;
-- Impeccable;
-- artefatos de validação.
-
-CodeQL mantém seu próprio schedule.
+`.github/workflows/scheduled.yml` executa validação periódica ampliada. CodeQL mantém seu próprio schedule.
 
 ## Supply chain
 
-Actions utilizadas são de publishers oficiais e fixadas por commit SHA completo. Dependabot verifica GitHub Actions semanalmente. O projeto não possui dependências runtime npm na V1.
+Actions de terceiros utilizadas são de publishers oficiais e fixadas por commit SHA completo. Dependabot verifica GitHub Actions. O projeto não possui dependências runtime npm na V1.
 
-## Branch protection recomendada/obrigatória para operação contínua
+## Governança da estrutura
 
-Configurar Ruleset para `main` exigindo:
-- Pull Request;
-- `CI / quality-gate`;
-- `Security / codeql`;
-- conversas resolvidas;
-- bloqueio de force push/delete;
-- squash merge.
+`npm run structure` aplica o root budget e a taxonomia de docs/testes. `npm run links` valida links Markdown relativos. Isso impede regressão silenciosa da organização do repositório.
 
-**Limitação operacional:** a conexão GitHub disponível ao agente não possui ação administrativa para criar/alterar Rulesets/branch protection. Portanto o repositório pode conter todos os checks e ainda depender de configuração administrativa no GitHub para torná-los obrigatórios. `REQUIREMENTS.md` registra esse item como dependência externa até ser habilitado.
+## Branch protection recomendada
+
+Configurar Ruleset para `main` exigindo Pull Request, `CI / quality-gate`, `Security / codeql`, conversas resolvidas e bloqueio de force push/delete. A conexão do agente não possui permissão administrativa para aplicar Rulesets; o item permanece explicitamente rastreado em [`../product/requirements.md`](../product/requirements.md).
 
 ## Merge strategy
 
-Preferência: **Squash and Merge**. Commits do branch podem permanecer granulares, enquanto `main` recebe uma unidade semântica por PR.
+Preferência: **Squash and Merge**.
 
 ## Artefatos
 
-CI publica somente itens úteis e sem dados reais de usuário:
-- screenshots de estado de teste sintético;
-- assinatura de layout;
-- performance laboratorial;
-- relatórios do Impeccable;
-- preview estático.
-
-Nunca inserir dados pessoais/sensíveis reais em fixtures ou artifacts.
-
-## Diagnóstico de falhas
-
-Falha obrigatória deve ser corrigida, não ocultada. É proibido usar `continue-on-error` para mascarar quality gate, remover teste somente para obter verde ou declarar sucesso sem execução real.
+CI publica somente itens úteis e sem dados reais de usuário: screenshots sintéticos, assinatura de layout, performance laboratorial, relatórios do Impeccable e preview estático.
 
 ## Definition of Done técnica
 
-Para alteração material:
-1. implementação;
-2. `npm run ci`;
-3. E2E aplicável;
-4. acessibilidade objetiva;
-5. performance/layout aplicável;
-6. Impeccable;
-7. CodeQL;
-8. PR;
-9. checks verdes;
-10. squash merge;
-11. checks verdes novamente na `main`.
+Para alteração material: implementação → `npm run ci` → E2E → acessibilidade/performance aplicável → Impeccable → CodeQL → PR → checks verdes → squash merge → checks verdes na `main`.

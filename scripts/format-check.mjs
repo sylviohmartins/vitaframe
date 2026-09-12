@@ -1,8 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const roots = ['src', 'scripts', 'tests', 'assets', '.github/workflows'];
-const direct = ['index.html','advanced.html','adaptive.html','meals.html','package.json','manifest.webmanifest'];
+const roots = ['src', 'scripts', 'tests', 'assets', 'docs', '.github'];
+const direct = ['index.html','advanced.html','adaptive.html','meals.html','package.json','manifest.webmanifest','README.md','SECURITY.md'];
 const extensions = new Set(['.mjs','.js','.css','.html','.json','.yml','.yaml','.md']);
 
 async function walk(dir) {

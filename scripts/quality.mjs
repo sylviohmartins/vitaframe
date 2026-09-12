@@ -27,8 +27,8 @@ for (const [name, html] of htmlFiles) {
   assert(html.includes('lang="pt-BR"'), `${name} must declare pt-BR language.`);
   assert(html.includes('viewport-fit=cover'), `${name} viewport must support safe areas.`);
   assert(html.includes('Content-Security-Policy'), `${name} CSP must be present.`);
-  assert(html.includes('default-src \'self\''), `${name} CSP must default to self.`);
-  assert(html.includes('connect-src \'self\''), `${name} CSP must restrict network connections.`);
+  assert(html.includes("default-src 'self'"), `${name} CSP must default to self.`);
+  assert(html.includes("connect-src 'self'"), `${name} CSP must restrict network connections.`);
   assert(html.includes('class="skip-link"'), `${name} skip link is required.`);
   assert(html.includes('<main id="main"'), `${name} main landmark is required.`);
   assert(!/<script[^>]+src=["']https?:/i.test(html), `${name} runtime remote scripts are forbidden.`);
@@ -80,11 +80,17 @@ for (const file of [
   'assets/styles.css','assets/navigation.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
   'src/app.mjs','src/prompt-compliance.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/import-conflict-guard.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
   'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
-  'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/e2e.mjs','scripts/e2e-extended.mjs','scripts/e2e-viewports.mjs',
-  'tests/accessibility-contrast.test.mjs','tests/performance-static.test.mjs',
-  'README.md','PRODUCT.md','ARCHITECTURE.md','DATA_MODEL.md','DESIGN.md','UX.md','PRIVACY.md','SECURITY.md','AI_GUARDRAILS.md',
-  'TESTING.md','ACCESSIBILITY.md','PERFORMANCE.md','VALIDATION.md','ROADMAP.md','REQUIREMENTS.md','CI.md','DECISIONS.md',
-  'docs/RESEARCH.md','docs/REGULATORY.md','docs/EVIDENCE_MAP.md','docs/PROMPT_AUDIT.md','advanced.html','meals.html','adaptive.html'
+  'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/check-structure.mjs','scripts/check-links.mjs',
+  'tests/e2e/smoke.mjs','tests/e2e/extended.mjs','tests/e2e/viewports.mjs',
+  'tests/quality/accessibility-contrast.test.mjs','tests/quality/performance-static.test.mjs','tests/visual-baseline.json',
+  'README.md','SECURITY.md','.editorconfig','docs/README.md',
+  'docs/product/product.md','docs/product/roadmap.md','docs/product/requirements.md',
+  'docs/architecture/overview.md','docs/architecture/data-model.md','docs/architecture/decisions.md',
+  'docs/design/design-system.md','docs/design/ux-architecture.md','docs/design/accessibility.md','docs/design/visual-qa.md',
+  'docs/engineering/testing.md','docs/engineering/performance.md','docs/engineering/ci-cd.md',
+  'docs/governance/privacy.md','docs/governance/security.md','docs/governance/ai-guardrails.md','docs/governance/regulatory.md',
+  'docs/research/market.md','docs/research/validation-plan.md','docs/research/evidence-map.md','docs/audits/prompt-v1.md',
+  'advanced.html','meals.html','adaptive.html'
 ]) {
   try { await access(file); } catch { failures.push(`Missing required file: ${file}`); }
 }
