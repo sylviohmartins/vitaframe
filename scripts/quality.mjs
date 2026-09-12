@@ -59,7 +59,7 @@ for (const [name, runtime] of [['assessment', app], ['prompt-compliance', prompt
 assert(advancedApp.includes("'TextDetector' in window"), 'Image import must feature-detect local browser OCR.');
 assert(advancedApp.includes("name: 'AES-GCM'"), 'Secure export must use authenticated encryption.');
 assert(advancedApp.includes("name: 'PBKDF2'"), 'Secure export must derive keys from passphrases locally.');
-assert(importConflictGuard.includes("checkbox.checked = false"), 'Conflicting imported measurements must not overwrite current values by default.');
+assert(importConflictGuard.includes('checkbox.checked = false'), 'Conflicting imported measurements must not overwrite current values by default.');
 assert(importConflictGuard.includes('Conflito:'), 'Import conflicts must be explained to the user.');
 assert(mealsApp.includes('mealTimeline'), 'Meal timeline data structure must be implemented.');
 assert(mealsApp.includes('foodSearch'), 'Meal timeline must support food search.');
@@ -84,7 +84,7 @@ for (const file of [
   'tests/accessibility-contrast.test.mjs','tests/performance-static.test.mjs',
   'README.md','PRODUCT.md','ARCHITECTURE.md','DATA_MODEL.md','DESIGN.md','UX.md','PRIVACY.md','SECURITY.md','AI_GUARDRAILS.md',
   'TESTING.md','ACCESSIBILITY.md','PERFORMANCE.md','VALIDATION.md','ROADMAP.md','REQUIREMENTS.md','CI.md','DECISIONS.md',
-  'docs/RESEARCH.md','docs/REGULATORY.md','advanced.html','meals.html','adaptive.html'
+  'docs/RESEARCH.md','docs/REGULATORY.md','docs/EVIDENCE_MAP.md','docs/PROMPT_AUDIT.md','advanced.html','meals.html','adaptive.html'
 ]) {
   try { await access(file); } catch { failures.push(`Missing required file: ${file}`); }
 }
