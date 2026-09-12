@@ -56,18 +56,20 @@ function persist() {
 function inputFor(question) {
   const existing = getPath(state, question.field) ?? '';
   if (question.type === 'select') {
-    return `<select id="adaptiveAnswer" aria-describedby="questionHelp"><option value="">Selecione</option>${question.options.map(([value, label]) => `<option value="${esc(value)}" ${String(existing) === String(value) ? 'selected' : ''}>${esc(label)}</option>`).join('')}</select>`;
+    return `<select id="adaptiveAnswer" aria-labelledby="adaptiveQuestionTitle" aria-describedby="questionHelp"><option value="">Selecione</option>${question.options.map(([value, label]) => `<option value="${esc(value)}" ${String(existing) === String(value) ? 'selected' : ''}>${esc(label)}</option>`).join('')}</select>`;
   }
   const attributes = [
     `type="${esc(question.type)}"`,
     `value="${esc(existing)}"`,
+    'aria-labelledby="adaptiveQuestionTitle"',
+    'aria-describedby="questionHelp"',
     question.min != null ? `min="${question.min}"` : '',
     question.max != null ? `max="${question.max}"` : '',
     question.step != null ? `step="${question.step}"` : '',
     question.type === 'number' ? 'inputmode="decimal"' : '',
   ].filter(Boolean).join(' ');
   const input = `<input id="adaptiveAnswer" ${attributes}>`;
-  return question.suffix ? `<div class="suffix-wrap">${input}<span>${esc(question.suffix)}</span></div>` : input;
+  return question.suffix ? `<div class="suffix-wrap">${input}<span aria-hidden="true">${esc(question.suffix)}</span></div>` : input;
 }
 
 function fullAssessmentTarget(question) {
@@ -99,7 +101,7 @@ function render() {
   progress.textContent = `${questions.length} pergunta${questions.length === 1 ? '' : 's'} contextual${questions.length === 1 ? '' : 'is'} restante${questions.length === 1 ? '' : 's'}${skippedCount ? ` · ${skippedCount} pulada${skippedCount === 1 ? '' : 's'}` : ''}`;
   host.innerHTML = `<form id="adaptiveForm" class="question-card" novalidate>
     <span class="domain">${esc(question.domain)} · prioridade ${question.priority}</span>
-    <h2>${esc(question.label)}</h2>
+    <h2 id="adaptiveQuestionTitle">${esc(question.label)}</h2>
     <p id="questionHelp">${esc(question.help)}</p>
     <div class="question-control">${inputFor(question)}</div>
     <div class="question-error" id="questionError" role="alert"></div>
