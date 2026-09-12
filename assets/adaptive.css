@@ -1,13 +1,13 @@
 .adaptive-page { width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 70px 0 20px; }
 .adaptive-shell { display: grid; grid-template-columns: .78fr 1.22fr; gap: clamp(44px, 8vw, 96px); align-items: start; }
 .adaptive-intro { position: sticky; top: 104px; }
-.adaptive-intro h1 { margin: 0; font-size: clamp(44px, 6vw, 72px); line-height: 1.02; letter-spacing: -.05em; }
+.adaptive-intro h1 { margin: 0; font-size: clamp(44px, 6vw, 72px); line-height: 1.02; letter-spacing: -.025em; }
 .adaptive-intro > p:last-of-type { color: var(--text-2); font-size: 17px; }
 .adaptive-progress { margin-top: 26px; color: var(--text-3); font-size: 13px; }
 .question-host { min-height: 470px; }
 .question-card { padding: clamp(24px, 4vw, 38px); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }
 .question-card .domain { display: inline-flex; margin-bottom: 18px; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 750; }
-.question-card h2 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.08; letter-spacing: -.04em; }
+.question-card h2 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.08; letter-spacing: -.025em; }
 .question-card > p { color: var(--text-2); }
 .question-control { margin: 30px 0; }
 .question-control input, .question-control select { width: 100%; min-height: 56px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--text); padding: 12px 14px; }
@@ -17,7 +17,7 @@
 .question-actions .right { display: flex; gap: 10px; }
 .question-error { min-height: 24px; color: var(--danger); font-size: 13px; }
 .adaptive-done { padding: 40px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); text-align: center; }
-.adaptive-done h2 { margin: 0 0 12px; font-size: 36px; letter-spacing: -.04em; }
+.adaptive-done h2 { margin: 0 0 12px; font-size: 36px; letter-spacing: -.025em; }
 .adaptive-done p { color: var(--text-2); }
 .compact { min-height: 40px; padding-inline: 14px; font-size: 13px; }
 @media (max-width: 800px) {
