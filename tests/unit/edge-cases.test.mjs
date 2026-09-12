@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { completeness, dataQualityIssues, deriveInsights, redFlags, safeExport } from '../src/logic.mjs';
-import { adaptiveQuestions } from '../src/adaptive-interview-logic.mjs';
-import { parseImportedHealthText, validateImportObject } from '../src/advanced-logic.mjs';
+import { completeness, dataQualityIssues, deriveInsights, redFlags, safeExport } from '../../src/logic.mjs';
+import { adaptiveQuestions } from '../../src/adaptive-interview-logic.mjs';
+import { parseImportedHealthText, validateImportObject } from '../../src/advanced-logic.mjs';
 
 const empty = () => ({
   meta: { version: 1, adaptiveSkipped: {} },
