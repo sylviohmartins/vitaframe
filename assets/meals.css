@@ -14,6 +14,8 @@
 .meal-actions button:hover { color: var(--text); border-color: var(--border-strong); }
 .meal-grid { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
 .meal-grid .field-wide { grid-column: 1 / -1; }
+.meal-food-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.meal-food-search .button { white-space: nowrap; }
 .quantity-toggle { display: flex; align-items: center; gap: 9px; color: var(--text-2); font-size: 13px; }
 .empty-meals { padding: 42px; border: 1px dashed var(--border-strong); border-radius: var(--radius-md); text-align: center; color: var(--text-2); }
 .meal-footer-card { margin-top: 52px; padding: 26px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
@@ -28,6 +30,8 @@
   .meal-card { margin-left: 30px; padding: 17px; }
   .meal-card::before { left: -24px; }
   .meal-grid { grid-template-columns: 1fr; }
+  .meal-food-search { grid-template-columns: 1fr; }
+  .meal-food-search .button { width: 100%; }
   .meal-card-head { flex-direction: column; }
   .topbar .compact { display: none; }
 }

@@ -1,6 +1,6 @@
 # VitaFrame — Regulatory & Safety Baseline — Brasil
 
-Data da revisão: 2026-09-11. Documento de produto/engenharia; não substitui parecer jurídico, regulatório ou profissional.
+Data da revisão independente: 2026-09-12. Documento de produto/engenharia; não substitui parecer jurídico, regulatório ou profissional.
 
 ## 1. LGPD e dados de saúde
 
@@ -26,40 +26,46 @@ A V1 local-first reduz transmissão e centralização, mas **localStorage não �
 
 ## 2. Nutrição
 
-A profissão de nutricionista é regulamentada pela Lei nº 8.234/1991. O CFN também publicou posicionamento técnico específico tratando a prescrição dietética como atividade privativa do nutricionista.
+A profissão de nutricionista é regulamentada pela Lei nº 8.234/1991. O CFN e o sistema CFN/CRN tratam a prescrição dietética individualizada como atividade profissional regulamentada/privativa do nutricionista dentro do respectivo enquadramento.
 
-Fontes:
+Fontes oficiais/profissionais:
 - Lei nº 8.234/1991: https://www.planalto.gov.br/ccivil_03/leis/1989_1994/l8234.htm
 - CFN — Nota Técnica nº 85/2023, versão resumida: https://www.cfn.org.br/wp-content/uploads/2023/11/RESUMIDA_PRESCRI%C3%87%C3%83O-DIET%C3%89TICA.pdf
 - CFN — Resolução nº 731/2022 sobre prescrição de suplementos pelo nutricionista: https://www.cfn.org.br/wp-content/uploads/resolucoes/Res_731_2022.html
+- CRN-3 — dúvidas sobre atuação profissional e definição de prescrição dietética: https://www.crn3.org.br/duvidas/atuacao-profissional
+- Ministério da Saúde — Guias Alimentares: https://www.gov.br/saude/pt-br/composicao/saps/promocao-da-saude/guias-alimentares
+- Ministério da Saúde — Guia Alimentar para a População Brasileira: https://www.gov.br/saude/pt-br/assuntos/saude-brasil/publicacoes-para-promocao-a-saude/guia_alimentar_populacao_brasileira_2ed.pdf/view
 
 ### Implicação
 
-A V1 pode organizar respostas, apresentar cálculos educacionais rotulados, registrar preferências e apoiar uma consulta. Ela **não deve se apresentar como nutricionista nem gerar prescrição dietética individualizada autônoma**.
+A V1 pode organizar respostas, apresentar cálculos educacionais rotulados, registrar preferências e apoiar uma consulta. Ela **não deve se apresentar como nutricionista nem gerar prescrição dietética individualizada autônoma**. Conteúdo educacional geral deve ser distinguido de conduta individualizada.
 
 ## 3. Educação Física
 
-A Lei nº 9.696/1998 regulamenta a profissão de Educação Física. O art. 3º inclui competências de planejar, programar, avaliar e executar trabalhos, programas, planos e projetos nas áreas de atividade física e desporto. Normas do CONFEF detalham a atuação em avaliação e prescrição de exercícios.
+A Lei nº 9.696/1998 regulamenta a profissão de Educação Física. O sistema CONFEF/CREF detalha competências de avaliação, orientação e prescrição de exercícios físicos.
 
-Fontes:
+Fontes oficiais/profissionais:
 - Lei nº 9.696/1998: https://www.planalto.gov.br/ccivil_03/leis/l9696.htm
 - CONFEF — resolução/orientação sobre avaliação e prescrição de exercício: https://www.confef.org.br/confefv2/includes/api/resolucoes/imprimir.php?id=473
 - CONFEF — campos de intervenção/competências profissionais: https://www.confef.org.br/confefv2/includes/api/resolucoes/imprimir.php?id=573
+- CREF4/SP — fiscalização: orientação e prescrição de atividade física como competência profissional: https://www.crefsp.gov.br/fiscalizacao
+- CREF4/SP — Resolução nº 137/2021, competências na área da saúde: https://www.crefsp.gov.br/link/18868-Resolu%C3%A7%C3%A3o-CREF4-SP-n%C2%BA-137-2021
+- Ministério da Saúde — Guia de Atividade Física para a População Brasileira: https://bvsms.saude.gov.br/ministerio-da-saude-disponibiliza-guia-de-atividade-fisica-para-a-populacao-brasileira/
 
 ### Implicação
 
-A V1 pode organizar histórico, rotina, frequência, experiência, limitações e preferências de treino. Prescrição profissional individualizada deve respeitar o enquadramento aplicável e responsabilidade do profissional habilitado.
+A V1 pode organizar histórico, rotina, frequência, experiência, exercícios praticados, limitações e preferências de treino. Prescrição profissional individualizada deve respeitar o enquadramento aplicável e responsabilidade do profissional habilitado.
 
 ## 4. Medicina e encaminhamento
 
 A Lei nº 12.842/2013 disciplina o exercício da Medicina e inclui prevenção, diagnóstico e tratamento de doenças no objeto da atuação médica, além de listar atividades privativas específicas.
 
 Fonte oficial:
-- https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12842.htm
+- Lei nº 12.842/2013: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12842.htm
 
 ### Implicação
 
-O VitaFrame não realiza diagnóstico nosológico, prognóstico ou tratamento médico. Red flags devem orientar procura/revisão profissional, sem afirmar diagnóstico ou “liberação”.
+O VitaFrame não realiza diagnóstico nosológico, prognóstico ou tratamento médico. Red flags devem orientar procura/revisão profissional, sem afirmar diagnóstico, gravidade ou “liberação”. Uma integração clínica futura deve ser revisada novamente à luz das normas profissionais vigentes e, quando pertinente, de orientação do CFM.
 
 ## 5. Matriz operacional de limites
 
@@ -104,9 +110,7 @@ A V1 evita enviar dados de saúde a modelos externos. O OCR opcional usa apenas 
 
 ## 8. Segurança e incidentes
 
-Dados de saúde possuem impacto elevado em caso de exposição. A ANPD mantém orientações de segurança e comunicação de incidentes e, em 2026, instaurou processo sancionador relacionado a falhas de proteção de dados de pacientes, reforçando a materialidade do risco.
-
-Para uma versão cloud, exigir no mínimo:
+Dados de saúde possuem impacto elevado em caso de exposição. Para uma versão cloud, exigir no mínimo:
 
 - criptografia em trânsito e repouso;
 - segregação por usuário/tenant;
@@ -122,3 +126,7 @@ Para uma versão cloud, exigir no mínimo:
 ## 9. Regra de produto
 
 Nenhum disclaimer autoriza uma atividade que a legislação ou regulação reserve a profissional habilitado. Quando uma funcionalidade ultrapassar organização/educação e entrar em decisão clínica ou prescritiva, a arquitetura de produto deve mudar junto com responsabilidade, revisão profissional e governança.
+
+## 10. Limite desta revisão
+
+A matriz acima é uma baseline de produto para a V1 e não um parecer jurídico. Alterações que introduzam prescrição, teleatendimento profissional, prontuário, cobrança por atendimento, integração de exames clínicos ou IA externa exigem nova revisão regulatória específica antes do release.

@@ -1,4 +1,4 @@
-const CACHE = 'vitaframe-v1.1.1';
+const CACHE = 'vitaframe-v1.1.3';
 const ASSETS = [
   './',
   './index.html',
@@ -15,8 +15,10 @@ const ASSETS = [
   './src/logic.mjs',
   './src/storage.mjs',
   './src/local-metrics.mjs',
+  './src/prompt-compliance.mjs',
   './src/advanced.mjs',
   './src/advanced-logic.mjs',
+  './src/import-conflict-guard.mjs',
   './src/meals.mjs',
   './src/adaptive-interview.mjs',
   './src/adaptive-interview-logic.mjs',

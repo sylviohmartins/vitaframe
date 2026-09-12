@@ -54,7 +54,7 @@
         <div class="section-copy">
           <p class="eyebrow">Importação inteligente</p>
           <h2 id="import-title">Extraia localmente quando o navegador permitir.</h2>
-          <p>Imagens podem ser processadas pelo recurso nativo <code>TextDetector</code> quando disponível. Caso contrário, cole o texto extraído pelo próprio aparelho. Nada é enviado para uma API externa.</p>
+          <p>Imagens podem ser processadas pelo recurso nativo <code>TextDetector</code> quando disponível. Caso contrário, cole o texto extraído pelo próprio aparelho ou de um PDF/relatório. Nada é enviado para uma API externa.</p>
         </div>
         <div class="advanced-card">
           <label class="field field-wide">
@@ -66,7 +66,7 @@
             <img id="imagePreview" class="image-preview" src="./assets/import-preview-placeholder.svg" alt="Prévia do screenshot selecionado">
           </div>
           <label class="field field-wide">
-            <span>Ou cole aqui o texto do relatório</span>
+            <span>Ou cole aqui o texto do relatório/PDF</span>
             <textarea id="healthText" rows="8" placeholder="Ex.: Peso 89,65 kg · Gordura corporal 28,2% · Água 49,2% ..."></textarea>
           </label>
           <div class="inline-actions">
@@ -177,5 +177,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="./src/advanced.mjs"></script>
+  <script type="module" src="./src/import-conflict-guard.mjs"></script>
 </body>
 </html>

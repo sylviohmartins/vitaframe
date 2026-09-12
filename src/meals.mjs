@@ -1,3 +1,4 @@
+import { foodCatalog } from './catalog.mjs';
 import { hasConsent, loadState, loadTheme, saveState, saveTheme } from './storage.mjs';
 
 const fallback = {
@@ -44,7 +45,35 @@ function persist() {
 }
 
 function newMeal(label = 'Nova refeição', time = '') {
-  return { id: id(), label, time, foods: '', quantityUnknown: false };
+  return {
+    id: id(),
+    label,
+    time,
+    foods: '',
+    foodSearch: '',
+    quantity: '',
+    frequency: '',
+    quantityUnknown: false,
+  };
+}
+
+function normalizeMeal(meal) {
+  return {
+    ...newMeal(),
+    ...meal,
+  };
+}
+
+state.currentDiet.mealTimeline = state.currentDiet.mealTimeline.map(normalizeMeal);
+
+function foodOptions() {
+  return [...new Set(foodCatalog.flatMap(category => category.items.map(item => item.label)))];
+}
+
+function populateFoodDatalist() {
+  const datalist = $('#mealFoodOptions');
+  if (!datalist) return;
+  datalist.innerHTML = foodOptions().map(label => `<option value="${esc(label)}"></option>`).join('');
 }
 
 function seed() {
@@ -79,7 +108,10 @@ function render() {
       <div class="meal-grid">
         <label class="field"><span>Horário</span><input name="time" type="time" value="${esc(meal.time)}"></label>
         <label class="field"><span>Nome</span><input name="label" type="text" value="${esc(meal.label)}" placeholder="Ex.: pós-treino"></label>
+        <label class="field field-wide"><span>Buscar alimento</span><div class="meal-food-search"><input name="foodSearch" type="search" list="mealFoodOptions" value="${esc(meal.foodSearch)}" placeholder="Digite banana, arroz, frango, pizza…"><button class="button secondary compact" data-action="add-food" type="button">Adicionar à refeição</button></div><small>Use a busca para lembrar opções; você também pode escrever alimentos livres abaixo.</small></label>
         <label class="field field-wide"><span>O que você normalmente come/bebe?</span><textarea name="foods" rows="3" placeholder="Ex.: arroz, feijão, frango, salada e refrigerante zero">${esc(meal.foods)}</textarea></label>
+        <label class="field"><span>Quantidade aproximada</span><input name="quantity" type="text" value="${esc(meal.quantity)}" placeholder="Ex.: 2 colheres, 150 g, 1 unidade"></label>
+        <label class="field"><span>Frequência</span><input name="frequency" type="text" value="${esc(meal.frequency)}" placeholder="Ex.: todos os dias, 3x/semana"></label>
         <label class="quantity-toggle field-wide"><input name="quantityUnknown" type="checkbox" ${meal.quantityUnknown ? 'checked' : ''}> Não sei informar as quantidades com confiança</label>
       </div>
     </article>`).join('');
@@ -98,6 +130,14 @@ $('#mealTimeline').addEventListener('input', event => {
   persist();
 });
 
+$('#mealTimeline').addEventListener('change', event => {
+  const meal = mealFor(event.target);
+  if (!meal) return;
+  if (event.target.name === 'quantityUnknown') meal.quantityUnknown = event.target.checked;
+  else if (event.target.name in meal) meal[event.target.name] = event.target.value;
+  persist();
+});
+
 $('#mealTimeline').addEventListener('click', event => {
   const button = event.target.closest('[data-action]');
   if (!button) return;
@@ -105,9 +145,16 @@ $('#mealTimeline').addEventListener('click', event => {
   const index = state.currentDiet.mealTimeline.findIndex(meal => meal.id === card?.dataset.id);
   if (index < 0) return;
   const action = button.dataset.action;
+  const meal = state.currentDiet.mealTimeline[index];
   if (action === 'remove') state.currentDiet.mealTimeline.splice(index, 1);
   if (action === 'up' && index > 0) [state.currentDiet.mealTimeline[index - 1], state.currentDiet.mealTimeline[index]] = [state.currentDiet.mealTimeline[index], state.currentDiet.mealTimeline[index - 1]];
   if (action === 'down' && index < state.currentDiet.mealTimeline.length - 1) [state.currentDiet.mealTimeline[index + 1], state.currentDiet.mealTimeline[index]] = [state.currentDiet.mealTimeline[index], state.currentDiet.mealTimeline[index + 1]];
+  if (action === 'add-food') {
+    const candidate = String(meal.foodSearch || '').trim();
+    if (!candidate) return toast('Digite ou escolha um alimento antes de adicionar.');
+    meal.foods = meal.foods ? `${meal.foods}, ${candidate}` : candidate;
+    meal.foodSearch = '';
+  }
   persist();
   render();
 });
@@ -132,5 +179,6 @@ const theme = loadTheme() || (matchMedia('(prefers-color-scheme: dark)').matches
 setTheme(theme);
 $('#themeToggle').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 
+populateFoodDatalist();
 if (!hasConsent()) toast('Sem consentimento de persistência: alterações desta página não serão salvas após fechar/recarregar.');
 render();

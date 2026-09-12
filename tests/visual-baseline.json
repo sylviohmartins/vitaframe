@@ -20,7 +20,7 @@
     },
     ".hero-panel": {
       "x": 16,
-      "y": 653,
+      "y": 743,
       "width": 358,
       "height": 403
     }
@@ -36,7 +36,7 @@
       "x": 123,
       "y": 64,
       "width": 1180,
-      "height": 1973
+      "height": 3244
     },
     ".profile-hero": {
       "x": 123,

@@ -14,34 +14,37 @@ Adultos interessados em organizar contexto para perda de gordura, ganho de massa
 
 ## Jornadas suportadas
 
-1. **Avaliação completa** — fluxo guiado em 10 etapas.
+1. **Avaliação completa** — fluxo guiado em 10 etapas, com estimativa de tempo e retomada local opcional.
 2. **Entrevista adaptativa** — uma pergunta por vez, somente quando a resposta anterior torna a pergunta pertinente.
-3. **Dia alimentar** — timeline editável com adicionar, remover e reordenar refeições.
-4. **Preferências** — catálogo amplo por reconhecimento, busca e escala de preferência.
-5. **Centro de dados** — lacunas, importação assistida, histórico, revisão profissional, exportação protegida e métricas locais.
-6. **Perfil** — resumo estruturado, origem/estimativa visível, JSON e impressão/PDF.
+3. **Dia alimentar** — timeline editável com adicionar/remover/reordenar refeições, busca assistida de alimento, horário, quantidade, frequência e “não sei quantidade”.
+4. **Preferências** — catálogo por reconhecimento para alimentos, bebidas, refeições, restaurantes e contextos sociais, com busca e escala.
+5. **Centro de dados** — lacunas, importação assistida, conflitos explícitos, histórico, revisão profissional, exportação protegida e métricas locais.
+6. **Perfil** — resumo estruturado de corpo, objetivo, alimentação, saúde, treino, rotina, adesão, lacunas, alertas e confiança, com JSON e impressão/PDF.
 
 ## Capacidades V1
 
-- onboarding e consentimento local;
+- onboarding, consentimento local, progresso e tempo estimado;
 - objetivos;
-- antropometria e composição corporal com proveniência;
+- antropometria/composição corporal com proveniência;
 - saúde, restrições e red flags;
-- alimentação atual em campos e timeline;
-- preferências alimentares por catálogo/reconhecimento;
+- alimentação atual em campos e timeline estruturada;
+- preferências alimentares e sociais por reconhecimento;
 - rotina, praticidade e orçamento;
-- treinamento e limitações;
+- treinamento, exercícios relatados, cardio/passos e limitações;
 - sono, recuperação, estresse e hidratação;
-- branching real para álcool e detalhes de treinamento;
+- comportamento alimentar: saciedade, vontade de doces, beliscos, exageros, restrição e alimentação emocional, sem diagnóstico;
+- histórico de dietas/estratégias e barreiras de adesão;
+- branching para álcool, treinamento e composição corporal;
 - follow-ups contextuais determinísticos;
-- importação assistida de relatórios por texto e OCR nativo quando o navegador oferecer `TextDetector`;
-- confirmação humana obrigatória antes de aplicar dado importado;
+- importação de relatórios por texto e OCR nativo quando `TextDetector` estiver disponível;
+- confirmação humana antes de aplicar dado importado e escolha explícita quando há conflito com o perfil atual;
 - histórico de medições/snapshots sem sobrescrita silenciosa;
-- IMC e TMB como **estimativas educacionais**, nunca metas;
-- perfil estruturado;
+- IMC e TMB como **estimativas educacionais**, com método/limites visíveis;
+- visão consolidada com dados ausentes e grau de confiança;
+- resumo de mudança de peso quando há snapshots comparáveis;
 - revisão profissional local separada do relato original;
 - export/import JSON;
-- exportação criptografada PBKDF2 + AES-GCM;
+- exportação criptografada PBKDF2-SHA256 + AES-GCM;
 - impressão/salvar PDF via navegador;
 - dark mode, mobile-first e PWA/offline de assets estáticos;
 - métricas de funil estritamente locais e sem conteúdo de saúde;
@@ -57,25 +60,26 @@ Adultos interessados em organizar contexto para perda de gordura, ganho de massa
 - OCR não é garantido em navegadores sem `TextDetector`; nesses casos o usuário cola o texto localmente;
 - revisão profissional é um handoff local, não um portal multiusuário autenticado;
 - compartilhamento seguro usa arquivo criptografado; não cria link público ou servidor de compartilhamento;
-- Pages/deploy só é ativado quando o repositório tiver ambiente e variável de deploy configurados.
+- Pages/deploy só é ativado quando o repositório tiver ambiente e opt-in de deploy configurados.
 
 ## Métricas de sucesso técnicas
 
-1. fluxo completo executável em mobile sem backend;
-2. usuário consegue interromper e retomar após reload;
-3. nenhuma resposta de saúde é enviada para terceiros;
-4. perfil distingue estimativa de dado informado;
+1. fluxo completo executável sem backend nos viewports-alvo;
+2. interrupção/retomada após reload quando consentida;
+3. nenhuma resposta de saúde enviada a terceiros;
+4. perfil distingue estimativa, dado informado e proveniência;
 5. dados podem ser apagados, exportados e protegidos localmente;
-6. red flags aparecem e nunca são tratadas como diagnóstico ou liberação;
+6. red flags nunca são tratadas como diagnóstico ou liberação;
 7. branching omite follow-ups irrelevantes;
 8. histórico preserva medições explícitas;
-9. CI valida sintaxe, lógica, regras adaptativas, segurança estática, E2E, acessibilidade objetiva, performance laboratorial e Impeccable;
-10. CodeQL passa antes/na `main`.
+9. importação conflitante não sobrescreve estado por padrão;
+10. CI valida sintaxe, lógica, contraste, device matrix, segurança, E2E, regressão visual, performance e Impeccable;
+11. CodeQL passa no PR e na `main`.
 
 ## Métricas de produto
 
-A V1 registra **somente localmente** visitas de rota/etapa, etapa máxima e visualização de perfil. Não transmite respostas nem conteúdo sensível. Completion rate real, drop-off agregado, utilidade profissional, SUS, retenção e disposição a pagar exigem participantes e/ou uma futura arquitetura de analytics privacy-preserving.
+A V1 registra **somente localmente** visitas de rota/etapa, etapa máxima e visualização de perfil. Não transmite respostas nem conteúdo sensível. Completion rate real, drop-off agregado, utilidade profissional, SUS, retenção e disposição a pagar exigem participantes e/ou futura arquitetura de analytics privacy-preserving.
 
 ## Critério de release
 
-A V1 só é tecnicamente release-ready quando `CI / quality-gate` e `Security / codeql` passam no PR e novamente na `main`. Requisitos que dependem de participantes, configuração administrativa do GitHub ou ambiente externo devem permanecer explicitamente marcados como dependências externas em `REQUIREMENTS.md`, nunca simulados como concluídos.
+A V1 só é tecnicamente release-ready quando `CI / quality-gate` e `Security / codeql` passam no PR e novamente na `main`. Requisitos que dependem de participantes, configuração administrativa do GitHub ou ambiente externo permanecem explicitamente como dependências externas; nunca devem ser simulados como concluídos.
