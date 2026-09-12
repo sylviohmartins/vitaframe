@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { adaptiveQuestions, getPath, normalizeAnswer, setPath } from '../src/adaptive-interview-logic.mjs';
+import { adaptiveQuestions, getPath, normalizeAnswer, setPath } from '../../src/adaptive-interview-logic.mjs';
 
 function baseState() {
   return {

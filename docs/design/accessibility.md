@@ -12,14 +12,14 @@ O CI verifica invariantes que podem ser automatizadas de forma confiável:
 - foco visível e `prefers-reduced-motion`;
 - labels/nomes acessíveis em elementos interativos visíveis;
 - árvore de acessibilidade do Chrome nas superfícies críticas;
-- teste de contraste WCAG por tokens nos temas light/dark (`tests/accessibility-contrast.test.mjs`);
+- teste de contraste WCAG por tokens nos temas light/dark (`tests/quality/accessibility-contrast.test.mjs`);
 - ausência de overflow horizontal em uma matriz explícita de viewports;
 - presença/visibilidade das superfícies principais;
 - estados de ausência de consentimento, dados desconhecidos e fluxos incompletos nos testes aplicáveis.
 
 ### Matriz responsiva automatizada
 
-`scripts/e2e-viewports.mjs` executa as superfícies críticas em tamanhos próximos aos explicitamente pedidos no Prompt Mestre:
+`tests/e2e/viewports.mjs` executa as superfícies críticas em tamanhos próximos aos explicitamente pedidos no Prompt Mestre:
 
 - iPhone compacto: 375×667;
 - iPhone Pro: 390×844;

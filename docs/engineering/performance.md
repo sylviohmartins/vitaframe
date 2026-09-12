@@ -19,9 +19,9 @@ Em runner local/CI servido por HTTP local:
 
 ## Testes
 
-- `tests/performance-static.test.mjs`: budget de JavaScript realmente referenciado no `index.html`, ausência de fontes/CDNs remotos e limite dos assets de imagem;
-- `scripts/e2e-extended.mjs`: sizes, requests, LCP/CLS e regressão geométrica;
-- `scripts/e2e-viewports.mjs`: reflow/overflow em sete classes de viewport.
+- `tests/quality/performance-static.test.mjs`: budget de JavaScript realmente referenciado no `index.html`, ausência de fontes/CDNs remotos e limite dos assets de imagem;
+- `tests/e2e/extended.mjs`: sizes, requests, LCP/CLS e regressão geométrica;
+- `tests/e2e/viewports.mjs`: reflow/overflow em sete classes de viewport.
 
 ## INP
 

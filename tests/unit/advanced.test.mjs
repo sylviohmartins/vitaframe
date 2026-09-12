@@ -7,7 +7,7 @@ import {
   localMetrics,
   parseImportedHealthText,
   validateImportObject,
-} from '../src/advanced-logic.mjs';
+} from '../../src/advanced-logic.mjs';
 
 test('parseImportedHealthText recognizes common Zepp-style fields', () => {
   const result = parseImportedHealthText(`
@@ -35,11 +35,8 @@ test('parseImportedHealthText recognizes common Zepp-style fields', () => {
 test('adaptiveFollowUps asks only relevant missing context', () => {
   const state = {
     body: { weightKg: '90', heightCm: '178', bodyFatPct: '28.2', bodyFatSource: '', bodyFatDate: '' },
-    health: { answered: true },
-    currentDiet: { answered: true },
-    routine: { workMode: 'hybrid' },
-    training: { daysPerWeek: '4', time: '', experience: '' },
-    recovery: { sleepHours: '7' },
+    health: { answered: true }, currentDiet: { answered: true }, routine: { workMode: 'hybrid' },
+    training: { daysPerWeek: '4', time: '', experience: '' }, recovery: { sleepHours: '7' },
   };
   const questions = adaptiveFollowUps(state).map(item => item.question);
   assert.ok(questions.some(value => value.includes('De onde veio')));
@@ -63,9 +60,7 @@ test('applyDetectedValues never applies unsupported fields into body implicitly'
 test('createProgressSnapshot preserves temporal body context', () => {
   const snap = createProgressSnapshot({
     body: { weightKg: '89.65', waistCm: '96', bodyFatPct: '28.2', bodyFatSource: 'bioimpedance-home' },
-    goal: { primary: 'fat-loss' },
-    training: { daysPerWeek: '4' },
-    recovery: { sleepHours: '7.5' },
+    goal: { primary: 'fat-loss' }, training: { daysPerWeek: '4' }, recovery: { sleepHours: '7.5' },
   }, '2026-09-11T12:00:00.000Z');
   assert.equal(snap.weightKg, 89.65);
   assert.equal(snap.waistCm, 96);
@@ -76,18 +71,9 @@ test('createProgressSnapshot preserves temporal body context', () => {
 test('localMetrics does not require health-content telemetry', () => {
   const metrics = localMetrics({
     meta: { createdAt: '2026-09-11T12:00:00.000Z', updatedAt: '2026-09-11T12:15:00.000Z', lastStep: 6 },
-    goal: { primary: 'fat-loss' },
-    body: { weightKg: '90', heightCm: '178' },
-    foodPreferences: { a: 3, b: 0 },
+    goal: { primary: 'fat-loss' }, body: { weightKg: '90', heightCm: '178' }, foodPreferences: { a: 3, b: 0 },
   }, [{ id: 1 }]);
-  assert.deepEqual(metrics, {
-    currentStep: 6,
-    elapsedMinutes: 15,
-    historyCount: 1,
-    hasGoal: true,
-    hasBodyBasics: true,
-    ratedFoods: 2,
-  });
+  assert.deepEqual(metrics, { currentStep: 6, elapsedMinutes: 15, historyCount: 1, hasGoal: true, hasBodyBasics: true, ratedFoods: 2 });
 });
 
 test('validateImportObject rejects malformed and incompatible imports', () => {

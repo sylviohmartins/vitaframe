@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   calculateBMI, calculateBMR, completeness, dataQualityIssues, estimateFatMass,
   estimateLeanMass, preferenceStats, redFlags, toNumber
-} from '../src/logic.mjs';
+} from '../../src/logic.mjs';
 
 test('toNumber accepts Brazilian decimal comma', () => {
   assert.equal(toNumber('89,65'), 89.65);

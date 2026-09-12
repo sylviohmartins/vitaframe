@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
-const root = new URL('../', import.meta.url);
+const root = new URL('../../', import.meta.url);
 
 async function bytes(relative) {
   return (await stat(new URL(relative, root))).size;

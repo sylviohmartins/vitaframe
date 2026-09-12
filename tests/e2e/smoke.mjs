@@ -4,6 +4,7 @@ import process from 'node:process';
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const port = 4173;
+const debugPort = 9222;
 const appUrl = `http://127.0.0.1:${port}/#home`;
 
 function findChrome() {
@@ -26,31 +27,26 @@ async function waitFor(url, attempts = 100) {
   throw new Error(`Timeout waiting for ${url}`);
 }
 
-function waitForDevTools(child, timeoutMs = 12000) {
-  return new Promise((resolve, reject) => {
-    let stderr = '';
-    let settled = false;
-    const finish = (fn, value) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(value);
-    };
-    const timer = setTimeout(() => {
-      finish(reject, new Error(`Timeout waiting for Chrome DevTools endpoint. Chrome stderr: ${stderr.slice(-2000)}`));
-    }, timeoutMs);
+async function waitForDevTools(child, timeoutMs = 30000) {
+  let stderr = '';
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', chunk => { stderr = `${stderr}${chunk}`.slice(-6000); });
 
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', chunk => {
-      stderr = `${stderr}${chunk}`.slice(-6000);
-      const match = stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-      if (match) finish(resolve, match[1]);
-    });
-    child.once('error', error => finish(reject, error));
-    child.once('exit', (code, signal) => {
-      if (!settled) finish(reject, new Error(`Chrome exited before DevTools became ready (code=${code}, signal=${signal}). ${stderr.slice(-2000)}`));
-    });
-  });
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null) {
+      throw new Error(`Chrome exited before DevTools became ready (code=${child.exitCode}). ${stderr.slice(-2000)}`);
+    }
+    try {
+      const response = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+      if (response.ok) {
+        const metadata = await response.json();
+        if (metadata.webSocketDebuggerUrl) return metadata.webSocketDebuggerUrl;
+      }
+    } catch {}
+    await delay(100);
+  }
+  throw new Error(`Timeout waiting for Chrome DevTools endpoint on port ${debugPort}. Chrome stderr: ${stderr.slice(-2000)}`);
 }
 
 class CDP {
@@ -107,7 +103,7 @@ try {
   const chromeBin = findChrome();
   chrome = spawn(chromeBin, [
     '--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-proxy-server',
-    '--remote-debugging-port=0', '--remote-debugging-address=127.0.0.1', '--remote-allow-origins=*',
+    `--remote-debugging-port=${debugPort}`, '--remote-debugging-address=127.0.0.1', '--remote-allow-origins=*',
     `--user-data-dir=/tmp/vitaframe-cdp-${process.pid}`, '--window-size=390,844', appUrl
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const css = await readFile(new URL('../assets/styles.css', import.meta.url), 'utf8');
+const css = await readFile(new URL('../../assets/styles.css', import.meta.url), 'utf8');
 
 function block(pattern) {
   const match = css.match(pattern);
