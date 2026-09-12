@@ -23,9 +23,8 @@
     </header>
     <main id="main" tabindex="-1" class="meal-page">
       <section class="meal-header">
-        <p class="eyebrow">Alimentação atual</p>
         <h1>Mapeie um dia real, refeição por refeição.</h1>
-        <p>Adicione, remova e reordene refeições. Horário e quantidade podem ficar como “não sei”. O objetivo é representar sua rotina, não montar uma dieta.</p>
+        <p>Adicione, remova e reordene refeições. Horário e quantidade podem ficar como “não sei”. O objetivo é representar sua rotina alimentar atual, não montar uma dieta.</p>
       </section>
       <section class="meal-toolbar" aria-label="Ações do mapa alimentar">
         <button class="button primary" id="addMeal" type="button">Adicionar refeição</button>
@@ -42,7 +41,7 @@
         <a class="button primary" href="./index.html#assessment?step=5">Continuar para preferências</a>
       </section>
     </main>
-    <footer class="site-footer"><p>VitaFrame V1 · mapa alimentar local.</p><nav><a href="./advanced.html">Centro de dados</a><a href="./index.html#privacy">Privacidade</a></nav></footer>
+    <footer class="site-footer"><p>VitaFrame V1 · mapa alimentar local.</p><nav aria-label="Links do rodapé"><a href="./advanced.html">Centro de dados</a><a href="./index.html#privacy">Privacidade</a></nav></footer>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="./src/meals.mjs"></script>
