@@ -16,111 +16,112 @@ npm run e2e
 
 Cobrem funções puras e regras de negócio:
 - parsing numérico;
-- IMC;
-- Mifflin-St Jeor;
+- IMC e Mifflin-St Jeor;
 - composição derivada;
-- completude;
-- red flags;
+- completude e red flags;
 - parser de relatório de bioimpedância;
 - aplicação confirmada de campos importados;
-- snapshots;
-- métricas locais;
+- snapshots e métricas locais;
 - validação de importação;
-- branching adaptativo;
-- omissão de perguntas de álcool/treino não aplicáveis;
-- pulo explícito;
-- normalização e limites de respostas adaptativas.
+- branching adaptativo, omissão de perguntas e pulo explícito;
+- normalização/limites das respostas;
+- edge cases de perfis incompletos e valores fora de faixa;
+- contraste WCAG dos tokens light/dark;
+- budgets estáticos de JS, imagens e ausência de fontes/CDNs remotos.
 
 ### Integração local
 
-O E2E testa integração entre:
+Como a V1 não possui API/banco externo, a integração relevante acontece dentro do navegador entre estado, UI e Web APIs. Os E2E exercitam:
 - armazenamento local consentido;
 - roteamento;
-- avaliação;
-- importação assistida;
+- avaliação completa e campos adicionais auditados;
+- importação assistida + conflitos de medição;
 - histórico;
-- timeline de refeições;
+- timeline de refeições com busca/quantidade/frequência;
 - entrevista adaptativa;
-- perfil;
+- perfil e explicabilidade;
 - tema;
-- export/portabilidade quando aplicável.
+- portabilidade/revisão local quando aplicável.
 
-Como a V1 não possui API/banco externo, esses fluxos constituem a camada de integração relevante. Não existe “integration test de banco” artificial para uma dependência que não existe.
+Não existe “teste de banco” artificial para uma dependência inexistente.
 
 ### E2E principal
 
-`scripts/e2e.mjs` cobre:
-- home;
-- consentimento;
-- navegação da avaliação;
-- avanço entre etapas;
-- layout mobile sem overflow;
-- nomes acessíveis básicos;
-- perfil;
-- dark mode;
-- screenshots mobile/desktop.
+`scripts/e2e.mjs` cobre o caminho base: home, consentimento, avaliação, avanço, perfil, dark mode, acessibilidade básica, overflow e screenshots.
 
 ### E2E estendido
 
 `scripts/e2e-extended.mjs` cobre:
-- budgets de tamanho;
-- LCP/CLS laboratoriais quando disponíveis no Chrome;
-- número de requests;
+- budgets de tamanho/request;
+- LCP/CLS laboratoriais quando disponíveis;
 - árvore de acessibilidade do Chrome;
-- importação de texto de balança/app;
-- confirmação de dados importados;
+- importação assistida e confirmação;
 - histórico/snapshot;
-- timeline alimentar;
-- persistência local;
-- layout mobile e desktop;
-- assinatura geométrica de componentes para regressão visual.
+- branching adaptativo;
+- timeline alimentar/persistência;
+- screenshots de superfícies críticas;
+- assinatura geométrica para regressão visual.
 
-Quando `tests/visual-baseline.json` existe, alterações geométricas acima da tolerância fazem o CI falhar.
+Quando `tests/visual-baseline.json` existe, alterações geométricas acima da tolerância fazem o CI falhar e exigem revisão explícita da baseline.
 
-## Edge cases
+### Matriz de dispositivos
 
-As regras/testes contemplam explicitamente:
-- pessoa sem musculação;
-- pessoa com musculação;
+`scripts/e2e-viewports.mjs` cobre sete tamanhos pedidos pela especificação:
+- 375×667 — iPhone compacto;
+- 390×844 — iPhone Pro;
+- 430×932 — iPhone Pro Max;
+- 360×740 — Android pequeno;
+- 412×915 — Android grande;
+- 768×1024 — tablet;
+- 1440×1000 — desktop.
+
+Valida home, preferências, treinamento, comportamento/recuperação, perfil, entrevista adaptativa, dia alimentar e centro de dados, rejeitando overflow e superfície principal invisível.
+
+## Edge cases e estados
+
+Automação contempla, quando objetivamente testável:
+- pessoa sem musculação e com musculação;
 - campos corporais desconhecidos;
 - percentual de gordura sem origem/data;
-- importação incompatível;
+- valores importados conflitantes;
+- importação incompatível e OCR indisponível;
 - valores numéricos fora de faixa;
 - red flags;
 - ausência de consentimento;
-- OCR indisponível;
 - refeições sem quantidade conhecida;
-- dados incompletos;
-- perguntas puladas;
-- viewport mobile e desktop;
+- dados incompletos e perguntas puladas;
+- estados vazios/povoados do histórico e refeições;
+- conteúdo livre de alimentação/rotina;
+- viewports small/large/tablet/desktop;
 - dark mode.
 
-Casos que exigem julgamento clínico não são automatizados como se fossem regra universal.
+Teclado virtual real, tecnologias assistivas e ergonomia física permanecem validação manual; não são simulados como evidência equivalente.
 
 ## Acessibilidade
 
-Alvo de design: WCAG 2.2 AA. Automação cobre invariantes objetivos e árvore de acessibilidade, mas não comprova conformidade integral. `ACCESSIBILITY.md` mantém o checklist manual de teclado, leitores de tela, zoom/reflow, contraste e dispositivos reais.
+Alvo: WCAG 2.2 AA. Automação cobre contraste de tokens, AX tree, labels/nomes, foco/reduced-motion por invariantes, overflow/reflow e matriz de viewports. `ACCESSIBILITY.md` mantém a auditoria manual necessária para teclado completo, VoiceOver/NVDA, zoom, dispositivos físicos e teclado virtual.
 
 ## Visual regression
 
-O E2E salva screenshots e uma assinatura de layout. A baseline é versionada após uma execução de referência aprovada. Mudanças intencionais exigem revisão e atualização explícita da baseline.
+O E2E salva screenshots e uma assinatura geométrica. A baseline versionada representa uma execução visual aprovada. Mudanças intencionais de UX/UI precisam produzir nova evidência visual e atualizar a baseline conscientemente; “aceitar snapshot” não é correção automática.
 
 ## Performance
 
-Budgets ficam em `PERFORMANCE.md`. Tamanho, requests, LCP/CLS laboratoriais e overflow entram no E2E estendido. INP é tratado como métrica de campo e não é falsamente “certificado” por um teste sintético.
+Budgets ficam em `PERFORMANCE.md`. Tamanho, requests, JS realmente carregado, imagens/fontes, LCP/CLS e overflow entram no CI. INP é tratado como métrica de campo e não é falsamente certificado por um teste sintético.
 
 ## Impeccable
 
-O CI executa `impeccable@4.0.1 detect` em todas as superfícies V1. O relatório é artefato do workflow. A revisão de design também segue `DESIGN.md`; automação de detector não substitui inspeção visual.
+O CI executa `impeccable@4.0.1 detect` nas superfícies V1 e guarda relatórios como artefato. O detector complementa — não substitui — revisão visual, acessibilidade e regressão.
 
 ## Segurança
 
-- quality checks rejeitam runtime remoto e transmissão de dados por `fetch`/XHR/beacon nos módulos de saúde;
+- checks rejeitam scripts/estilos remotos indevidos e transmissão de dados por `fetch`/XHR/beacon nos módulos sensíveis;
 - CodeQL executa em PR, `main` e agendamento;
-- Actions são fixadas por SHA;
+- Actions são pinadas por SHA;
 - CSP é validada;
-- criptografia local possui testes de fluxo no navegador quando adicionada ao E2E aplicável.
+- exportação protegida usa Web Crypto;
+- importação conflitante não sobrescreve valores automaticamente.
 
 ## Critério
 
-Teste verde significa “requisito implementado passou sua verificação”, não “todo o prompt foi implementado”. A cobertura de requisitos é auditada separadamente em `REQUIREMENTS.md`.
+Teste verde significa **“o requisito implementado passou sua verificação”**, não “o produto comercial foi validado”. A cobertura da especificação é auditada em `REQUIREMENTS.md` e, de forma independente, em `docs/PROMPT_AUDIT.md`.
