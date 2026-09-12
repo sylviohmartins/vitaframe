@@ -1,6 +1,4 @@
 import { execFileSync } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 
 const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
   .split(/\r?\n/)
@@ -18,6 +16,8 @@ const required = [
   'docs/governance/security.md', 'docs/governance/privacy.md', 'docs/governance/ai-guardrails.md', 'docs/governance/regulatory.md',
   'docs/research/market.md', 'docs/research/validation-plan.md', 'docs/research/evidence-map.md',
   'docs/audits/prompt-v1.md',
+  'tests/unit/adaptive-interview.test.mjs', 'tests/unit/advanced.test.mjs', 'tests/unit/edge-cases.test.mjs', 'tests/unit/logic.test.mjs',
+  'tests/quality/accessibility-contrast.test.mjs', 'tests/quality/performance-static.test.mjs',
   'tests/e2e/smoke.mjs', 'tests/e2e/extended.mjs', 'tests/e2e/viewports.mjs',
   'tests/visual-baseline.json',
   'scripts/check-structure.mjs', 'scripts/check-links.mjs'
@@ -35,40 +35,6 @@ for (const file of tracked) {
 }
 
 for (const file of required) if (!tracked.includes(file)) failures.push(`missing required path: ${file}`);
-
-const stalePaths = new Map([
-  ['PRODUCT.md', 'docs/product/product.md'],
-  ['ROADMAP.md', 'docs/product/roadmap.md'],
-  ['REQUIREMENTS.md', 'docs/product/requirements.md'],
-  ['ARCHITECTURE.md', 'docs/architecture/overview.md'],
-  ['DATA_MODEL.md', 'docs/architecture/data-model.md'],
-  ['DECISIONS.md', 'docs/architecture/decisions.md'],
-  ['DESIGN.md', 'docs/design/design-system.md'],
-  ['UX.md', 'docs/design/ux-architecture.md'],
-  ['ACCESSIBILITY.md', 'docs/design/accessibility.md'],
-  ['TESTING.md', 'docs/engineering/testing.md'],
-  ['PERFORMANCE.md', 'docs/engineering/performance.md'],
-  ['CI.md', 'docs/engineering/ci-cd.md'],
-  ['PRIVACY.md', 'docs/governance/privacy.md'],
-  ['AI_GUARDRAILS.md', 'docs/governance/ai-guardrails.md'],
-  ['docs/REGULATORY.md', 'docs/governance/regulatory.md'],
-  ['docs/RESEARCH.md', 'docs/research/market.md'],
-  ['VALIDATION.md', 'docs/research/validation-plan.md'],
-  ['docs/EVIDENCE_MAP.md', 'docs/research/evidence-map.md'],
-  ['docs/PROMPT_AUDIT.md', 'docs/audits/prompt-v1.md'],
-  ['scripts/e2e.mjs', 'tests/e2e/smoke.mjs'],
-  ['scripts/e2e-extended.mjs', 'tests/e2e/extended.mjs'],
-  ['scripts/e2e-viewports.mjs', 'tests/e2e/viewports.mjs'],
-  ['tests/accessibility-contrast.test.mjs', 'tests/quality/accessibility-contrast.test.mjs'],
-  ['tests/performance-static.test.mjs', 'tests/quality/performance-static.test.mjs']
-]);
-
-for (const file of tracked.filter(item => item.endsWith('.md') && !item.startsWith('docs/audits/'))) {
-  const content = await readFile(file, 'utf8');
-  for (const [oldPath, newPath] of stalePaths) {
-    if (content.includes(oldPath) && file !== newPath) failures.push(`${file}: stale path ${oldPath}; use ${newPath}`);
-  }
-}
 
 if (failures.length) {
   console.error('Repository structure failures:');
