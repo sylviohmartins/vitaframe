@@ -37,10 +37,15 @@ A V1 manipula potencialmente dados sensíveis de saúde no navegador. Os riscos 
 - Actions oficiais fixadas por SHA completo;
 - lockfile obrigatório;
 - `npm ci --ignore-scripts`;
-- CodeQL em PR/`main`/schedule;
-- Dependabot para Actions;
+- `npm audit --audit-level=high` no gate de qualidade;
+- CodeQL no CI principal;
+- workflow independente CodeQL em PR/`main`/schedule usando `security-extended`;
+- SARIF do workflow independente preservado por 7 dias para auditoria e triagem reproduzível;
+- Dependabot para GitHub Actions;
 - permissões mínimas por workflow;
-- artifacts com retenção curta e somente fixtures sintéticas.
+- artifacts com retenção curta e sem dados reais de usuário.
+
+A auditoria que introduziu `security-extended` verificou o SARIF das suites padrão e ampliada e obteve zero findings no código analisado naquele estado. Isso é evidência daquele scan, não uma promessa de ausência permanente de vulnerabilidades; as verificações continuam sendo executadas a cada alteração relevante.
 
 ## Secure-by-default
 
@@ -60,7 +65,9 @@ Isso reduz a superfície antes de existir necessidade validada.
 - criptografia de exportação protege o arquivo, não a sessão do navegador;
 - usuário em computador compartilhado precisa apagar os dados;
 - CSP reduz risco, mas não substitui prevenção de XSS e revisão de código;
-- um produto cloud exigirá controles adicionais.
+- um produto cloud exigirá controles adicionais;
+- sucesso de um workflow CodeQL, sozinho, não prova ausência de findings; quando necessário, a triagem deve consultar o SARIF/Code Scanning;
+- a integração de automação utilizada pelo projeto não expõe todos os endpoints administrativos da interface `Security and quality`, portanto contadores visuais dessa UI precisam ser tratados separadamente quando não forem recuperáveis pela API disponível.
 
 ## Requisitos mínimos para uma futura versão cloud
 
@@ -86,6 +93,10 @@ Isso reduz a superfície antes de existir necessidade validada.
 
 Não inserir dados pessoais reais em issues públicas. Relatórios devem conter passos mínimos de reprodução e fixtures sintéticas. O template do repositório orienta a não anexar evidência sensível.
 
+O arquivo [`../../SECURITY.md`](../../SECURITY.md) define o canal de reporte. Findings não devem ser dispensados ou suprimidos apenas para deixar gates verdes; qualquer falso positivo precisa de justificativa técnica documentada.
+
 ## GitHub governance
 
-Os workflows e checks existem no código. Torná-los obrigatórios na `main` requer Ruleset/branch protection administrativo. A conexão do agente não tem capacidade de mutar essa configuração; o gap é rastreado explicitamente em `REQUIREMENTS.md`.
+O Ruleset `Protect main` está ativo. A `main` exige Pull Request, `quality-gate`, `codeql`, resolução de conversas e histórico linear, além de bloquear exclusão e force push. O Ruleset permite apenas Squash para integração.
+
+O deploy de produção é separado dos checks de PR: ele só ocorre após um CI bem-sucedido originado por `push` na `main`, usando exatamente o SHA validado pelo CI. Assim, um PR aberto ou um branch de trabalho não publica produção.
