@@ -46,7 +46,7 @@ jobs:
           path: dist
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@f81ad71d2e78487340fb3a9471475310a290390d # v4.0.5
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
       - name: Smoke test deployed homepage
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
