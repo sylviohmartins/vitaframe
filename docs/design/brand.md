@@ -75,7 +75,7 @@ Os arquivos canônicos ficam em `assets/brand/`:
 - `icon-192.png` e `icon-512.png`;
 - `icon-maskable-192.png` e `icon-maskable-512.png`;
 - `og-image.png`;
-- `brand.css` — integração mínima da marca com a topbar.
+- `brand.css` — helper opcional para aplicações controladas por CSS mask; não faz parte do caminho crítico das páginas V1.
 
 ## Clear space
 
@@ -106,9 +106,9 @@ Os ícones `maskable` usam background opaco ocupando todo o canvas e mantêm o s
 
 ## Uso em light e dark
 
-Na UI o símbolo é aplicado como CSS mask e recebe `var(--accent)`, portanto acompanha os tokens do tema sem duplicar SVGs no runtime.
+Nas páginas V1, o símbolo da topbar é SVG inline, usa `stroke="var(--accent)"` e mantém dimensões fixas de 32 × 32 px. Dessa forma acompanha os tokens light/dark sem fonte remota, sem asset duplicado e sem adicionar uma requisição CSS ao caminho crítico.
 
-O texto `VitaFrame` permanece texto HTML. Isso evita nome acessível duplicado e mantém o header leve.
+O texto `VitaFrame` permanece texto HTML. Isso evita nome acessível duplicado e mantém o header leve. O `brand.css` fica disponível apenas como helper opcional para contextos em que CSS mask seja preferível, mas não é carregado pelas páginas de produção nem pré-cacheado pelo service worker.
 
 Os SVGs `logo.svg` e `logo-dark.svg` servem para contextos institucionais em que o lockup precisa ser um único asset.
 
