@@ -1,56 +1,59 @@
-# Documentação do VitaFrame
+# VitaFrame — Documentation
 
-Este diretório é a fonte de verdade da documentação interna do projeto. A organização é **por intenção de consulta**, não pela ordem histórica de criação dos arquivos.
+This directory is the canonical entry point for internal product, architecture, design, engineering, governance, research and audit documentation.
 
-## Produto
+## Product
 
-- [`product/product.md`](product/product.md) — proposta de valor, escopo e critérios de release.
-- [`product/roadmap.md`](product/roadmap.md) — evolução possível após validação.
-- [`product/requirements.md`](product/requirements.md) — matriz de conformidade do Prompt Mestre.
+- [Product](product/product.md)
+- [Roadmap](product/roadmap.md)
+- [Requirements](product/requirements.md)
 
-## Arquitetura
+## Architecture
 
-- [`architecture/overview.md`](architecture/overview.md) — arquitetura técnica e decisões estruturais.
-- [`architecture/data-model.md`](architecture/data-model.md) — entidades, persistência, proveniência e versionamento.
-- [`architecture/decisions.md`](architecture/decisions.md) — decisões arquiteturais e trade-offs.
+- [Architecture overview](architecture/overview.md)
+- [Data model](architecture/data-model.md)
+- [Decisions](architecture/decisions.md)
 
-## Design e UX
+## Design
 
-- [`design/design-system.md`](design/design-system.md) — direção visual, tokens e princípios.
-- [`design/ux-architecture.md`](design/ux-architecture.md) — sitemap, jornadas, branching e wireframes conceituais.
-- [`design/accessibility.md`](design/accessibility.md) — alvo WCAG e protocolo de validação.
-- [`design/visual-qa.md`](design/visual-qa.md) — inspeção visual e achados.
+- [Design system](design/design-system.md)
+- [UX architecture](design/ux-architecture.md)
+- [Accessibility](design/accessibility.md)
+- [Visual QA](design/visual-qa.md)
 
-## Engenharia
+## Engineering
 
-- [`engineering/testing.md`](engineering/testing.md) — estratégia de testes.
-- [`engineering/performance.md`](engineering/performance.md) — budgets e Core Web Vitals.
-- [`engineering/ci-cd.md`](engineering/ci-cd.md) — workflows, quality gate, deploy e troubleshooting.
+- [Testing](engineering/testing.md)
+- [Performance](engineering/performance.md)
+- [CI/CD](engineering/ci-cd.md)
 
-## Governança
+## Governance
 
-- [`governance/security.md`](governance/security.md) — threat model e controles técnicos. A política pública de reporte permanece em [`../SECURITY.md`](../SECURITY.md).
-- [`governance/privacy.md`](governance/privacy.md) — privacy by design e LGPD.
-- [`governance/ai-guardrails.md`](governance/ai-guardrails.md) — limites da IA.
-- [`governance/regulatory.md`](governance/regulatory.md) — fronteiras profissionais e regulatórias.
+- [Security architecture](governance/security.md)
+- [Privacy](governance/privacy.md)
+- [AI guardrails](governance/ai-guardrails.md)
+- [Regulatory](governance/regulatory.md)
 
-## Pesquisa e evidência
+## Research
 
-- [`research/market.md`](research/market.md) — mercado, concorrentes, JTBD e decisão de oportunidade.
-- [`research/validation-plan.md`](research/validation-plan.md) — protocolo de pesquisa/usabilidade externa.
-- [`research/evidence-map.md`](research/evidence-map.md) — regra → evidência científica/regulatória.
+- [Market research](research/market.md)
+- [Validation plan](research/validation-plan.md)
+- [Evidence map](research/evidence-map.md)
 
-## Auditorias
+## Audits
 
-- [`audits/prompt-v1.md`](audits/prompt-v1.md) — segunda auditoria independente do Prompt Mestre.
+- [Prompt V1 audit](audits/prompt-v1.md)
 
-## Como adicionar documentação
+## Documentation conventions
 
-1. escolha o domínio em que uma pessoa naturalmente procuraria a informação;
-2. prefira nomes `kebab-case.md` para documentação interna;
-3. evite criar Markdown novo na raiz;
-4. mantenha links relativos válidos;
-5. se uma nova categoria não tiver pelo menos uma responsabilidade clara, não crie outra camada de pasta;
-6. execute `npm run structure` e `npm run links` antes do PR.
+- Keep repository-level human entry points such as `README.md` and `SECURITY.md` at the repository root.
+- Keep internal documentation under `docs/`, grouped by the reader's intent rather than by chronology.
+- Use kebab-case for internal documentation filenames.
+- Prefer shallow paths. Add a new subdirectory only when a real semantic group exists.
+- Update relative links whenever files move; `npm run links` is a mandatory CI check.
+- Do not store generated artifacts, screenshots from temporary runs, coverage reports, caches or logs in `docs/`.
+- Architectural or governance changes should update the relevant decision/audit record when the reasoning would otherwise be lost.
 
-`README.md` e `SECURITY.md` permanecem na raiz porque são pontos de entrada reconhecidos pelo GitHub/ecossistema, não porque documentação interna deva viver lá.
+## Repository structure principle
+
+The root is intentionally reserved for application entrypoints, package metadata, globally discovered configuration, and repository-level human entry points. Organization exists to reduce cognitive cost, not to minimize the number of root files at any cost.
