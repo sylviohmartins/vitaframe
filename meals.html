@@ -18,14 +18,13 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/brand/apple-touch-icon.png">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./assets/styles.css">
-  <link rel="stylesheet" href="./assets/brand/brand.css">
   <link rel="stylesheet" href="./assets/meals.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Pular para o conteúdo</a>
   <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="./index.html#home" aria-label="VitaFrame — início"><span class="brand-mark" aria-hidden="true"></span><span>VitaFrame</span></a>
+      <a class="brand" href="./index.html#home" aria-label="VitaFrame — início"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false" data-brand-mark="open-frame-v"><path d="M26 12H15C13.3 12 12 13.3 12 15V26 M38 12H49C50.7 12 52 13.3 52 15V26 M12 38V49C12 50.7 13.3 52 15 52H26 M38 52H49C50.7 52 52 50.7 52 49V38 M22 25L32 43L42 25" fill="none" stroke="var(--accent)" stroke-width="5.75" stroke-linecap="round" stroke-linejoin="round"/></svg><span>VitaFrame</span></a>
       <div class="topbar-actions">
         <a class="button secondary compact" href="./advanced.html">Centro de dados</a>
         <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema">◐</button>
@@ -38,8 +37,8 @@
       </section>
       <section class="meal-toolbar" aria-label="Ações do mapa alimentar">
         <button class="button primary" id="addMeal" type="button">Adicionar refeição</button>
-        <button class="button secondary" id="seedMeals" type="button">Usar estrutura comum</button>
-        <button class="button secondary" id="clearMeals" type="button">Limpar mapa</button>
+        <button class="button secondary compact" id="seedMeals" type="button">Usar estrutura comum</button>
+        <button class="button secondary compact" id="clearMeals" type="button">Limpar mapa</button>
       </section>
       <datalist id="mealFoodOptions"></datalist>
       <section aria-labelledby="timelineTitle">
