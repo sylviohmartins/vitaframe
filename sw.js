@@ -1,4 +1,4 @@
-const CACHE = 'vitaframe-v1.1.3';
+const CACHE = 'vitaframe-v1.2.0';
 const ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,20 @@ const ASSETS = [
   './assets/advanced.css',
   './assets/meals.css',
   './assets/adaptive.css',
+  './assets/brand/brand.css',
+  './assets/brand/logo.svg',
+  './assets/brand/logo-dark.svg',
+  './assets/brand/logo-compact.svg',
+  './assets/brand/mark.svg',
+  './assets/brand/wordmark.svg',
+  './assets/brand/favicon.svg',
+  './assets/brand/favicon.ico',
+  './assets/brand/apple-touch-icon.png',
+  './assets/brand/icon-192.png',
+  './assets/brand/icon-512.png',
+  './assets/brand/icon-maskable-192.png',
+  './assets/brand/icon-maskable-512.png',
+  './assets/brand/og-image.png',
   './src/app.mjs',
   './src/catalog.mjs',
   './src/logic.mjs',
