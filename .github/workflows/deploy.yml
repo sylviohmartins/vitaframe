@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-  workflow_dispatch:
+    branches: [main]
 
 permissions:
   contents: read
@@ -18,7 +18,7 @@ concurrency:
 jobs:
   deploy:
     name: deploy-production
-    if: ${{ vars.ENABLE_PAGES_DEPLOY == 'true' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')) }}
+    if: ${{ vars.ENABLE_PAGES_DEPLOY == 'true' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
     environment:
       name: production
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
