@@ -105,17 +105,17 @@ test('every surface references browser, PWA and social brand metadata', async ()
     assert.match(html, /assets\/brand\/favicon\.ico/);
     assert.match(html, /assets\/brand\/apple-touch-icon\.png/);
     assert.match(html, /rel="manifest" href="\.\/manifest\.webmanifest"/);
-    assert.match(html, /assets\/brand\/brand\.css/);
     assert.match(html, /property="og:image" content="https:\/\/sylviohmartins\.github\.io\/vitaframe\/assets\/brand\/og-image\.png"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
-    assert.match(html, /class="brand-mark" aria-hidden="true"/);
+    assert.match(html, /data-brand-mark="open-frame-v"/);
+    assert.match(html, /stroke="var\(--accent\)"/);
+    assert.doesNotMatch(html, /assets\/brand\/brand\.css/, `${page} must not add a brand-only critical request`);
   }
 });
 
-test('service worker precaches runtime brand assets', async () => {
+test('service worker precaches offline brand assets without the optional brand stylesheet', async () => {
   const sw = await readFile('sw.js', 'utf8');
   for (const asset of [
-    './assets/brand/brand.css',
     './assets/brand/mark.svg',
     './assets/brand/favicon.svg',
     './assets/brand/favicon.ico',
@@ -128,4 +128,5 @@ test('service worker precaches runtime brand assets', async () => {
   ]) {
     assert.ok(sw.includes(`'${asset}'`), `${asset} must be precached`);
   }
+  assert.ok(!sw.includes("'./assets/brand/brand.css'"), 'brand.css must remain outside the runtime precache');
 });
