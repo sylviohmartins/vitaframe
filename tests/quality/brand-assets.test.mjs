@@ -26,6 +26,20 @@ function pngDimensions(buffer) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
 
+function icoSizes(buffer) {
+  assert.equal(buffer.readUInt16LE(0), 0, 'ICO reserved field');
+  assert.equal(buffer.readUInt16LE(2), 1, 'ICO type');
+  const count = buffer.readUInt16LE(4);
+  const sizes = [];
+  for (let index = 0; index < count; index += 1) {
+    const offset = 6 + index * 16;
+    const width = buffer[offset] || 256;
+    const height = buffer[offset + 1] || 256;
+    sizes.push(`${width}x${height}`);
+  }
+  return sizes;
+}
+
 test('brand assets are tracked and non-empty', async () => {
   for (const path of requiredAssets) {
     const info = await stat(path);
@@ -67,6 +81,13 @@ test('raster deliverables have the expected dimensions', async () => {
   }
 });
 
+test('ICO contains the browser compatibility sizes', async () => {
+  const sizes = new Set(icoSizes(await readFile('assets/brand/favicon.ico')));
+  assert.ok(sizes.has('16x16'));
+  assert.ok(sizes.has('32x32'));
+  assert.ok(sizes.has('48x48'));
+});
+
 test('manifest exposes regular and maskable PWA icons', async () => {
   const manifest = JSON.parse(await readFile('manifest.webmanifest', 'utf8'));
   const keys = new Set(manifest.icons.map(icon => `${icon.sizes}:${icon.purpose}`));
@@ -74,6 +95,7 @@ test('manifest exposes regular and maskable PWA icons', async () => {
   assert.ok(keys.has('512x512:any'));
   assert.ok(keys.has('192x192:maskable'));
   assert.ok(keys.has('512x512:maskable'));
+  assert.equal(manifest.theme_color, '#176b55');
 });
 
 test('every surface references browser, PWA and social brand metadata', async () => {
@@ -84,8 +106,9 @@ test('every surface references browser, PWA and social brand metadata', async ()
     assert.match(html, /assets\/brand\/apple-touch-icon\.png/);
     assert.match(html, /rel="manifest" href="\.\/manifest\.webmanifest"/);
     assert.match(html, /assets\/brand\/brand\.css/);
-    assert.match(html, /property="og:image"/);
+    assert.match(html, /property="og:image" content="https:\/\/sylviohmartins\.github\.io\/vitaframe\/assets\/brand\/og-image\.png"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
+    assert.match(html, /class="brand-mark" aria-hidden="true"/);
   }
 });
 
@@ -100,7 +123,8 @@ test('service worker precaches runtime brand assets', async () => {
     './assets/brand/icon-192.png',
     './assets/brand/icon-512.png',
     './assets/brand/icon-maskable-192.png',
-    './assets/brand/icon-maskable-512.png'
+    './assets/brand/icon-maskable-512.png',
+    './assets/brand/og-image.png'
   ]) {
     assert.ok(sw.includes(`'${asset}'`), `${asset} must be precached`);
   }
