@@ -2,6 +2,10 @@
 
 VitaFrame is a privacy-first, local-first V1 for structured health, nutrition and training assessment. It focuses on collecting context, preferences, routine, body data and training information in a way that can be reviewed and exported without turning the product into an autonomous prescription system.
 
+## Brand
+
+The VitaFrame identity uses the **Open Frame V**: an open modular frame around a central `V`, representing structured context around the individual without turning the product into a closed or clinical-looking system. Canonical brand assets live under `assets/brand/`, and usage guidance is documented in [docs/design/brand.md](docs/design/brand.md).
+
 ## V1 scope
 
 The current V1 includes:
@@ -53,7 +57,7 @@ npm run build
 ## Repository map
 
 - `.github/` — workflows, templates, CODEOWNERS and dependency automation.
-- `assets/` — application styles and static UI assets.
+- `assets/` — application styles and static UI assets, including `assets/brand/` for canonical brand files.
 - `docs/` — canonical internal documentation, grouped by product, architecture, design, engineering, governance, research and audits.
 - `scripts/` — deterministic build and repository quality tooling.
 - `src/` — application/runtime modules.

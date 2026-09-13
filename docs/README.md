@@ -17,6 +17,7 @@ This directory is the canonical entry point for internal product, architecture, 
 ## Design
 
 - [Design system](design/design-system.md)
+- [Brand identity](design/brand.md)
 - [UX architecture](design/ux-architecture.md)
 - [Accessibility](design/accessibility.md)
 - [Visual QA](design/visual-qa.md)

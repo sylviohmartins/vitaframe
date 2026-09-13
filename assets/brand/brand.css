@@ -1,0 +1,35 @@
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: block;
+  border-radius: 0;
+  background: var(--accent);
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  -webkit-mask: url('./mark.svg') center / contain no-repeat;
+  mask: url('./mark.svg') center / contain no-repeat;
+}
+
+.brand > span:last-child {
+  font-weight: 720;
+  letter-spacing: -.035em;
+}
+
+@supports not ((-webkit-mask: url("")) or (mask: url(""))) {
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--accent);
+  }
+
+  .brand-mark::after {
+    content: "V";
+    color: var(--bg);
+    font-size: 15px;
+    font-weight: 760;
+    line-height: 1;
+  }
+}
