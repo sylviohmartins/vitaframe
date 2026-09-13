@@ -15,7 +15,8 @@ Entregas:
 - importação assistida local;
 - handoff profissional local;
 - exportação segura;
-- CI/segurança/quality gates.
+- CI/segurança/quality gates;
+- estrutura de repositório governada por taxonomia documental, root budget e link checking.
 
 ## Fase 2 candidata — Validação longitudinal
 
