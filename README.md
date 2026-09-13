@@ -1,86 +1,73 @@
 # VitaFrame
 
-> **V1 — avaliação estruturada, adaptativa, local-first e orientada por evidências para corpo, alimentação, rotina e treino.**
+VitaFrame is a privacy-first, local-first V1 for structured health, nutrition and training assessment. It focuses on collecting context, preferences, routine, body data and training information in a way that can be reviewed and exported without turning the product into an autonomous prescription system.
 
-VitaFrame organiza contexto antes de qualquer plano. A V1 conduz uma avaliação progressiva, registra preferências por reconhecimento, distingue medição de estimativa, preserva histórico, identifica lacunas, permite handoff profissional e gera um perfil portátil — sem exigir conta ou backend.
+## V1 scope
 
-## Documentação
+The current V1 includes:
 
-A documentação interna possui uma arquitetura própria. Comece pelo **[índice de documentação](docs/README.md)**.
+- structured multi-step assessment;
+- adaptive interview with local explainable rules;
+- food-preference catalog and search;
+- editable current-meal timeline;
+- body/composition history and estimates;
+- health and attention flags without diagnosis;
+- assisted local import with conflict review;
+- profile summary and professional handoff;
+- local metrics without remote analytics;
+- JSON export/import and print/PDF;
+- encrypted export for sensitive data handoff;
+- responsive/mobile-first UI and dark mode;
+- PWA/offline support;
+- automated quality, E2E, accessibility/performance static checks, Impeccable and CodeQL.
 
-Atalhos principais:
+The V1 does **not** claim full clinical validation, full WCAG certification, autonomous nutrition/training prescription, or a production multi-user professional portal.
 
-- [Produto](docs/product/product.md)
-- [Requisitos da V1](docs/product/requirements.md)
-- [Arquitetura](docs/architecture/overview.md)
-- [Modelo de dados](docs/architecture/data-model.md)
-- [Design System](docs/design/design-system.md)
-- [UX](docs/design/ux-architecture.md)
-- [Pesquisa de mercado](docs/research/market.md)
-- [Regulatório](docs/governance/regulatory.md)
-- [Privacidade](docs/governance/privacy.md)
-- [Arquitetura de segurança](docs/governance/security.md)
-- [Testes](docs/engineering/testing.md)
-- [CI/CD](docs/engineering/ci-cd.md)
+## Run locally
 
-## Experiências V1
-
-- `index.html` — avaliação completa e perfil;
-- `adaptive.html` — entrevista adaptativa;
-- `meals.html` — timeline do dia alimentar;
-- `advanced.html` — centro de dados, importação assistida, histórico, revisão profissional e exportação protegida.
-
-## Privacidade e limites
-
-A V1 é local-first: não possui backend, analytics remoto, pixels, fontes/scripts runtime de terceiros ou LLM externo recebendo dados de saúde. Persistência local ocorre após consentimento. `localStorage` não deve ser tratado como prontuário ou cofre criptográfico.
-
-VitaFrame V1 não diagnostica, não trata doença e não substitui nutricionista, profissional de Educação Física ou avaliação médica quando indicada. Consulte [privacidade](docs/governance/privacy.md), [segurança](docs/governance/security.md), [guardrails de IA](docs/governance/ai-guardrails.md) e [regulatório](docs/governance/regulatory.md).
-
-## Executar
-
-Não há dependências runtime nem etapa de compilação para abrir a aplicação.
-
-```bash
-python3 -m http.server 4173
-```
-
-Abra `http://localhost:4173`.
-
-## Validar
+Requirements: Node.js 22+.
 
 ```bash
 npm ci
+python3 -m http.server 4173
+```
+
+Then open `http://127.0.0.1:4173`.
+
+## Validate
+
+```bash
 npm run ci
 npm run e2e
 ```
 
-O pipeline valida formatação, sintaxe, regras de lint, testes unitários/quality, estrutura do repositório, links internos, regras funcionais, `npm audit`, build, E2E, acessibilidade objetiva, performance, regressão visual, Impeccable e CodeQL.
+Important individual checks:
 
-## Estrutura
-
-```text
-.github/     automação e governança GitHub
-assets/      CSS e assets estáticos
-src/         runtime da aplicação
-docs/        documentação por domínio
-scripts/     build e quality tooling
-tests/       unit, quality e E2E
+```bash
+npm run structure
+npm run links
+npm test
+npm run build
 ```
 
-A raiz é reservada a entrypoints, manifestos/configuração global e arquivos humanos reconhecidos pelo ecossistema. O CI impede que documentação interna volte a se acumular nela.
+## Repository map
 
-## GitHub Actions
+- `.github/` — workflows, templates, CODEOWNERS and dependency automation.
+- `assets/` — application styles and static UI assets.
+- `docs/` — canonical internal documentation, grouped by product, architecture, design, engineering, governance, research and audits.
+- `scripts/` — deterministic build and repository quality tooling.
+- `src/` — application/runtime modules.
+- `tests/` — unit, quality and browser E2E validation.
+- root HTML files + `manifest.webmanifest` + `sw.js` — static/PWA entrypoints.
 
-- `.github/workflows/ci.yml` — quality, E2E, Impeccable, security e `quality-gate`;
-- `.github/workflows/security.yml` — CodeQL;
-- `.github/workflows/preview.yml` — artifact estático por PR;
-- `.github/workflows/scheduled.yml` — validação periódica;
-- `.github/workflows/deploy.yml` — GitHub Pages quando o repositório estiver administrativamente habilitado.
+Start with [the documentation index](docs/README.md) for product, architecture, design, engineering, governance and research material.
 
-## Segurança
+## Security
 
-Para reportar uma vulnerabilidade, consulte [`SECURITY.md`](SECURITY.md). Não publique dados pessoais, dados de saúde ou detalhes exploráveis em issues públicas.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting. Technical threat-model and security architecture details live in [docs/governance/security.md](docs/governance/security.md).
 
-## Licença
+## Product status
 
-Ainda não definida. Todos os direitos reservados até escolha explícita de licença.
+The V1 codebase has been audited against the Prompt Mestre and the technically executable scope is represented in [docs/product/requirements.md](docs/product/requirements.md) and [docs/audits/prompt-v1.md](docs/audits/prompt-v1.md).
+
+External validation remains intentionally separate from code completion: real-user usability studies, manual assistive-technology accessibility review, repository administrative protections, and public production hosting are tracked outside the automated implementation gates.
