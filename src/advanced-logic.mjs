@@ -82,8 +82,6 @@ export function createProgressSnapshot(state = {}, now = new Date().toISOString(
     weightKg: numberFrom(body.weightKg),
     waistCm: numberFrom(body.waistCm),
     bodyFatPct: numberFrom(body.bodyFatPct),
-    bodyFatSource: body.bodyFatSource || '',
-    bodyFatDate: body.bodyFatDate || '',
     goal: state.goal?.primary || '',
     trainingDaysPerWeek: numberFrom(state.training?.daysPerWeek),
     sleepHours: numberFrom(state.recovery?.sleepHours)
