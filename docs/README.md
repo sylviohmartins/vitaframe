@@ -20,6 +20,7 @@ This directory is the canonical entry point for internal product, architecture, 
 - [Brand identity](design/brand.md)
 - [UX architecture](design/ux-architecture.md)
 - [Accessibility](design/accessibility.md)
+- [Manual accessibility audit](design/accessibility-audit.md)
 - [Visual QA](design/visual-qa.md)
 
 ## Engineering
@@ -39,6 +40,7 @@ This directory is the canonical entry point for internal product, architecture, 
 
 - [Market research](research/market.md)
 - [Validation plan](research/validation-plan.md)
+- [Validation results](research/validation-results.md)
 - [Evidence map](research/evidence-map.md)
 
 ## Audits
