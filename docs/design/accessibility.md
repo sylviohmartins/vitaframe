@@ -46,6 +46,8 @@ Automação não comprova WCAG integral. Permanecem dependências humanas explí
 
 A matriz de viewports automatizada **não simula fielmente teclado virtual, leitor de tela ou ergonomia física do aparelho**; esses pontos continuam no protocolo manual e não são marcados como concluídos artificialmente.
 
+A execução e as evidências devem ser registradas em [`accessibility-audit.md`](accessibility-audit.md). Esse arquivo define resultados `PASS`/`FAIL`/`BLOCKED`/`N/A`, severidade, ambientes, superfícies mínimas, registro de findings, reteste e critérios objetivos para concluir o bloco de acessibilidade da issue #3.
+
 ## Regra de produto
 
 Nenhuma saída de saúde pode depender somente de cor, ícone ou posição. Estimativas, alertas e red flags devem possuir texto explícito.
