@@ -45,7 +45,17 @@ A V1 manipula potencialmente dados sensíveis de saúde no navegador. Os riscos 
 - permissões mínimas por workflow;
 - artifacts com retenção curta e sem dados reais de usuário.
 
-A auditoria que introduziu `security-extended` verificou o SARIF das suites padrão e ampliada e obteve zero findings no código analisado naquele estado. Isso é evidência daquele scan, não uma promessa de ausência permanente de vulnerabilidades; as verificações continuam sendo executadas a cada alteração relevante.
+### Estado atual do Code Scanning
+
+Uma revisão posterior do SARIF da `main` identificou que uma conclusão anterior de “0 findings” estava incorreta. O scan `security-extended` continha 12 resultados:
+
+- 8 × `js/xss-through-dom`;
+- 3 × `js/remote-property-injection`;
+- 1 × `js/clear-text-storage-of-sensitive-data`.
+
+O PR #13 corrigiu os 12 findings no código, sem suprimir regras, dispensar alertas ou reduzir a cobertura do scanner. As correções incluíram tornar o escaping HTML reconhecível pela análise estática, remover o uso direto de `blob:` no preview local, eliminar proveniência redundante de composição corporal em snapshots de texto claro e limitar/normalizar a indexação das métricas locais.
+
+Depois do Squash Merge, o workflow `Security` executou novamente sobre a `main` em `c02cde33cab3938cdaf136e0c6423598144a44c8`. O artifact SARIF desse scan foi baixado e inspecionado diretamente: `runs[].results = []`. Esse resultado comprova ausência de findings no scan daquele SHA; não é uma promessa de ausência permanente de vulnerabilidades, por isso CodeQL continua sendo executado em PRs, na `main` e por schedule.
 
 ## Secure-by-default
 
