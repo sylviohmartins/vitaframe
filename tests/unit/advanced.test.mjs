@@ -57,15 +57,23 @@ test('applyDetectedValues never applies unsupported fields into body implicitly'
   assert.equal(next.imported.last.detected.length, 2);
 });
 
-test('createProgressSnapshot preserves temporal body context', () => {
+test('createProgressSnapshot preserves temporal body context without duplicating measurement provenance', () => {
   const snap = createProgressSnapshot({
-    body: { weightKg: '89.65', waistCm: '96', bodyFatPct: '28.2', bodyFatSource: 'bioimpedance-home' },
+    body: {
+      weightKg: '89.65',
+      waistCm: '96',
+      bodyFatPct: '28.2',
+      bodyFatSource: 'bioimpedance-home',
+      bodyFatDate: '2026-09-11',
+    },
     goal: { primary: 'fat-loss' }, training: { daysPerWeek: '4' }, recovery: { sleepHours: '7.5' },
   }, '2026-09-11T12:00:00.000Z');
   assert.equal(snap.weightKg, 89.65);
   assert.equal(snap.waistCm, 96);
   assert.equal(snap.bodyFatPct, 28.2);
   assert.equal(snap.trainingDaysPerWeek, 4);
+  assert.equal(snap.bodyFatSource, undefined);
+  assert.equal(snap.bodyFatDate, undefined);
 });
 
 test('localMetrics does not require health-content telemetry', () => {
