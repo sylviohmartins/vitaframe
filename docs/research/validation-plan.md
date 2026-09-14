@@ -54,6 +54,12 @@ O agente não deve inventar evidência de UX Research. Estas hipóteses permanec
 - intenção de retorno após 30 dias;
 - SUS (System Usability Scale), se apropriado.
 
+## Registro operacional
+
+O roteiro de tarefas, registro de sessões, métricas agregadas, findings e critérios de saída estão em [`validation-results.md`](validation-results.md).
+
+Esse arquivo inicia explicitamente sem resultados e só pode receber evidência derivada de sessões reais. Participantes devem ser anonimizados (`U##`, `N##`, `PE##`) e nenhum dado pessoal ou de saúde real deve ser commitado no repositório público.
+
 ## Regra de evidência
 
-Resultados só entram em `docs/RESEARCH.md` como fatos após coleta real. Até lá devem permanecer rotulados como hipótese ou plano de validação.
+Resultados só entram em [`validation-results.md`](validation-results.md) como fatos após coleta real. Até lá devem permanecer rotulados como hipótese, plano ou pendência. Resultados simulados, inferidos ou gerados por agente nunca substituem sessões reais.
