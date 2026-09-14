@@ -17,6 +17,7 @@ import {
 const HISTORY_KEY = 'vitaframe:v1:history';
 const REVIEW_KEY = 'vitaframe:v1:professional-review';
 const SECURE_FORMAT = 'vitaframe-secure-v1';
+const IMPORT_PREVIEW_PLACEHOLDER = './assets/import-preview-placeholder.svg';
 
 const $ = selector => document.querySelector(selector);
 const enc = new TextEncoder();
@@ -26,11 +27,11 @@ let detected = [];
 
 function esc(value = '') {
   return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function currentState() {
@@ -373,12 +374,12 @@ $('#healthImage').addEventListener('change', event => {
   const image = $('#imagePreview');
   if (!selectedImageFile) {
     wrap.hidden = true;
-    image.removeAttribute('src');
+    image.src = IMPORT_PREVIEW_PLACEHOLDER;
+    image.alt = 'Prévia do screenshot selecionado';
     return;
   }
-  const url = URL.createObjectURL(selectedImageFile);
-  image.src = url;
-  image.onload = () => URL.revokeObjectURL(url);
+  image.src = IMPORT_PREVIEW_PLACEHOLDER;
+  image.alt = `Screenshot selecionado: ${selectedImageFile.name}`;
   wrap.hidden = false;
 });
 $('#detectButton').addEventListener('click', identifyImport);
@@ -387,7 +388,8 @@ $('#clearImportButton').addEventListener('click', () => {
   $('#healthImage').value = '';
   $('#healthText').value = '';
   $('#imagePreviewWrap').hidden = true;
-  $('#imagePreview').removeAttribute('src');
+  $('#imagePreview').src = IMPORT_PREVIEW_PLACEHOLDER;
+  $('#imagePreview').alt = 'Prévia do screenshot selecionado';
   detected = [];
   renderDetected();
 });
