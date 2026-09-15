@@ -21,6 +21,7 @@ import {
   saveTheme,
   setConsent,
 } from './storage.mjs';
+import { escapeHtml as esc } from './safe-html.mjs';
 
 const app = document.querySelector('#app');
 const toast = document.querySelector('#toast');
@@ -74,15 +75,6 @@ const steps = [
   ['Revisão', 'Confira lacunas e inconsistências antes de concluir.'],
   ['Perfil', 'Veja um resumo portátil e orientado para próxima ação.']
 ];
-
-function esc(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
 
 function showToast(message) {
   toast.textContent = message;
