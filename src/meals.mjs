@@ -1,5 +1,6 @@
 import { foodCatalog } from './catalog.mjs';
 import { hasConsent, loadState, loadTheme, saveState, saveTheme } from './storage.mjs';
+import { escapeHtml as esc } from './safe-html.mjs';
 
 const fallback = {
   meta: { version: 1, createdAt: new Date().toISOString(), lastStep: 4 },
@@ -11,15 +12,6 @@ state.currentDiet ??= { answered: false };
 state.currentDiet.mealTimeline ??= [];
 
 const $ = selector => document.querySelector(selector);
-
-function esc(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
 
 function id() {
   return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
