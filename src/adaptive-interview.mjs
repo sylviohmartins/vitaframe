@@ -1,5 +1,6 @@
 import { hasConsent, loadState, loadTheme, saveState, saveTheme } from './storage.mjs';
 import { adaptiveQuestions, getPath, normalizeAnswer, setPath } from './adaptive-interview-logic.mjs';
+import { escapeHtml as esc } from './safe-html.mjs';
 
 const fallback = {
   meta: { version: 1, createdAt: new Date().toISOString(), lastStep: 1, adaptiveSkipped: {} },
@@ -23,15 +24,6 @@ state.lifestyle ??= {};
 const $ = selector => document.querySelector(selector);
 const host = $('#questionHost');
 const progress = $('#adaptiveProgress');
-
-function esc(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
 
 function toast(message) {
   const node = $('#toast');
