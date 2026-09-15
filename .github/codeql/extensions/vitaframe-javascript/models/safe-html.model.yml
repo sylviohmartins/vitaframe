@@ -1,0 +1,6 @@
+extensions:
+  - addsTo:
+      pack: codeql/javascript-all
+      extensible: barrierModel
+    data:
+      - ["file:src/safe-html.mjs", "Member[escapeHtml].ReturnValue", "html-injection"]
