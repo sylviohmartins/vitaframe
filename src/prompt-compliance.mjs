@@ -1,5 +1,6 @@
 import { calculateBMI, calculateBMR, completeness, dataQualityIssues, redFlags } from './logic.mjs';
 import { hasConsent, STORAGE_KEY } from './storage.mjs';
+import { escapeHtml as esc } from './safe-html.mjs';
 
 const HISTORY_KEY = 'vitaframe:v1:history';
 
@@ -9,15 +10,6 @@ const emptyMirror = () => ({
 });
 
 let mirror = loadPersisted() || emptyMirror();
-
-function esc(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
 
 function loadPersisted() {
   if (!hasConsent()) return null;
