@@ -227,6 +227,39 @@ try {
     }));
   })()`);
 
+  await cdp.send('Page.navigate', { url: `${origin}/index.html#assessment?step=3` });
+  await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('input[name="health.allergyStatus"][value="yes"]')`, 'structured health intake');
+  await cdp.evaluate(`(() => {
+    const status=document.querySelector('input[name="health.allergyStatus"][value="yes"]');
+    status.checked=true; status.dispatchEvent(new Event('change',{bubbles:true}));
+    const milk=document.querySelector('input[data-array-path="health.allergyItems"][value="milk"]');
+    const other=document.querySelector('input[data-array-path="health.allergyItems"][value="other"]');
+    milk.checked=true; milk.dispatchEvent(new Event('change',{bubbles:true}));
+    other.checked=true; other.dispatchEvent(new Event('change',{bubbles:true}));
+    const detail=document.querySelector('input[name="health.allergyOther"]');
+    detail.value='mostarda'; detail.dispatchEvent(new Event('input',{bubbles:true}));
+  })()`);
+  const structuredHealth = await cdp.evaluate(`JSON.parse(localStorage.getItem('vitaframe:v1:assessment'))`);
+  if (structuredHealth.meta.version !== 2) throw new Error(`Structured migration did not persist schema v2: ${structuredHealth.meta.version}`);
+  if (structuredHealth.health.allergyStatus !== 'yes' || !structuredHealth.health.allergyItems?.includes('milk') || !structuredHealth.health.allergyItems?.includes('other') || structuredHealth.health.allergyOther !== 'mostarda') {
+    throw new Error(`Structured allergy persistence failed: ${JSON.stringify(structuredHealth.health)}`);
+  }
+  await assertAX(cdp, 'structured health intake');
+  await screenshot(cdp, 'structured-health-mobile');
+
+  await cdp.send('Page.navigate', { url: `${origin}/index.html#assessment?step=4` });
+  await waitForPage(cdp, `!!document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="skip"]')`, 'structured diet intake');
+  await cdp.evaluate(`(() => {
+    const common=document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="bread-eggs"]');
+    common.checked=true; common.dispatchEvent(new Event('change',{bubbles:true}));
+    const skip=document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="skip"]');
+    skip.checked=true; skip.dispatchEvent(new Event('change',{bubbles:true}));
+  })()`);
+  const breakfastChoices = await cdp.evaluate(`JSON.parse(localStorage.getItem('vitaframe:v1:assessment')).currentDiet.breakfastChoices`);
+  if (JSON.stringify(breakfastChoices) !== JSON.stringify(['skip'])) throw new Error(`Exclusive meal choice failed: ${JSON.stringify(breakfastChoices)}`);
+  await assertAX(cdp, 'structured diet intake');
+  await screenshot(cdp, 'structured-diet-mobile');
+
   await cdp.send('Page.navigate', { url: `${origin}/advanced.html` });
   await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#adaptiveList .adaptive-item')`, 'advanced adaptive list');
   await assertAX(cdp, 'advanced center');
