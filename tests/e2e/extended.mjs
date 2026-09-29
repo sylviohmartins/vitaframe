@@ -213,6 +213,7 @@ try {
   if (mobileVitals.vitals.lcp > 2500) throw new Error(`LCP budget failed: ${mobileVitals.vitals.lcp}ms`);
   if (mobileVitals.requests > 12) throw new Error(`Critical request budget failed: ${mobileVitals.requests}`);
   await assertAX(cdp, 'mobile home');
+  await screenshot(cdp, 'home-mobile');
 
   await cdp.evaluate(`(() => {
     localStorage.setItem('vitaframe:v1:consent','yes');
