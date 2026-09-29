@@ -1,5 +1,18 @@
 import { foodCatalog, preferenceScale, references } from './catalog.mjs';
 import {
+  activityOptions,
+  allergyOptions,
+  cardioOptions,
+  formatSelections,
+  intoleranceOptions,
+  limitationAreaOptions,
+  mealQuickOptions,
+  statusOptions,
+  supplementOptions,
+  trainingSplitOptions,
+  weekendOptions,
+} from './question-options.mjs';
+import {
   calculateBMI,
   calculateBMR,
   completeness,
@@ -28,36 +41,51 @@ const themeToggle = document.querySelector('#themeToggle');
 const privacyButton = document.querySelector('#privacyButton');
 
 const initialState = {
-  meta: { version: 1, createdAt: new Date().toISOString(), lastStep: 1 },
+  meta: { version: 2, createdAt: new Date().toISOString(), lastStep: 1 },
   goal: { primary: '', pace: '', notes: '' },
   body: {
     age: '', sex: '', heightCm: '', weightKg: '', usualWeightKg: '', waistCm: '',
-    bodyFatPct: '', bodyFatSource: '', bodyFatDate: '', goalWeightKg: ''
+    bodyFatPct: '', bodyFatSource: '', bodyFatSourceOther: '', bodyFatDate: '', goalWeightKg: ''
   },
   health: {
-    answered: false, allergies: '', intolerances: '', conditions: '', medications: '', surgeries: '', pain: '',
+    answered: false,
+    allergies: '', allergyStatus: '', allergyItems: [], allergyOther: '',
+    intolerances: '', intoleranceStatus: '', intoleranceItems: [], intoleranceOther: '',
+    conditions: '', conditionStatus: '', medications: '', medicationStatus: '',
+    surgeries: '', surgeryStatus: '', pain: '', painStatus: '', painAreas: [], painOther: '',
+    attentionStatus: '',
     medicalFollowup: false, chestPain: false, eatingDisorder: false, rapidWeightChange: false,
     pregnancy: false, kidneyDisease: false, diabetesMedication: false, acuteInjury: false
   },
   currentDiet: {
-    answered: false, breakfast: '', lunch: '', snack: '', dinner: '', supper: '', drinks: '', sweets: '',
-    deliveryPerWeek: '', eatOutPerWeek: '', waterLiters: '', weekendDiff: ''
+    answered: false,
+    breakfast: '', breakfastChoices: [], breakfastOther: '',
+    lunch: '', lunchChoices: [], lunchOther: '',
+    snack: '', snackChoices: [], snackOther: '',
+    dinner: '', dinnerChoices: [], dinnerOther: '',
+    supper: '', supperChoices: [], supperOther: '',
+    drinks: '', drinksChoices: [], drinksOther: '',
+    sweets: '', sweetsChoices: [], sweetsOther: '',
+    deliveryPerWeek: '', eatOutPerWeek: '', waterLiters: '',
+    weekendDiff: '', weekendChoices: [], weekendOther: ''
   },
   foodPreferences: {},
   foodNotes: { mustKeep: '', avoid: '', controlRisk: '', other: '' },
   routine: {
-    answered: false, wakeTime: '', sleepTime: '', workMode: '', workHours: '', commute: '', cook: '',
-    mealPrep: '', fridgeMicrowave: '', budget: '', preferredMeals: '', hungerPeriod: '', notes: ''
+    answered: false, wakeTime: '', sleepTime: '', workMode: '', workModeOther: '', workHours: '', commute: '',
+    cook: '', mealPrep: '', fridgeMicrowave: '', budget: '', preferredMeals: '', hungerPeriod: '', notes: ''
   },
   training: {
-    answered: false, daysPerWeek: '', durationMin: '', intensity: '', split: '', time: '', experience: '',
-    cardio: '', cardioFrequency: '', steps: '', otherActivity: '', limitations: ''
+    answered: false, daysPerWeek: '', durationMin: '', intensity: '', split: '', splitOther: '', time: '', experience: '',
+    cardio: '', cardioModalities: [], cardioOther: '', cardioDurationMin: '', cardioFrequency: '', steps: '',
+    otherActivity: '', activityTypes: [], activityOther: '', limitations: '', limitationStatus: '',
+    limitationAreas: [], limitationOther: '', exerciseSelections: [], exerciseOther: ''
   },
   recovery: {
     answered: false, sleepHours: '', sleepQuality: '', stress: '', hydration: '', hungerNight: '',
-    emotionalEating: '', supplements: '', notes: ''
+    emotionalEating: '', supplements: '', supplementStatus: '', supplementTypes: [], supplementOther: '', notes: ''
   }
-};
+}
 
 let state = loadState(structuredClone(initialState));
 let currentStep = Number(state?.meta?.lastStep || 1);
@@ -131,6 +159,38 @@ function select({ label, name, value = '', options, help = '' }) {
 
 function checkbox({ label, name, checked = false, help = '' }) {
   return `<label class="check"><input type="checkbox" name="${esc(name)}" ${checked ? 'checked' : ''}><span><strong>${esc(label)}</strong>${help ? `<small>${esc(help)}</small>` : ''}</span></label>`;
+}
+
+function setPathValue(object, path, value) {
+  const parts = path.split('.');
+  let cursor = object;
+  for (let i = 0; i < parts.length - 1; i += 1) cursor = cursor[parts[i]] ??= {};
+  cursor[parts.at(-1)] = value;
+}
+
+function radioChoices({ legend, name, value = '', options, help = '', otherName = '', otherValue = '', otherLabel = 'Descreva' }) {
+  const choices = options.map(([id, label]) =>
+    `<label class="structured-option"><input type="radio" name="${esc(name)}" value="${esc(id)}" ${String(value) === String(id) ? 'checked' : ''}><span>${esc(label)}</span></label>`
+  ).join('');
+  const other = otherName
+    ? `<label class="field conditional-other"><span>${esc(otherLabel)}</span><input name="${esc(otherName)}" type="text" value="${esc(otherValue)}" maxlength="160"></label>`
+    : '';
+  return `<fieldset class="structured-group"><legend>${esc(legend)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div>${other}</fieldset>`;
+}
+
+function multiChoices({ legend, name, values = [], options, help = '', otherName = '', otherValue = '', otherLabel = 'Outro — descreva', exclusive = [] }) {
+  const selected = Array.isArray(values) ? values : [];
+  const choices = options.map(([id, label]) =>
+    `<label class="structured-option"><input type="checkbox" name="${esc(name)}" data-array-path="${esc(name)}" value="${esc(id)}" ${selected.includes(id) ? 'checked' : ''} ${exclusive.includes(id) ? 'data-exclusive="true"' : ''}><span>${esc(label)}</span></label>`
+  ).join('');
+  const other = otherName
+    ? `<label class="field conditional-other"><span>${esc(otherLabel)}</span><input name="${esc(otherName)}" type="text" value="${esc(otherValue)}" maxlength="180"></label>`
+    : '';
+  return `<fieldset class="structured-group"><legend>${esc(legend)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div>${other}</fieldset>`;
+}
+
+function statusWithText({ legend, statusName, statusValue, textName, textValue, textLabel, help = '', placeholder = '' }) {
+  return `<div class="conditional-block">${radioChoices({ legend, name: statusName, value: statusValue, options: statusOptions, help })}<label class="field field-wide conditional-yes"><span>${esc(textLabel)}</span><textarea name="${esc(textName)}" rows="3" placeholder="${esc(placeholder)}" maxlength="800">${esc(textValue)}</textarea></label></div>`;
 }
 
 function pageHeader(eyebrow, title, copy) {
