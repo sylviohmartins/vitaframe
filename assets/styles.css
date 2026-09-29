@@ -251,6 +251,8 @@ dd { margin: 0; text-align: right; font-weight: 620; }
 .conditional-block > .conditional-yes { display: none; }
 .conditional-block:has(> .structured-group input[type="radio"][value="yes"]:checked) > .conditional-yes { display: grid; }
 .structured-group > .conditional-other { display: none; margin-top: 12px; }
+.conditional-bodyfat-other { display: none; }
+.form-grid:has(select[name="body.bodyFatSource"] option[value="other"]:checked) > .conditional-bodyfat-other { display: grid; }
 .structured-group:has(input[value="other"]:checked) > .conditional-other { display: grid; }
 .structured-group .field input { background: var(--surface-2); }
 
