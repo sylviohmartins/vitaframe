@@ -84,8 +84,9 @@ test('localMetrics does not require health-content telemetry', () => {
   assert.deepEqual(metrics, { currentStep: 6, elapsedMinutes: 15, historyCount: 1, hasGoal: true, hasBodyBasics: true, ratedFoods: 2 });
 });
 
-test('validateImportObject rejects malformed and incompatible imports', () => {
+test('validateImportObject accepts v1/v2 and rejects malformed or future incompatible imports', () => {
   assert.equal(validateImportObject(null).ok, false);
-  assert.equal(validateImportObject({ meta: { version: 2 }, goal: {}, body: {}, health: {} }).ok, false);
   assert.equal(validateImportObject({ meta: { version: 1 }, goal: {}, body: {}, health: {} }).ok, true);
+  assert.equal(validateImportObject({ meta: { version: 2 }, goal: {}, body: {}, health: {} }).ok, true);
+  assert.equal(validateImportObject({ meta: { version: 3 }, goal: {}, body: {}, health: {} }).ok, false);
 });
