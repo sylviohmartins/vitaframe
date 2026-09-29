@@ -1,7 +1,7 @@
 # Auditoria de perguntas e UX de respostas — VitaFrame v2
 
-Data da auditoria: 2026-09-29  
-Branch: `feat/structured-answer-ux`  
+Data da auditoria: 2026-09-29
+Branch: `feat/structured-answer-ux`
 Base: `main@e89ea6e3a5dd18918d5476ca44bea911216d1790`
 
 ## Objetivo
@@ -230,9 +230,9 @@ Importação de texto/OCR, arquivos e senha criptográfica não foram artificial
 
 ### Alergias
 
-- ANVISA, Perguntas e Respostas sobre Rotulagem de Alimentos Alergênicos: informa que oito grupos respondem por cerca de 90% dos casos de alergia alimentar e fundamenta a rotulagem brasileira.  
+- ANVISA, Perguntas e Respostas sobre Rotulagem de Alimentos Alergênicos: informa que oito grupos respondem por cerca de 90% dos casos de alergia alimentar e fundamenta a rotulagem brasileira.
   https://www.gov.br/anvisa/pt-br/centraisdeconteudo/publicacoes/alimentos/perguntas-e-respostas/arquivos/alergenicos.pdf
-- ASBAI, Alergia alimentar: destaca leite, ovo, soja, trigo, amendoim, castanhas, crustáceos e peixes como principais causas e reconhece diferenças regionais e alimentos emergentes.  
+- ASBAI, Alergia alimentar: destaca leite, ovo, soja, trigo, amendoim, castanhas, crustáceos e peixes como principais causas e reconhece diferenças regionais e alimentos emergentes.
   https://asbai.org.br/
 - ASBAI / Registro Brasileiro de Anafilaxia: alimentos, medicamentos e insetos aparecem entre os principais desencadeadores; látex também é reconhecido.
 
