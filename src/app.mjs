@@ -533,19 +533,39 @@ function bindForm() {
 function handleFieldChange(event) {
   const target = event.target;
   if (!target?.name) return;
+
   if (target.name.startsWith('preference.')) {
     const id = target.name.split('.')[1];
     state.foodPreferences[id] = target.value === 'n' ? 'n' : Number(target.value);
-  } else {
-    const [group, key] = target.name.split('.');
-    if (!state[group]) return;
-    state[group][key] = target.type === 'checkbox' ? target.checked : target.value;
-    if (group === 'health') state.health.answered = true;
-    if (group === 'currentDiet') state.currentDiet.answered = true;
-    if (group === 'routine') state.routine.answered = true;
-    if (group === 'training') state.training.answered = true;
-    if (group === 'recovery') state.recovery.answered = true;
+    persist();
+    return;
   }
+
+  const arrayPath = target.dataset.arrayPath;
+  if (arrayPath) {
+    const group = target.closest('.structured-group');
+    if (target.checked && target.dataset.exclusive === 'true') {
+      group?.querySelectorAll('[data-array-path]').forEach(input => {
+        if (input !== target) input.checked = false;
+      });
+    } else if (target.checked) {
+      group?.querySelectorAll('[data-array-path][data-exclusive="true"]').forEach(input => { input.checked = false; });
+    }
+    const values = [...(group?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
+    setPathValue(state, arrayPath, values);
+  } else {
+    setPathValue(state, target.name, target.type === 'checkbox' ? target.checked : target.value);
+  }
+
+  const root = target.name.split('.')[0];
+  if (['health','currentDiet','routine','training','recovery'].includes(root)) state[root].answered = true;
+
+  if (target.name === 'health.attentionStatus' && target.value !== 'yes') {
+    for (const key of ['medicalFollowup','chestPain','eatingDisorder','rapidWeightChange','pregnancy','kidneyDisease','diabetesMedication','acuteInjury']) {
+      state.health[key] = false;
+    }
+  }
+
   persist();
 }
 
