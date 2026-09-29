@@ -63,3 +63,6 @@ code { padding: 2px 5px; border-radius: 6px; background: var(--surface-2); borde
   .advanced-nav, .topbar, .site-footer, .inline-actions, .history-row button { display: none !important; }
   .advanced-section { break-inside: avoid; }
 }
+
+.professional-type-other { display: none; }
+#professionalForm:has(select[name="type"] option[value="other"]:checked) .professional-type-other { display: grid; }
