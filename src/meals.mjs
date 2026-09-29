@@ -107,11 +107,11 @@ function render() {
       </div>
       <div class="meal-grid">
         <label class="field"><span>Horário</span><input name="time" type="time" value="${esc(meal.time)}"></label>
-        <label class="field"><span>Nome</span><input name="label" type="text" value="${esc(meal.label)}" placeholder="Ex.: pós-treino"></label>
+        <label class="field"><span>Nome</span><input name="label" type="text" list="mealLabelOptions" value="${esc(meal.label)}" placeholder="Ex.: pós-treino"></label>
         <label class="field field-wide"><span>Buscar alimento</span><div class="meal-food-search"><input name="foodSearch" type="search" list="mealFoodOptions" value="${esc(meal.foodSearch)}" placeholder="Digite banana, arroz, frango, pizza…"><button class="button secondary compact" data-action="add-food" type="button">Adicionar à refeição</button></div><small>Use a busca para lembrar opções; você também pode escrever alimentos livres abaixo.</small></label>
         <label class="field field-wide"><span>O que você normalmente come/bebe?</span><textarea name="foods" rows="3" placeholder="Ex.: arroz, feijão, frango, salada e refrigerante zero">${esc(meal.foods)}</textarea></label>
-        <label class="field"><span>Quantidade aproximada</span><input name="quantity" type="text" value="${esc(meal.quantity)}" placeholder="Ex.: 2 colheres, 150 g, 1 unidade"></label>
-        <label class="field"><span>Frequência</span><input name="frequency" type="text" value="${esc(meal.frequency)}" placeholder="Ex.: todos os dias, 3x/semana"></label>
+        <label class="field"><span>Quantidade aproximada</span><input name="quantity" type="text" list="mealQuantityOptions" value="${esc(meal.quantity)}" placeholder="Ex.: 2 colheres, 150 g, 1 unidade"></label>
+        <label class="field"><span>Frequência</span><input name="frequency" type="text" list="mealFrequencyOptions" value="${esc(meal.frequency)}" placeholder="Ex.: todos os dias, 3x/semana"></label>
         <label class="quantity-toggle field-wide"><input name="quantityUnknown" type="checkbox" ${meal.quantityUnknown ? 'checked' : ''}> Não sei informar as quantidades com confiança</label>
       </div>
     </article>`).join('');
