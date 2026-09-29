@@ -40,3 +40,10 @@ INP é uma métrica de campo. A V1 não declara conformidade de INP a partir de 
 ## Produção
 
 Core Web Vitals reais dependem de rede, dispositivo e hosting. A publicação comercial deve acompanhar dados de campo agregados e anônimos somente se houver base legal e arquitetura de privacidade compatível.
+
+
+## Structured-answer v2 delta
+
+A extração das taxonomias para `src/question-options.mjs` adiciona exatamente um módulo ES same-origin ao carregamento da Home. O módulo é necessário em avaliação, persistência/migração e complementos de UX, é precacheado pelo service worker e não adiciona dependência externa.
+
+Por isso, o budget sintético de critical resource requests passa de 12 para **13**, sem margem adicional. O CI continua falhando a partir de 14 requests. O bundle lógico principal continua sujeito ao budget explícito de tamanho definido no E2E.
