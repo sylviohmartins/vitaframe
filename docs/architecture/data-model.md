@@ -134,11 +134,29 @@ Principais registros:
 
 ## Versionamento
 
-- schema atual: `v1`;
+- schema lógico atual: `v2`, com compatibilidade de leitura/migração para `v1`;
+- a chave local permanece `vitaframe:v1:assessment` para localizar dados existentes sem criar perda silenciosa;
 - mudanças incompatíveis exigem migração explícita;
-- importações devem validar `meta.version` antes de substituir o estado;
+- importações aceitam `meta.version` 1 ou 2 e migram para v2 antes de persistir;
 - histórico explícito é preferido a overwrite silencioso para medições longitudinais.
 
 ## Segurança
 
 `localStorage` não é cofre criptográfico. O uso atual reduz centralização e transmissão, mas dados exportados podem ser protegidos com o formato `.vfsecure` da V1, baseado em PBKDF2-SHA256 + AES-GCM. Uma futura arquitetura multiusuário deverá introduzir autenticação, autorização, criptografia em trânsito/repouso, auditoria, retenção e segregação.
+
+## Respostas estruturadas v2
+
+A v2 separa estado semântico de complemento livre. Exemplos:
+
+- `health.allergyStatus` + `health.allergyItems[]` + `health.allergyOther`;
+- `health.medicationStatus` + `health.medications`;
+- `currentDiet.breakfastChoices[]` + `currentDiet.breakfastOther`;
+- `training.cardioModalities[]` + `training.cardioOther`;
+- `training.limitationStatus` + `training.limitationAreas[]` + `training.limitationOther`;
+- `recovery.supplementStatus` + `recovery.supplementTypes[]` + `recovery.supplementOther`.
+
+IDs estáveis são persistidos; labels pertencem à camada de apresentação. `none`, `unsure` e `prefer-not` são estados distintos quando aplicáveis.
+
+### Migração
+
+`migrateStructuredState` é executado na leitura, gravação e importação do assessment. Texto legado de uma taxonomia aberta é preservado como `other + texto original`; o migrador só converte automaticamente valores quando a equivalência é objetiva.
