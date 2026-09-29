@@ -270,6 +270,27 @@ try {
   await waitForPage(cdp, `document.querySelectorAll('#historyList .history-row').length===1`, 'history snapshot');
   await screenshot(cdp, 'advanced-mobile');
 
+  // Isolate the branching assertion from state left by earlier E2E scenarios.
+  // All higher/equal-priority contextual gaps are completed so alcohol is the
+  // only pending adaptive question being tested here.
+  await cdp.evaluate(`(() => {
+    const key='vitaframe:v1:assessment';
+    const s=JSON.parse(localStorage.getItem(key));
+    s.body.bodyFatSource ||= 'bioimpedance-home';
+    s.body.bodyFatDate ||= new Date().toISOString().slice(0,10);
+    s.training.time ||= '18:00';
+    s.training.experience ||= 'intermediate';
+    s.recovery.sleepHours ||= '7';
+    s.lifestyle ||= {};
+    delete s.lifestyle.alcoholUse;
+    delete s.lifestyle.alcoholFrequency;
+    s.meta ||= {};
+    s.meta.adaptiveSkipped ||= {};
+    delete s.meta.adaptiveSkipped['lifestyle.alcoholUse'];
+    delete s.meta.adaptiveSkipped['lifestyle.alcoholFrequency'];
+    localStorage.setItem(key, JSON.stringify(s));
+  })()`);
+
   await cdp.send('Page.navigate', { url: `${origin}/adaptive.html` });
   await waitForPage(cdp, `document.readyState==='complete' && document.querySelector('#questionHost h2')?.textContent.includes('bebida alcoólica')`, 'adaptive alcohol question');
   await assertAX(cdp, 'adaptive interview');
