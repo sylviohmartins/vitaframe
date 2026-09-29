@@ -4,25 +4,25 @@
       "x": 0,
       "y": 0,
       "width": 390,
-      "height": 88
+      "height": 64
     },
     ".hero h1": {
       "x": 16,
       "y": 76,
       "width": 358,
-      "height": 191
+      "height": 161
     },
     ".hero-actions": {
       "x": 16,
-      "y": 437,
+      "y": 427,
       "width": 358,
       "height": 102
     },
     ".hero-panel": {
       "x": 16,
-      "y": 743,
+      "y": 734,
       "width": 358,
-      "height": 403
+      "height": 426
     }
   },
   "desktop": {
@@ -36,17 +36,17 @@
       "x": 123,
       "y": 64,
       "width": 1180,
-      "height": 3244
+      "height": 3302
     },
     ".profile-hero": {
       "x": 123,
-      "y": 486,
+      "y": 545,
       "width": 1180,
       "height": 126
     },
     ".profile-columns": {
       "x": 123,
-      "y": 641,
+      "y": 699,
       "width": 1180,
       "height": 584
     }
