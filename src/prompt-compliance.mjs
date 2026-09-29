@@ -70,7 +70,7 @@ function textareaField(label, name, current, placeholder = '', help = '') {
 function multiChoiceField(label, name, current, options, otherName, otherValue, help = '') {
   const values = Array.isArray(current) ? current : [];
   const choices = options.map(([value, text]) =>
-    `<label class="structured-option"><input type="checkbox" name="${esc(name)}" data-array-path="${esc(name)}" value="${esc(value)}" ${values.includes(value) ? 'checked' : ''}><span>${esc(text)}</span></label>`
+    `<label class="structured-option"><input type="checkbox" name="${esc(name)}" data-array-path="${esc(name)}" value="${esc(value)}" ${value === 'none' ? 'data-exclusive="true"' : ''} ${values.includes(value) ? 'checked' : ''}><span>${esc(text)}</span></label>`
   ).join('');
   return `<fieldset class="structured-group vf-prompt-field"><legend>${esc(label)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div><label class="field conditional-other"><span>Outro — descreva</span><input name="${esc(otherName)}" type="text" maxlength="180" value="${esc(otherValue ?? '')}"></label></fieldset>`;
 }
@@ -229,7 +229,19 @@ function captureField(event) {
   const value = target.type === 'checkbox' ? target.checked : target.value;
   if (target.dataset.arrayPath) {
     const fieldset = target.closest('.structured-group');
-    setPath(mirror, target.dataset.arrayPath, [...(fieldset?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value));
+    if (target.checked && target.dataset.exclusive === 'true') {
+      fieldset?.querySelectorAll('[data-array-path]').forEach(input => { if (input !== target) input.checked = false; });
+    } else if (target.checked) {
+      fieldset?.querySelectorAll('[data-array-path][data-exclusive="true"]').forEach(input => { input.checked = false; });
+    }
+    const selected = [...(fieldset?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
+    setPath(mirror, target.dataset.arrayPath, selected);
+    const otherPaths = {
+      'training.exerciseSelections': 'training.exerciseOther',
+      'recovery.dietHistoryChoices': 'recovery.dietHistoryOther',
+      'recovery.adherenceBarriers': 'recovery.adherenceOther',
+    };
+    if (otherPaths[target.dataset.arrayPath] && !selected.includes('other')) setPath(mirror, otherPaths[target.dataset.arrayPath], '');
   } else if (target.name.startsWith('preference.')) {
     mirror.foodPreferences ??= {};
     mirror.foodPreferences[target.name.split('.')[1]] = value === 'n' ? 'n' : Number(value);
