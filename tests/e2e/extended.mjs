@@ -292,7 +292,21 @@ try {
   })()`);
 
   await cdp.send('Page.navigate', { url: `${origin}/adaptive.html` });
-  await waitForPage(cdp, `document.readyState==='complete' && document.querySelector('#questionHost h2')?.textContent.includes('bebida alcoólica')`, 'adaptive alcohol question');
+  await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#questionHost h2')`, 'adaptive first question');
+  const adaptiveTraversal = await cdp.evaluate(`(async () => {
+    const seen=[];
+    for (let i=0;i<10;i+=1) {
+      const title=document.querySelector('#questionHost h2')?.textContent?.trim() || '';
+      seen.push(title);
+      if (title.includes('bebida alcoólica')) return {found:true,seen};
+      const skip=document.querySelector('#skipQuestion');
+      if (!skip) return {found:false,seen,reason:'skip unavailable'};
+      skip.click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    return {found:false,seen,reason:'limit reached'};
+  })()`);
+  if (!adaptiveTraversal.found) throw new Error(`Adaptive alcohol question not reached: ${JSON.stringify(adaptiveTraversal)}`);
   await assertAX(cdp, 'adaptive interview');
   await screenshot(cdp, 'adaptive-mobile');
   await cdp.evaluate(`(() => { const select=document.querySelector('#adaptiveAnswer'); select.value='no'; document.querySelector('#adaptiveForm').requestSubmit(); })()`);
