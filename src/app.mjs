@@ -579,6 +579,18 @@ function handleFieldChange(event) {
   };
   if (statusClears[target.name]) clearConditionalValue(target.value, statusClears[target.name]);
 
+  if (target.type === 'radio' && target.closest('.conditional-block') && target.value !== 'yes') {
+    target.closest('.conditional-block').querySelectorAll('.conditional-yes input, .conditional-yes textarea, .conditional-yes select').forEach(control => {
+      if (control.type === 'checkbox' || control.type === 'radio') control.checked = false;
+      else control.value = '';
+    });
+  }
+
+  if (target.type === 'radio' && target.value !== 'other') {
+    const otherInput = target.closest('.structured-group')?.querySelector('.conditional-other input, .conditional-other textarea');
+    if (otherInput) otherInput.value = '';
+  }
+
   const otherByArray = {
     'health.allergyItems': 'health.allergyOther',
     'health.intoleranceItems': 'health.intoleranceOther',
@@ -596,14 +608,22 @@ function handleFieldChange(event) {
     'training.limitationAreas': 'training.limitationOther',
     'recovery.supplementTypes': 'recovery.supplementOther',
   };
-  if (arrayPath && otherByArray[arrayPath] && !selectedValues?.includes('other')) setPathValue(state, otherByArray[arrayPath], '');
+  if (arrayPath && otherByArray[arrayPath] && !selectedValues?.includes('other')) {
+    setPathValue(state, otherByArray[arrayPath], '');
+    const otherInput = target.closest('.structured-group')?.querySelector('.conditional-other input, .conditional-other textarea');
+    if (otherInput) otherInput.value = '';
+  }
 
   if (target.name === 'health.attentionStatus' && target.value !== 'yes') {
     for (const key of ['medicalFollowup','chestPain','eatingDisorder','rapidWeightChange','pregnancy','kidneyDisease','diabetesMedication','acuteInjury']) {
       state.health[key] = false;
     }
   }
-  if (target.name === 'body.bodyFatSource' && target.value !== 'other') state.body.bodyFatSourceOther = '';
+  if (target.name === 'body.bodyFatSource' && target.value !== 'other') {
+    state.body.bodyFatSourceOther = '';
+    const otherInput = document.querySelector('[name="body.bodyFatSourceOther"]');
+    if (otherInput) otherInput.value = '';
+  }
   if (target.name === 'routine.workMode' && target.value !== 'other') state.routine.workModeOther = '';
   if (target.name === 'training.split' && target.value !== 'other') state.training.splitOther = '';
 
