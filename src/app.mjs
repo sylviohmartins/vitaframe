@@ -3,7 +3,6 @@ import {
   activityOptions,
   allergyOptions,
   cardioOptions,
-  formatSelections,
   intoleranceOptions,
   limitationAreaOptions,
   mealQuickOptions,
@@ -532,7 +531,7 @@ function bindForm() {
   form.addEventListener('change', handleFieldChange);
 }
 
-function clearConditionalValue(statusPath, statusValue, paths) {
+function clearConditionalValue(statusValue, paths) {
   if (statusValue === 'yes') return;
   for (const [path, empty] of paths) setPathValue(state, path, structuredClone(empty));
 }
@@ -578,7 +577,7 @@ function handleFieldChange(event) {
     'training.limitationStatus': [['training.limitationAreas', []], ['training.limitationOther', '']],
     'recovery.supplementStatus': [['recovery.supplementTypes', []], ['recovery.supplementOther', '']],
   };
-  if (statusClears[target.name]) clearConditionalValue(target.name, target.value, statusClears[target.name]);
+  if (statusClears[target.name]) clearConditionalValue(target.value, statusClears[target.name]);
 
   const otherByArray = {
     'health.allergyItems': 'health.allergyOther',
