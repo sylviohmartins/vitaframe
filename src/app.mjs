@@ -292,44 +292,58 @@ function step2() {
 }
 
 function step3() {
-  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Esses campos servem para identificar quando uma futura recomendação deve ser revisada por profissional habilitado. Não fazemos diagnóstico.</p></div>
-    <div class="form-grid">
-      ${textarea({ label:'Alergias alimentares', name:'health.allergies', value:state.health.allergies, placeholder:'Se não houver, deixe em branco.' })}
-      ${textarea({ label:'Intolerâncias ou alimentos que causam desconforto', name:'health.intolerances', value:state.health.intolerances })}
-      ${textarea({ label:'Condições de saúde relevantes', name:'health.conditions', value:state.health.conditions })}
-      ${textarea({ label:'Medicamentos de uso regular', name:'health.medications', value:state.health.medications })}
-      ${textarea({ label:'Cirurgias ou histórico importante', name:'health.surgeries', value:state.health.surgeries })}
-      ${textarea({ label:'Dores, lesões ou limitações atuais', name:'health.pain', value:state.health.pain })}
+  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Selecione o que reconhecer. “Não”, “não sei” e “prefiro não informar” são respostas diferentes; texto aparece apenas quando acrescenta contexto.</p></div>
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui alguma alergia conhecida?', name:'health.allergyStatus', value:state.health.allergyStatus, options:statusOptions, help:'Alergia é diferente de intolerância ou desconforto alimentar.' })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'Quais alergias você reconhece?', name:'health.allergyItems', values:state.health.allergyItems, options:allergyOptions, help:'Selecione todas que se aplicam. Os atalhos alimentares priorizam os principais grupos reconhecidos pela Anvisa/ASBAI.', otherName:'health.allergyOther', otherValue:state.health.allergyOther })}
+      </div>
     </div>
-    <fieldset class="check-panel"><legend>Situações que pedem atenção profissional</legend>
-      ${checkbox({ label:'Tenho condição que exige acompanhamento médico ou nutricional', name:'health.medicalFollowup', checked:state.health.medicalFollowup })}
-      ${checkbox({ label:'Tenho dor no peito, desmaio ou sintomas cardiovasculares relacionados ao exercício', name:'health.chestPain', checked:state.health.chestPain })}
-      ${checkbox({ label:'Tenho histórico ou suspeita de transtorno alimentar', name:'health.eatingDisorder', checked:state.health.eatingDisorder })}
-      ${checkbox({ label:'Tive mudança rápida e não intencional de peso', name:'health.rapidWeightChange', checked:state.health.rapidWeightChange })}
-      ${checkbox({ label:'Estou em gestação ou amamentação', name:'health.pregnancy', checked:state.health.pregnancy })}
-      ${checkbox({ label:'Tenho doença renal', name:'health.kidneyDisease', checked:state.health.kidneyDisease })}
-      ${checkbox({ label:'Uso medicação para diabetes', name:'health.diabetesMedication', checked:state.health.diabetesMedication })}
-      ${checkbox({ label:'Tenho lesão aguda importante ou dor que limita movimento', name:'health.acuteInjury', checked:state.health.acuteInjury })}
-    </fieldset>`);
-}
-
-function step4() {
-  assessmentShell(`<div class="notice neutral"><strong>Descreva o real, não o ideal</strong><p>O objetivo é entender seu ponto de partida. Não existe resposta “certa” aqui.</p></div>
-    <div class="form-grid">
-      ${textarea({ label:'Café da manhã típico', name:'currentDiet.breakfast', value:state.currentDiet.breakfast })}
-      ${textarea({ label:'Almoço típico', name:'currentDiet.lunch', value:state.currentDiet.lunch })}
-      ${textarea({ label:'Lanches', name:'currentDiet.snack', value:state.currentDiet.snack })}
-      ${textarea({ label:'Jantar típico', name:'currentDiet.dinner', value:state.currentDiet.dinner })}
-      ${textarea({ label:'Ceia / madrugada', name:'currentDiet.supper', value:state.currentDiet.supper })}
-      ${textarea({ label:'Bebidas no dia a dia', name:'currentDiet.drinks', value:state.currentDiet.drinks })}
-      ${textarea({ label:'Doces e sobremesas', name:'currentDiet.sweets', value:state.currentDiet.sweets })}
-      ${field({ label:'Delivery por semana', name:'currentDiet.deliveryPerWeek', value:state.currentDiet.deliveryPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
-      ${field({ label:'Refeições fora por semana', name:'currentDiet.eatOutPerWeek', value:state.currentDiet.eatOutPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
-      ${field({ label:'Água aproximada por dia (L)', name:'currentDiet.waterLiters', value:state.currentDiet.waterLiters, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
-      ${textarea({ label:'O que muda no sábado/domingo?', name:'currentDiet.weekendDiff', value:state.currentDiet.weekendDiff })}
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui intolerância ou alimento/componente que costuma causar desconforto?', name:'health.intoleranceStatus', value:state.health.intoleranceStatus, options:statusOptions, help:'Isso registra o seu relato; não tenta diagnosticar a causa do desconforto.' })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'O que costuma causar desconforto?', name:'health.intoleranceItems', values:state.health.intoleranceItems, options:intoleranceOptions, otherName:'health.intoleranceOther', otherValue:state.health.intoleranceOther })}
+      </div>
+    </div>
+    ${statusWithText({ legend:'Possui alguma condição de saúde relevante para alimentação ou exercício?', statusName:'health.conditionStatus', statusValue:state.health.conditionStatus, textName:'health.conditions', textValue:state.health.conditions, textLabel:'Qual condição?', help:'Evito uma lista fechada porque condições clínicas têm grande cauda longa e uma seleção curta poderia induzir classificação incorreta.', placeholder:'Ex.: hipertensão acompanhada, diabetes, condição gastrointestinal…' })}
+    ${statusWithText({ legend:'Usa medicamentos de forma regular?', statusName:'health.medicationStatus', statusValue:state.health.medicationStatus, textName:'health.medications', textValue:state.health.medications, textLabel:'Quais medicamentos?', help:'Informe apenas se souber. O VitaFrame não interpreta doses nem interações.', placeholder:'Nome do medicamento; dose/frequência somente se considerar útil' })}
+    ${statusWithText({ legend:'Possui cirurgia ou histórico de saúde importante para contextualizar?', statusName:'health.surgeryStatus', statusValue:state.health.surgeryStatus, textName:'health.surgeries', textValue:state.health.surgeries, textLabel:'Qual histórico?', placeholder:'Descreva apenas o que for relevante para o seu contexto atual' })}
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui dor, lesão ou limitação atual que afeta movimento ou treino?', name:'health.painStatus', value:state.health.painStatus, options:statusOptions })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'Em quais regiões ou tipos de limitação?', name:'health.painAreas', values:state.health.painAreas, options:limitationAreaOptions, otherName:'health.painOther', otherValue:state.health.painOther, otherLabel:'Detalhe a limitação apenas se necessário' })}
+      </div>
+    </div>
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Alguma das situações de atenção profissional abaixo se aplica?', name:'health.attentionStatus', value:state.health.attentionStatus, options:[['none','Nenhuma das situações'],['yes','Sim, uma ou mais'],['prefer-not','Prefiro não responder']], help:'Marcar uma situação não gera diagnóstico; apenas mantém um alerta explícito para revisão profissional.' })}
+      <fieldset class="check-panel conditional-yes"><legend>Selecione somente o que você já sabe ou reconhece no seu histórico</legend>
+        ${checkbox({ label:'Tenho condição que exige acompanhamento médico ou nutricional', name:'health.medicalFollowup', checked:state.health.medicalFollowup })}
+        ${checkbox({ label:'Tenho dor no peito, desmaio ou sintomas cardiovasculares relacionados ao exercício', name:'health.chestPain', checked:state.health.chestPain })}
+        ${checkbox({ label:'Tenho histórico ou suspeita de transtorno alimentar', name:'health.eatingDisorder', checked:state.health.eatingDisorder })}
+        ${checkbox({ label:'Tive mudança rápida e não intencional de peso', name:'health.rapidWeightChange', checked:state.health.rapidWeightChange })}
+        ${checkbox({ label:'Estou em gestação ou amamentação', name:'health.pregnancy', checked:state.health.pregnancy })}
+        ${checkbox({ label:'Tenho doença renal', name:'health.kidneyDisease', checked:state.health.kidneyDisease })}
+        ${checkbox({ label:'Uso medicação para diabetes', name:'health.diabetesMedication', checked:state.health.diabetesMedication })}
+        ${checkbox({ label:'Tenho lesão aguda importante ou dor que limita movimento', name:'health.acuteInjury', checked:state.health.acuteInjury })}
+      </fieldset>
     </div>`);
 }
-
+function step4() {
+  assessmentShell(`<div class="notice neutral"><strong>Reconheça primeiro; escreva só se faltar algo</strong><p>Marque combinações que aparecem no seu dia típico. “Outro” abre um complemento curto. Para detalhar por horário e quantidade, use também o mapa alimentar.</p><p><a href="./meals.html">Abrir meu dia alimentar →</a></p></div>
+    ${multiChoices({ legend:'Café da manhã típico', name:'currentDiet.breakfastChoices', values:state.currentDiet.breakfastChoices, options:mealQuickOptions.breakfast, otherName:'currentDiet.breakfastOther', otherValue:state.currentDiet.breakfastOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Almoço típico', name:'currentDiet.lunchChoices', values:state.currentDiet.lunchChoices, options:mealQuickOptions.lunch, otherName:'currentDiet.lunchOther', otherValue:state.currentDiet.lunchOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Lanches mais comuns', name:'currentDiet.snackChoices', values:state.currentDiet.snackChoices, options:mealQuickOptions.snack, otherName:'currentDiet.snackOther', otherValue:state.currentDiet.snackOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Jantar típico', name:'currentDiet.dinnerChoices', values:state.currentDiet.dinnerChoices, options:mealQuickOptions.dinner, otherName:'currentDiet.dinnerOther', otherValue:state.currentDiet.dinnerOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Ceia / madrugada', name:'currentDiet.supperChoices', values:state.currentDiet.supperChoices, options:mealQuickOptions.supper, otherName:'currentDiet.supperOther', otherValue:state.currentDiet.supperOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Bebidas no dia a dia', name:'currentDiet.drinksChoices', values:state.currentDiet.drinksChoices, options:mealQuickOptions.drinks, otherName:'currentDiet.drinksOther', otherValue:state.currentDiet.drinksOther })}
+    ${multiChoices({ legend:'Doces e sobremesas', name:'currentDiet.sweetsChoices', values:state.currentDiet.sweetsChoices, options:mealQuickOptions.sweets, otherName:'currentDiet.sweetsOther', otherValue:state.currentDiet.sweetsOther, exclusive:['rare-none'] })}
+    <div class="form-grid top-gap">
+      ${field({ label:'Delivery por semana', name:'currentDiet.deliveryPerWeek', value:state.currentDiet.deliveryPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric', help:'Digite apenas o número aproximado; zero é uma resposta válida.' })}
+      ${field({ label:'Refeições fora por semana', name:'currentDiet.eatOutPerWeek', value:state.currentDiet.eatOutPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
+      ${field({ label:'Água aproximada por dia (L)', name:'currentDiet.waterLiters', value:state.currentDiet.waterLiters, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
+    </div>
+    ${multiChoices({ legend:'O que costuma mudar no sábado/domingo?', name:'currentDiet.weekendChoices', values:state.currentDiet.weekendChoices, options:weekendOptions, otherName:'currentDiet.weekendOther', otherValue:state.currentDiet.weekendOther, exclusive:['similar'] })}`);
+}
 function step5() {
   const search = `<label class="search-field"><span>Buscar alimento</span><input id="foodSearch" type="search" placeholder="Digite banana, arroz, pizza…" autocomplete="off"></label>`;
   const catalog = foodCatalog.map(category => `<section class="food-category" data-category="${category.id}"><div class="category-head"><h2>${esc(category.label)}</h2><span>${category.items.length} opções</span></div><div class="food-list">${category.items.map(item => foodItem(item)).join('')}</div></section>`).join('');
@@ -363,48 +377,58 @@ function step6() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Horário em que costuma acordar', name:'routine.wakeTime', value:state.routine.wakeTime, type:'time' })}
     ${field({ label:'Horário em que costuma dormir', name:'routine.sleepTime', value:state.routine.sleepTime, type:'time' })}
-    ${select({ label:'Modalidade de trabalho/estudo', name:'routine.workMode', value:state.routine.workMode, options:[['remote','Remoto'],['hybrid','Híbrido'],['onsite','Presencial'],['variable','Variável / turnos'],['other','Outro']] })}
-    ${field({ label:'Horário de trabalho/estudo', name:'routine.workHours', value:state.routine.workHours, placeholder:'Ex.: 9h–18h' })}
-    ${field({ label:'Tempo de deslocamento em dia presencial', name:'routine.commute', value:state.routine.commute, placeholder:'Ex.: 45 min por trecho' })}
+  </div>
+  ${radioChoices({ legend:'Modalidade de trabalho/estudo', name:'routine.workMode', value:state.routine.workMode, options:[['remote','Remoto'],['hybrid','Híbrido'],['onsite','Presencial'],['variable','Variável / turnos'],['na','Não se aplica'],['other','Outro']], otherName:'routine.workModeOther', otherValue:state.routine.workModeOther })}
+  <div class="form-grid top-gap">
+    ${field({ label:'Horário de trabalho/estudo', name:'routine.workHours', value:state.routine.workHours, placeholder:'Ex.: 9h–18h', help:'Mantido como texto curto porque escalas, plantões e horários quebrados não cabem bem em uma lista única.' })}
+    ${select({ label:'Tempo de deslocamento em dia presencial', name:'routine.commute', value:state.routine.commute, options:[['none','Sem deslocamento'],['up30','Até 30 min no total'],['31-60','31–60 min no total'],['61-90','61–90 min no total'],['91-120','91–120 min no total'],['120+','Mais de 2 h no total'],['variable','Varia muito']] })}
     ${select({ label:'Facilidade para cozinhar', name:'routine.cook', value:state.routine.cook, options:[['easy','Cozinho com facilidade'],['some','Consigo, mas quero praticidade'],['low','Tenho pouca disponibilidade'],['none','Não costumo cozinhar']] })}
     ${select({ label:'Preparar várias refeições de uma vez', name:'routine.mealPrep', value:state.routine.mealPrep, options:[['yes','Sim'],['maybe','Talvez'],['no','Prefiro não']] })}
     ${select({ label:'Geladeira e micro-ondas quando está fora', name:'routine.fridgeMicrowave', value:state.routine.fridgeMicrowave, options:[['both','Tenho os dois'],['fridge','Só geladeira'],['microwave','Só micro-ondas'],['none','Nenhum'],['na','Não se aplica']] })}
     ${select({ label:'Faixa de custo desejada', name:'routine.budget', value:state.routine.budget, options:[['economic','Econômica'],['balanced','Intermediária'],['flexible','Custo não é prioridade']] })}
     ${select({ label:'Quantidade de refeições preferida', name:'routine.preferredMeals', value:state.routine.preferredMeals, options:[['3','3 maiores'],['4','4 refeições'],['5','5 refeições'],['flexible','Sem preferência']] })}
-    ${select({ label:'Período em que sente mais fome', name:'routine.hungerPeriod', value:state.routine.hungerPeriod, options:[['morning','Manhã'],['lunch','Almoço'],['afternoon','Tarde'],['night','Noite'],['late','Madrugada'],['varies','Varia muito']] })}
-    ${textarea({ label:'Detalhes importantes da rotina', name:'routine.notes', value:state.routine.notes })}
+    ${select({ label:'Período em que sente mais fome', name:'routine.hungerPeriod', value:state.routine.hungerPeriod, options:[['morning','Manhã'],['lunch','Almoço'],['afternoon','Tarde'],['night','Noite'],['late','Madrugada'],['varies','Varia muito'],['unsure','Não sei perceber um padrão']] })}
+    ${textarea({ label:'Detalhes importantes da rotina', name:'routine.notes', value:state.routine.notes, help:'Campo aberto mantido apenas para contexto que não cabe nas alternativas acima.' })}
   </div>`);
 }
-
 function step7() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Musculação por semana (dias)', name:'training.daysPerWeek', value:state.training.daysPerWeek, type:'number', min:'0', max:'7', inputmode:'numeric' })}
     ${field({ label:'Duração média do treino (min)', name:'training.durationMin', value:state.training.durationMin, type:'number', min:'0', max:'240', inputmode:'numeric' })}
-    ${select({ label:'Intensidade percebida', name:'training.intensity', value:state.training.intensity, options:[['light','Leve'],['moderate','Moderada'],['high','Alta'],['unsure','Não sei']] })}
-    ${field({ label:'Divisão do treino', name:'training.split', value:state.training.split, placeholder:'Ex.: ABC, upper/lower…' })}
+    ${select({ label:'Intensidade percebida', name:'training.intensity', value:state.training.intensity, options:[['light','Leve'],['moderate','Moderada'],['high','Alta'],['unsure','Não sei avaliar']] })}
     ${field({ label:'Horário habitual', name:'training.time', value:state.training.time, type:'time' })}
     ${select({ label:'Experiência com musculação', name:'training.experience', value:state.training.experience, options:[['beginner','Menos de 1 ano'],['intermediate','1–3 anos'],['experienced','Mais de 3 anos'],['returning','Retornando após pausa']] })}
-    ${textarea({ label:'Cardio: modalidade e duração', name:'training.cardio', value:state.training.cardio })}
     ${field({ label:'Cardio por semana', name:'training.cardioFrequency', value:state.training.cardioFrequency, type:'number', min:'0', max:'14', inputmode:'numeric' })}
+    ${field({ label:'Duração média do cardio (min)', name:'training.cardioDurationMin', value:state.training.cardioDurationMin, type:'number', min:'0', max:'300', inputmode:'numeric' })}
     ${field({ label:'Passos aproximados por dia', name:'training.steps', value:state.training.steps, type:'number', min:'0', max:'50000', inputmode:'numeric' })}
-    ${textarea({ label:'Outras atividades físicas', name:'training.otherActivity', value:state.training.otherActivity })}
-    ${textarea({ label:'Limitações, dores, fisioterapia ou restrições para exercício', name:'training.limitations', value:state.training.limitations })}
+  </div>
+  ${radioChoices({ legend:'Como costuma dividir a musculação?', name:'training.split', value:state.training.split, options:trainingSplitOptions, otherName:'training.splitOther', otherValue:state.training.splitOther })}
+  ${multiChoices({ legend:'Quais modalidades de cardio costuma fazer?', name:'training.cardioModalities', values:state.training.cardioModalities, options:cardioOptions, otherName:'training.cardioOther', otherValue:state.training.cardioOther })}
+  ${multiChoices({ legend:'Outras atividades físicas que fazem parte da rotina', name:'training.activityTypes', values:state.training.activityTypes, options:activityOptions, otherName:'training.activityOther', otherValue:state.training.activityOther })}
+  <div class="conditional-block">
+    ${radioChoices({ legend:'Possui limitação, dor, fisioterapia ou restrição que interfere no exercício?', name:'training.limitationStatus', value:state.training.limitationStatus, options:statusOptions })}
+    <div class="conditional-yes">
+      ${multiChoices({ legend:'Onde ou em que tipo de limitação?', name:'training.limitationAreas', values:state.training.limitationAreas, options:limitationAreaOptions, otherName:'training.limitationOther', otherValue:state.training.limitationOther, otherLabel:'Detalhe apenas o necessário para contextualizar o treino' })}
+    </div>
   </div>`);
 }
-
 function step8() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Horas de sono por noite', name:'recovery.sleepHours', value:state.recovery.sleepHours, type:'number', min:'0', max:'16', step:'0.5', inputmode:'decimal' })}
-    ${select({ label:'Qualidade percebida do sono', name:'recovery.sleepQuality', value:state.recovery.sleepQuality, options:[['poor','Ruim'],['fair','Regular'],['good','Boa'],['great','Muito boa']] })}
-    ${select({ label:'Estresse no dia a dia', name:'recovery.stress', value:state.recovery.stress, options:[['low','Baixo'],['moderate','Moderado'],['high','Alto'],['very-high','Muito alto']] })}
+    ${select({ label:'Qualidade percebida do sono', name:'recovery.sleepQuality', value:state.recovery.sleepQuality, options:[['poor','Ruim'],['fair','Regular'],['good','Boa'],['great','Muito boa'],['unsure','Não sei avaliar']] })}
+    ${select({ label:'Estresse no dia a dia', name:'recovery.stress', value:state.recovery.stress, options:[['low','Baixo'],['moderate','Moderado'],['high','Alto'],['very-high','Muito alto'],['prefer-not','Prefiro não responder']] })}
     ${field({ label:'Água aproximada por dia (L)', name:'recovery.hydration', value:state.recovery.hydration, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
-    ${select({ label:'Fome forte à noite', name:'recovery.hungerNight', value:state.recovery.hungerNight, options:[['never','Raramente'],['sometimes','Às vezes'],['often','Frequentemente']] })}
-    ${select({ label:'Comer por tédio, estresse ou ansiedade', name:'recovery.emotionalEating', value:state.recovery.emotionalEating, options:[['never','Raramente'],['sometimes','Às vezes'],['often','Frequentemente']] })}
-    ${textarea({ label:'Suplementos que usa hoje', name:'recovery.supplements', value:state.recovery.supplements, placeholder:'Produto, dose e frequência se souber.' })}
-    ${textarea({ label:'Outras informações de recuperação', name:'recovery.notes', value:state.recovery.notes })}
+    ${select({ label:'Fome forte à noite', name:'recovery.hungerNight', value:state.recovery.hungerNight, options:[['never','Raramente / nunca'],['sometimes','Às vezes'],['often','Frequentemente'],['unsure','Não sei avaliar']] })}
+    ${select({ label:'Comer por tédio, estresse ou ansiedade', name:'recovery.emotionalEating', value:state.recovery.emotionalEating, options:[['never','Raramente / nunca'],['sometimes','Às vezes'],['often','Frequentemente'],['prefer-not','Prefiro não responder']] })}
+    ${textarea({ label:'Outras informações de recuperação', name:'recovery.notes', value:state.recovery.notes, help:'Use somente para algo relevante que não esteja representado nas alternativas.' })}
+  </div>
+  <div class="conditional-block">
+    ${radioChoices({ legend:'Usa suplementos atualmente?', name:'recovery.supplementStatus', value:state.recovery.supplementStatus, options:statusOptions, help:'Vitaminas e suplementos entram apenas como contexto declarado; o VitaFrame não recomenda uso.' })}
+    <div class="conditional-yes">
+      ${multiChoices({ legend:'Quais tipos?', name:'recovery.supplementTypes', values:state.recovery.supplementTypes, options:supplementOptions, otherName:'recovery.supplementOther', otherValue:state.recovery.supplementOther, otherLabel:'Outro suplemento — nome/dose somente se souber' })}
+    </div>
   </div>`);
 }
-
 function step9() {
   const c = completeness(state);
   const issues = dataQualityIssues(state);
