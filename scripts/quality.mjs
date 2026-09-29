@@ -5,6 +5,7 @@ const advanced = await readFile('advanced.html', 'utf8');
 const meals = await readFile('meals.html', 'utf8');
 const adaptive = await readFile('adaptive.html', 'utf8');
 const css = await readFile('assets/styles.css', 'utf8');
+const editorialCss = await readFile('assets/editorial.css', 'utf8');
 const navigationCss = await readFile('assets/navigation.css', 'utf8');
 const advancedCss = await readFile('assets/advanced.css', 'utf8');
 const mealsCss = await readFile('assets/meals.css', 'utf8');
@@ -30,6 +31,7 @@ for (const [name, html] of htmlFiles) {
   assert(html.includes("default-src 'self'"), `${name} CSP must default to self.`);
   assert(html.includes("connect-src 'self'"), `${name} CSP must restrict network connections.`);
   assert(html.includes('class="skip-link"'), `${name} skip link is required.`);
+  assert(html.includes('assets/editorial.css'), `${name} must load the editorial design layer.`);
   assert(html.includes('<main id="main"'), `${name} main landmark is required.`);
   assert(!/<script[^>]+src=["']https?:/i.test(html), `${name} runtime remote scripts are forbidden.`);
   assert(!/<link[^>]+href=["']https?:/i.test(html), `${name} runtime remote styles/fonts are forbidden.`);
@@ -38,6 +40,9 @@ for (const [name, html] of htmlFiles) {
 assert(index.includes('src/prompt-compliance.mjs'), 'Independent prompt-closure enhancements must load on the assessment surface.');
 assert(advanced.includes('src/import-conflict-guard.mjs'), 'Import conflict guard must load on the data-center surface.');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'Reduced motion support is required.');
+assert(editorialCss.includes('--accent: #176b55;'), 'Editorial layer must preserve the VitaFrame light accent.');
+assert(editorialCss.includes('--accent: #69bea4;'), 'Editorial layer must preserve the VitaFrame dark accent.');
+assert(editorialCss.includes('@media (prefers-reduced-motion: reduce)'), 'Editorial layer must preserve reduced-motion behavior.');
 assert(css.includes('focus-visible'), 'Visible focus treatment is required.');
 assert(css.includes('min-height: 46px') || css.includes('height: 42px'), 'Comfortable touch target sizing expected.');
 assert(navigationCss.includes('@media (max-width: 820px)'), 'Main secondary navigation must collapse on narrower screens.');
@@ -49,6 +54,7 @@ assert(app.includes('Não fazemos diagnóstico'), 'Diagnostic boundary must be v
 assert(sw.includes("event.request.method !== 'GET'"), 'Service worker must not cache mutation requests.');
 assert(sw.includes("new URL(event.request.url).origin !== location.origin"), 'Service worker must limit caching to same-origin requests.');
 assert(sw.includes("'./src/prompt-compliance.mjs'"), 'Offline cache must include the prompt compliance runtime.');
+assert(sw.includes("'./assets/editorial.css'"), 'Offline cache must include the editorial design layer.');
 assert(sw.includes("'./src/import-conflict-guard.mjs'"), 'Offline cache must include import conflict handling.');
 
 for (const [name, runtime] of [['assessment', app], ['prompt-compliance', promptCompliance], ['advanced', advancedApp], ['import-conflict', importConflictGuard], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
@@ -77,7 +83,7 @@ assert(promptCompliance.includes('Grau de confiança'), 'Profile must expose con
 assert(promptCompliance.includes('Tempo estimado:'), 'Onboarding must expose a completion-time estimate.');
 
 for (const file of [
-  'assets/styles.css','assets/navigation.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
+  'assets/styles.css','assets/navigation.css','assets/editorial.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
   'src/app.mjs','src/prompt-compliance.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/import-conflict-guard.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
   'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
   'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/check-structure.mjs','scripts/check-links.mjs',

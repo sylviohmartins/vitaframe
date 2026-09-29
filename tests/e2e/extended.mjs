@@ -115,7 +115,7 @@ async function screenshot(cdp, name) {
 async function assertBudgets() {
   const sizes = {};
   for (const file of [
-    'index.html','advanced.html','adaptive.html','meals.html','assets/styles.css','assets/navigation.css','assets/advanced.css','assets/adaptive.css','assets/meals.css',
+    'index.html','advanced.html','adaptive.html','meals.html','assets/styles.css','assets/navigation.css','assets/editorial.css','assets/advanced.css','assets/adaptive.css','assets/meals.css',
     'src/app.mjs','src/local-metrics.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
   ]) sizes[file] = (await stat(file)).size;
 
@@ -128,10 +128,10 @@ async function assertBudgets() {
     [sizes['src/advanced.mjs'] + sizes['src/advanced-logic.mjs'] <= 150_000, 'advanced JS exceeds 150 KB'],
     [sizes['src/adaptive-interview.mjs'] + sizes['src/adaptive-interview-logic.mjs'] <= 100_000, 'adaptive JS exceeds 100 KB'],
     [sizes['src/meals.mjs'] <= 80_000, 'meal JS exceeds 80 KB'],
-    [sizes['assets/styles.css'] + sizes['assets/navigation.css'] <= 80_000, 'main CSS exceeds 80 KB'],
-    [sizes['assets/styles.css'] + sizes['assets/advanced.css'] <= 80_000, 'advanced CSS exceeds 80 KB'],
-    [sizes['assets/styles.css'] + sizes['assets/adaptive.css'] <= 80_000, 'adaptive CSS exceeds 80 KB'],
-    [sizes['assets/styles.css'] + sizes['assets/meals.css'] <= 80_000, 'meal CSS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/navigation.css'] + sizes['assets/editorial.css'] <= 80_000, 'main CSS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/advanced.css'] + sizes['assets/editorial.css'] <= 80_000, 'advanced CSS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/adaptive.css'] + sizes['assets/editorial.css'] <= 80_000, 'adaptive CSS exceeds 80 KB'],
+    [sizes['assets/styles.css'] + sizes['assets/meals.css'] + sizes['assets/editorial.css'] <= 80_000, 'meal CSS exceeds 80 KB'],
   ];
   const failed = assertions.filter(([ok]) => !ok).map(([, message]) => message);
   if (failed.length) throw new Error(`Performance size budget failed: ${failed.join('; ')}`);
@@ -213,6 +213,7 @@ try {
   if (mobileVitals.vitals.lcp > 2500) throw new Error(`LCP budget failed: ${mobileVitals.vitals.lcp}ms`);
   if (mobileVitals.requests > 12) throw new Error(`Critical request budget failed: ${mobileVitals.requests}`);
   await assertAX(cdp, 'mobile home');
+  await screenshot(cdp, 'home-mobile');
 
   await cdp.evaluate(`(() => {
     localStorage.setItem('vitaframe:v1:consent','yes');
