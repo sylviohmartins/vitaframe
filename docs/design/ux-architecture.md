@@ -238,3 +238,26 @@ Teclado virtual, ergonomia física e tecnologias assistivas reais permanecem val
 ## Validação
 
 A estrutura acima é a arquitetura V1 implementada. Usabilidade real com participantes segue `VALIDATION.md`; wireframe, heurística e automação não substituem teste de uso.
+
+## Recognition-first input architecture
+
+A avaliação v2 aplica reconhecimento antes de lembrança:
+
+- respostas fechadas pequenas usam radio/select;
+- múltiplas respostas previsíveis usam opções tocáveis;
+- taxonomias abertas incluem `Outro` com complemento condicional;
+- listas grandes usam busca/catálogo;
+- valores contínuos continuam numéricos/data/hora;
+- texto livre permanece apenas quando a resposta é pessoal ou a taxonomia curta seria enganosa.
+
+`Não`, `Não sei` e `Prefiro não informar` não são equivalentes. Quando a ausência de uma condição precisa ser distinguida de uma pergunta não respondida, a interface oferece um estado explícito.
+
+### Progressive disclosure
+
+Complementos aparecem somente quando necessários:
+- status `Sim` revela detalhe;
+- `Outro` revela campo curto;
+- situações de atenção profissional aparecem após o filtro correspondente;
+- perguntas dependentes continuam condicionadas no fluxo adaptativo.
+
+Helper text visível é preferido a tooltip quando a informação é necessária para responder corretamente. Nenhum tooltip novo é usado para esconder instrução essencial.

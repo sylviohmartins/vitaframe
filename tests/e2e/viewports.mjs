@@ -17,6 +17,8 @@ const viewports = [
 
 const surfaces = [
   ['home', '/index.html#home', '[data-vf-time-estimate]'],
+  ['health', '/index.html#assessment?step=3', '.structured-group'],
+  ['diet', '/index.html#assessment?step=4', '.structured-group'],
   ['preferences', '/index.html#assessment?step=5', '.food-category'],
   ['training', '/index.html#assessment?step=7', '[data-vf-training-extra]'],
   ['recovery', '/index.html#assessment?step=8', '[data-vf-behavior-extra]'],

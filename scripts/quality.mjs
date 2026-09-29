@@ -18,6 +18,7 @@ const mealsApp = await readFile('src/meals.mjs', 'utf8');
 const adaptiveApp = await readFile('src/adaptive-interview.mjs', 'utf8');
 const adaptiveLogic = await readFile('src/adaptive-interview-logic.mjs', 'utf8');
 const localMetrics = await readFile('src/local-metrics.mjs', 'utf8');
+const questionOptions = await readFile('src/question-options.mjs', 'utf8');
 const sw = await readFile('sw.js', 'utf8');
 
 const failures = [];
@@ -54,10 +55,11 @@ assert(app.includes('Não fazemos diagnóstico'), 'Diagnostic boundary must be v
 assert(sw.includes("event.request.method !== 'GET'"), 'Service worker must not cache mutation requests.');
 assert(sw.includes("new URL(event.request.url).origin !== location.origin"), 'Service worker must limit caching to same-origin requests.');
 assert(sw.includes("'./src/prompt-compliance.mjs'"), 'Offline cache must include the prompt compliance runtime.');
+assert(sw.includes("'./src/question-options.mjs'"), 'Offline cache must include structured answer taxonomies.');
 assert(sw.includes("'./assets/editorial.css'"), 'Offline cache must include the editorial design layer.');
 assert(sw.includes("'./src/import-conflict-guard.mjs'"), 'Offline cache must include import conflict handling.');
 
-for (const [name, runtime] of [['assessment', app], ['prompt-compliance', promptCompliance], ['advanced', advancedApp], ['import-conflict', importConflictGuard], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
+for (const [name, runtime] of [['assessment', app], ['prompt-compliance', promptCompliance], ['question-options', questionOptions], ['advanced', advancedApp], ['import-conflict', importConflictGuard], ['meals', mealsApp], ['adaptive', adaptiveApp], ['metrics', localMetrics]]) {
   assert(!runtime.includes('XMLHttpRequest'), `${name} runtime must not use XHR.`);
   assert(!runtime.includes('navigator.sendBeacon'), `${name} runtime must not send analytics beacons.`);
   assert(!runtime.includes('fetch('), `${name} runtime must not send user health data to network.`);
@@ -75,17 +77,22 @@ assert(localMetrics.includes('stepVisits'), 'Local funnel metrics must track abs
 assert(adaptiveLogic.includes("lifestyle.alcoholUse === 'yes'"), 'Adaptive interview must branch alcohol follow-up on prior answer.');
 assert(adaptiveLogic.includes('days != null && days > 0'), 'Adaptive interview must omit training detail questions when training does not apply.');
 assert(adaptiveApp.includes('adaptiveSkipped'), 'Adaptive interview must support explicit skip state.');
-assert(promptCompliance.includes('training.exercises'), 'Training intake must capture exercises.');
-assert(promptCompliance.includes('recovery.dietHistory'), 'Diet history must be collected.');
+assert(promptCompliance.includes('training.exerciseSelections'), 'Training intake must capture structured exercise selections.');
+assert(promptCompliance.includes('recovery.dietHistoryChoices'), 'Diet history must be collected as structured choices.');
 assert(promptCompliance.includes('recovery.satiety'), 'Eating behavior must include satiety.');
 assert(promptCompliance.includes('Dados ausentes'), 'Profile must expose missing data.');
 assert(promptCompliance.includes('Grau de confiança'), 'Profile must expose confidence.');
 assert(promptCompliance.includes('Tempo estimado:'), 'Onboarding must expose a completion-time estimate.');
+assert(app.includes('health.allergyItems'), 'Health intake must offer structured allergy choices.');
+assert(app.includes('currentDiet.breakfastChoices'), 'Diet intake must prefer structured meal recognition.');
+assert(app.includes('training.cardioModalities'), 'Training intake must offer structured cardio choices.');
+assert(questionOptions.includes('migrateStructuredState'), 'Structured schema must include backward-compatible migration.');
+assert(questionOptions.includes("['other', 'Outra']"), 'Open taxonomies must provide an Other escape hatch.');
 
 for (const file of [
   'assets/styles.css','assets/navigation.css','assets/editorial.css','assets/advanced.css','assets/meals.css','assets/adaptive.css',
   'src/app.mjs','src/prompt-compliance.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/import-conflict-guard.mjs','src/meals.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs',
-  'src/local-metrics.mjs','src/catalog.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
+  'src/local-metrics.mjs','src/catalog.mjs','src/question-options.mjs','src/logic.mjs','src/storage.mjs','manifest.webmanifest','sw.js',
   'scripts/format-check.mjs','scripts/lint.mjs','scripts/build.mjs','scripts/check-structure.mjs','scripts/check-links.mjs',
   'tests/e2e/smoke.mjs','tests/e2e/extended.mjs','tests/e2e/viewports.mjs',
   'tests/quality/accessibility-contrast.test.mjs','tests/quality/performance-static.test.mjs','tests/visual-baseline.json',
@@ -95,7 +102,7 @@ for (const file of [
   'docs/design/design-system.md','docs/design/ux-architecture.md','docs/design/accessibility.md','docs/design/visual-qa.md',
   'docs/engineering/testing.md','docs/engineering/performance.md','docs/engineering/ci-cd.md',
   'docs/governance/privacy.md','docs/governance/security.md','docs/governance/ai-guardrails.md','docs/governance/regulatory.md',
-  'docs/research/market.md','docs/research/validation-plan.md','docs/research/evidence-map.md','docs/audits/prompt-v1.md',
+  'docs/research/market.md','docs/research/validation-plan.md','docs/research/evidence-map.md','docs/audits/prompt-v1.md','docs/audits/question-ux-v2.md',
   'advanced.html','meals.html','adaptive.html'
 ]) {
   try { await access(file); } catch { failures.push(`Missing required file: ${file}`); }

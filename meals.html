@@ -42,6 +42,21 @@
         <button class="button secondary" id="clearMeals" type="button">Limpar mapa</button>
       </section>
       <datalist id="mealFoodOptions"></datalist>
+      <datalist id="mealLabelOptions">
+        <option value="Café da manhã"></option><option value="Almoço"></option><option value="Lanche da manhã"></option>
+        <option value="Lanche da tarde"></option><option value="Jantar"></option><option value="Ceia"></option>
+        <option value="Pré-treino"></option><option value="Pós-treino"></option>
+      </datalist>
+      <datalist id="mealQuantityOptions">
+        <option value="1 unidade"></option><option value="1 porção"></option><option value="1 colher de sopa"></option>
+        <option value="2 colheres de sopa"></option><option value="1 concha"></option><option value="1 xícara"></option>
+        <option value="100 g"></option><option value="150 g"></option><option value="200 ml"></option><option value="300 ml"></option>
+      </datalist>
+      <datalist id="mealFrequencyOptions">
+        <option value="Todos os dias"></option><option value="Dias úteis"></option><option value="Fim de semana"></option>
+        <option value="1x por semana"></option><option value="2x por semana"></option><option value="3x por semana"></option>
+        <option value="4–5x por semana"></option><option value="Ocasionalmente"></option><option value="Varia muito"></option>
+      </datalist>
       <section aria-labelledby="timelineTitle">
         <div class="section-title"><div><p class="eyebrow">Dia típico</p><h2 id="timelineTitle">Linha do tempo</h2></div><span id="mealCount"></span></div>
         <div id="mealTimeline" class="meal-timeline" aria-live="polite"></div>

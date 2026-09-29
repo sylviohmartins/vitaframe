@@ -15,7 +15,7 @@ const required = [
   'docs/engineering/testing.md', 'docs/engineering/performance.md', 'docs/engineering/ci-cd.md',
   'docs/governance/security.md', 'docs/governance/privacy.md', 'docs/governance/ai-guardrails.md', 'docs/governance/regulatory.md',
   'docs/research/market.md', 'docs/research/validation-plan.md', 'docs/research/evidence-map.md',
-  'docs/audits/prompt-v1.md',
+  'docs/audits/prompt-v1.md', 'docs/audits/question-ux-v2.md',
   'assets/editorial.css',
   'assets/brand/brand.css', 'assets/brand/mark.svg', 'assets/brand/wordmark.svg',
   'assets/brand/logo.svg', 'assets/brand/logo-dark.svg', 'assets/brand/logo-compact.svg',
@@ -26,6 +26,7 @@ const required = [
   'tests/quality/accessibility-contrast.test.mjs', 'tests/quality/brand-assets.test.mjs', 'tests/quality/performance-static.test.mjs',
   'tests/e2e/smoke.mjs', 'tests/e2e/extended.mjs', 'tests/e2e/viewports.mjs',
   'tests/visual-baseline.json',
+  'src/question-options.mjs',
   'scripts/check-structure.mjs', 'scripts/check-links.mjs'
 ];
 

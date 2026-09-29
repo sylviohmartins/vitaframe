@@ -1,5 +1,14 @@
 import { calculateBMI, calculateBMR, completeness, dataQualityIssues, redFlags } from './logic.mjs';
 import { hasConsent, STORAGE_KEY } from './storage.mjs';
+import {
+  adherenceBarrierOptions,
+  allergyOptions,
+  dietHistoryOptions,
+  exerciseOptions,
+  formatSelections,
+  intoleranceOptions,
+  mealQuickOptions,
+} from './question-options.mjs';
 
 const HISTORY_KEY = 'vitaframe:v1:history';
 
@@ -58,6 +67,14 @@ function textareaField(label, name, current, placeholder = '', help = '') {
   return `<label class="field field-wide vf-prompt-field"><span>${esc(label)}</span><textarea name="${esc(name)}" rows="3" placeholder="${esc(placeholder)}">${esc(current ?? '')}</textarea>${help ? `<small>${esc(help)}</small>` : ''}</label>`;
 }
 
+function multiChoiceField(label, name, current, options, otherName, otherValue, help = '') {
+  const values = Array.isArray(current) ? current : [];
+  const choices = options.map(([value, text]) =>
+    `<label class="structured-option"><input type="checkbox" name="${esc(name)}" data-array-path="${esc(name)}" value="${esc(value)}" ${value === 'none' ? 'data-exclusive="true"' : ''} ${values.includes(value) ? 'checked' : ''}><span>${esc(text)}</span></label>`
+  ).join('');
+  return `<fieldset class="structured-group vf-prompt-field"><legend>${esc(label)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div><label class="field conditional-other"><span>Outro — descreva</span><input name="${esc(otherName)}" type="text" maxlength="180" value="${esc(otherValue ?? '')}"></label></fieldset>`;
+}
+
 function injectOnboardingTime() {
   const hero = document.querySelector('.hero-copy');
   if (!hero || hero.querySelector('[data-vf-time-estimate]')) return;
@@ -86,18 +103,18 @@ function injectTrainingDetails() {
   const heading = document.querySelector('.assessment-head .eyebrow')?.textContent || '';
   if (!form || !heading.includes('Etapa 7') || form.querySelector('[data-vf-training-extra]')) return;
   const wrapper = document.createElement('div');
-  wrapper.className = 'form-grid top-gap';
   wrapper.dataset.vfTrainingExtra = 'true';
-  wrapper.innerHTML = textareaField(
+  wrapper.innerHTML = multiChoiceField(
     'Exercícios que costuma realizar',
-    'training.exercises',
-    mirror.training?.exercises,
-    'Ex.: agachamento, leg press, supino, remada…',
-    'Liste apenas se souber; não é necessário preencher séries/cargas para concluir a avaliação.'
+    'training.exerciseSelections',
+    mirror.training?.exerciseSelections,
+    exerciseOptions,
+    'training.exerciseOther',
+    mirror.training?.exerciseOther,
+    'Selecione movimentos que reconhece. A lista é curta de propósito; “Outro” cobre variações e exercícios fora do catálogo.'
   );
   form.append(wrapper);
 }
-
 function injectBehaviorAndDietHistory() {
   const form = document.querySelector('#assessmentForm');
   const heading = document.querySelector('.assessment-head .eyebrow')?.textContent || '';
@@ -108,15 +125,14 @@ function injectBehaviorAndDietHistory() {
   wrapper.innerHTML = `
     ${selectField('Saciedade depois das refeições', 'recovery.satiety', mirror.recovery?.satiety, [['low','Costumo continuar com fome'],['variable','Varia bastante'],['good','Geralmente fico satisfeito(a)'],['unsure','Não sei avaliar']])}
     ${selectField('Vontade de doces', 'recovery.sweetCraving', mirror.recovery?.sweetCraving, [['rare','Raramente'],['sometimes','Às vezes'],['often','Frequentemente'],['very-often','Muito frequente']])}
-    ${selectField('Beliscar sem fome física', 'recovery.snacking', mirror.recovery?.snacking, [['rare','Raramente'],['sometimes','Às vezes'],['often','Frequentemente']])}
+    ${selectField('Beliscar sem fome física', 'recovery.snacking', mirror.recovery?.snacking, [['rare','Raramente'],['sometimes','Às vezes'],['often','Frequentemente'],['unsure','Não sei avaliar']])}
     ${selectField('Episódios de comer quantidade muito maior que o habitual', 'recovery.overeating', mirror.recovery?.overeating, [['never','Não'],['sometimes','Às vezes'],['often','Frequentemente'],['prefer-not','Prefiro não responder']], 'Isso não diagnostica transtorno alimentar; serve apenas para indicar quando uma conversa profissional pode ser útil.')}
     ${selectField('Períodos de restrição alimentar muito rígida', 'recovery.restriction', mirror.recovery?.restriction, [['never','Não'],['past','Já aconteceu no passado'],['sometimes','Às vezes atualmente'],['often','Frequentemente atualmente'],['prefer-not','Prefiro não responder']])}
-    ${textareaField('Dietas ou estratégias alimentares anteriores', 'recovery.dietHistory', mirror.recovery?.dietHistory, 'Ex.: contagem de calorias, low carb, acompanhamento com nutricionista, nenhuma…', 'Conte apenas o que considerar relevante. “Nunca fiz dieta” é uma resposta válida.')}
-    ${textareaField('O que funcionou ou dificultou adesão no passado?', 'recovery.dietExperience', mirror.recovery?.dietExperience, 'Ex.: fome, repetição, cozinhar, trabalho, fim de semana, custo…')}
+    ${multiChoiceField('Dietas ou estratégias alimentares anteriores', 'recovery.dietHistoryChoices', mirror.recovery?.dietHistoryChoices, dietHistoryOptions, 'recovery.dietHistoryOther', mirror.recovery?.dietHistoryOther, 'Selecione tudo que reconhecer; “nunca segui estratégia específica” é uma resposta explícita, não ausência de dado.')}
+    ${multiChoiceField('O que mais dificultou adesão no passado?', 'recovery.adherenceBarriers', mirror.recovery?.adherenceBarriers, adherenceBarrierOptions, 'recovery.adherenceOther', mirror.recovery?.adherenceOther, 'Use “Outro” apenas se o principal fator não estiver representado.')}
   `;
   form.append(wrapper);
 }
-
 function missingData(state) {
   const candidates = [
     [state.goal?.primary, 'objetivo principal'],
@@ -172,8 +188,17 @@ function injectProfileCompleteness() {
   block.innerHTML = `
     <div class="section-title"><div><p class="eyebrow">Cobertura do perfil</p><h2>O contexto que sustenta a próxima decisão</h2></div><span>${esc(confidence.label)}</span></div>
     <div class="profile-columns">
-      <section><h2>Alimentação</h2><p>${esc(compactText(state.currentDiet?.breakfast, state.currentDiet?.lunch, state.currentDiet?.dinner))}</p><dl><div><dt>Timeline</dt><dd>${meals ? `${meals} refeição(ões) mapeada(s)` : 'Não mapeada'}</dd></div><div><dt>Delivery</dt><dd>${state.currentDiet?.deliveryPerWeek !== '' && state.currentDiet?.deliveryPerWeek != null ? `${esc(state.currentDiet.deliveryPerWeek)}x/semana` : '—'}</dd></div><div><dt>Fim de semana</dt><dd>${esc(state.currentDiet?.weekendDiff || '—')}</dd></div></dl></section>
-      <section><h2>Saúde</h2><p>${esc(compactText(state.health?.allergies, state.health?.intolerances, state.health?.conditions, state.health?.medications))}</p><dl><div><dt>Alertas declarados</dt><dd>${flags.length}</dd></div><div><dt>Limitações/dor</dt><dd>${esc(state.health?.pain || state.training?.limitations || '—')}</dd></div></dl></section>
+      <section><h2>Alimentação</h2><p>${esc(compactText(
+        formatSelections(state.currentDiet?.breakfastChoices, mealQuickOptions.breakfast, state.currentDiet?.breakfastOther) || state.currentDiet?.breakfast,
+        formatSelections(state.currentDiet?.lunchChoices, mealQuickOptions.lunch, state.currentDiet?.lunchOther) || state.currentDiet?.lunch,
+        formatSelections(state.currentDiet?.dinnerChoices, mealQuickOptions.dinner, state.currentDiet?.dinnerOther) || state.currentDiet?.dinner
+      ))}</p><dl><div><dt>Timeline</dt><dd>${meals ? `${meals} refeição(ões) mapeada(s)` : 'Não mapeada'}</dd></div><div><dt>Delivery</dt><dd>${state.currentDiet?.deliveryPerWeek !== '' && state.currentDiet?.deliveryPerWeek != null ? `${esc(state.currentDiet.deliveryPerWeek)}x/semana` : '—'}</dd></div><div><dt>Fim de semana</dt><dd>${esc(state.currentDiet?.weekendDiff || '—')}</dd></div></dl></section>
+      <section><h2>Saúde</h2><p>${esc(compactText(
+        state.health?.allergyStatus === 'none' ? 'Sem alergia conhecida' : formatSelections(state.health?.allergyItems, allergyOptions, state.health?.allergyOther) || state.health?.allergies,
+        state.health?.intoleranceStatus === 'none' ? 'Sem intolerância/desconforto declarado' : formatSelections(state.health?.intoleranceItems, intoleranceOptions, state.health?.intoleranceOther) || state.health?.intolerances,
+        state.health?.conditions,
+        state.health?.medications
+      ))}</p><dl><div><dt>Alertas declarados</dt><dd>${flags.length}</dd></div><div><dt>Limitações/dor</dt><dd>${esc(state.health?.pain || state.training?.limitations || '—')}</dd></div></dl></section>
       <section><h2>Adesão</h2><dl><div><dt>Cozinhar</dt><dd>${esc(state.routine?.cook || '—')}</dd></div><div><dt>Orçamento</dt><dd>${esc(state.routine?.budget || '—')}</dd></div><div><dt>Maior fome</dt><dd>${esc(state.routine?.hungerPeriod || '—')}</dd></div><div><dt>Saciedade</dt><dd>${esc(state.recovery?.satiety || '—')}</dd></div><div><dt>Vontade de doces</dt><dd>${esc(state.recovery?.sweetCraving || '—')}</dd></div></dl>${state.recovery?.dietHistory ? `<p><strong>Histórico de dietas:</strong> ${esc(state.recovery.dietHistory)}</p>` : ''}</section>
       <section><h2>Dados ausentes</h2>${missing.length ? `<ul>${missing.map(item => `<li>${esc(item)}</li>`).join('')}</ul>` : '<p>Nenhuma lacuna estrutural essencial detectada.</p>'}<p><a href="#assessment?step=9">Revisar inconsistências</a></p></section>
     </div>
@@ -202,10 +227,25 @@ function captureField(event) {
   const target = event.target;
   if (!target?.name || !target.name.includes('.')) return;
   const value = target.type === 'checkbox' ? target.checked : target.value;
-  if (target.name.startsWith('preference.')) {
+  if (target.dataset.arrayPath) {
+    const fieldset = target.closest('.structured-group');
+    if (target.checked && target.dataset.exclusive === 'true') {
+      fieldset?.querySelectorAll('[data-array-path]').forEach(input => { if (input !== target) input.checked = false; });
+    } else if (target.checked) {
+      fieldset?.querySelectorAll('[data-array-path][data-exclusive="true"]').forEach(input => { input.checked = false; });
+    }
+    const selected = [...(fieldset?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
+    setPath(mirror, target.dataset.arrayPath, selected);
+    const otherPaths = {
+      'training.exerciseSelections': 'training.exerciseOther',
+      'recovery.dietHistoryChoices': 'recovery.dietHistoryOther',
+      'recovery.adherenceBarriers': 'recovery.adherenceOther',
+    };
+    if (otherPaths[target.dataset.arrayPath] && !selected.includes('other')) setPath(mirror, otherPaths[target.dataset.arrayPath], '');
+  } else if (target.name.startsWith('preference.')) {
     mirror.foodPreferences ??= {};
     mirror.foodPreferences[target.name.split('.')[1]] = value === 'n' ? 'n' : Number(value);
-  } else {
+  } else if (!target.dataset.arrayPath) {
     setPath(mirror, target.name, value);
   }
   queueMicrotask(() => {

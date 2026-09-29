@@ -267,13 +267,14 @@ function exportHistory() {
 }
 
 function loadReview() {
-  return readJson(REVIEW_KEY, { type: '', status: 'pending', clarifications: '', notes: '', updatedAt: '' });
+  return readJson(REVIEW_KEY, { type: '', typeOther: '', status: 'pending', clarifications: '', notes: '', updatedAt: '' });
 }
 
 function renderReview() {
   const review = loadReview();
   const form = $('#professionalForm');
   form.elements.type.value = review.type || '';
+  form.elements.typeOther.value = review.typeOther || '';
   form.elements.status.value = review.status || 'pending';
   form.elements.clarifications.value = review.clarifications || '';
   form.elements.notes.value = review.notes || '';
@@ -285,6 +286,7 @@ function saveReview(event) {
   const data = new FormData(event.currentTarget);
   const review = {
     type: data.get('type') || '',
+    typeOther: data.get('type') === 'other' ? (data.get('typeOther') || '') : '',
     status: data.get('status') || 'pending',
     clarifications: data.get('clarifications') || '',
     notes: data.get('notes') || '',

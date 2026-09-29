@@ -46,6 +46,7 @@ This directory is the canonical entry point for internal product, architecture, 
 ## Audits
 
 - [Prompt V1 audit](audits/prompt-v1.md)
+- [Question and structured-answer UX audit](audits/question-ux-v2.md)
 
 ## Documentation conventions
 

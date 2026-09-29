@@ -116,7 +116,7 @@ async function assertBudgets() {
   const sizes = {};
   for (const file of [
     'index.html','advanced.html','adaptive.html','meals.html','assets/styles.css','assets/navigation.css','assets/editorial.css','assets/advanced.css','assets/adaptive.css','assets/meals.css',
-    'src/app.mjs','src/local-metrics.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
+    'src/app.mjs','src/local-metrics.mjs','src/prompt-compliance.mjs','src/question-options.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
   ]) sizes[file] = (await stat(file)).size;
 
   const assertions = [
@@ -124,7 +124,7 @@ async function assertBudgets() {
     [sizes['advanced.html'] <= 50_000, 'advanced.html exceeds 50 KB'],
     [sizes['adaptive.html'] <= 50_000, 'adaptive.html exceeds 50 KB'],
     [sizes['meals.html'] <= 50_000, 'meals.html exceeds 50 KB'],
-    [sizes['src/app.mjs'] + sizes['src/local-metrics.mjs'] <= 150_000, 'main JS exceeds 150 KB'],
+    [sizes['src/app.mjs'] + sizes['src/local-metrics.mjs'] + sizes['src/prompt-compliance.mjs'] + sizes['src/question-options.mjs'] <= 180_000, 'main JS exceeds 180 KB'],
     [sizes['src/advanced.mjs'] + sizes['src/advanced-logic.mjs'] <= 150_000, 'advanced JS exceeds 150 KB'],
     [sizes['src/adaptive-interview.mjs'] + sizes['src/adaptive-interview-logic.mjs'] <= 100_000, 'adaptive JS exceeds 100 KB'],
     [sizes['src/meals.mjs'] <= 80_000, 'meal JS exceeds 80 KB'],
@@ -211,7 +211,7 @@ try {
   if (mobileVitals.overflow) throw new Error('Mobile home has horizontal overflow.');
   if (mobileVitals.vitals.cls > 0.1) throw new Error(`CLS budget failed: ${mobileVitals.vitals.cls}`);
   if (mobileVitals.vitals.lcp > 2500) throw new Error(`LCP budget failed: ${mobileVitals.vitals.lcp}ms`);
-  if (mobileVitals.requests > 12) throw new Error(`Critical request budget failed: ${mobileVitals.requests}`);
+  if (mobileVitals.requests > 13) throw new Error(`Critical request budget failed: ${mobileVitals.requests}`);
   await assertAX(cdp, 'mobile home');
   await screenshot(cdp, 'home-mobile');
 
@@ -227,6 +227,39 @@ try {
     }));
   })()`);
 
+  await cdp.send('Page.navigate', { url: `${origin}/index.html#assessment?step=3` });
+  await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('input[name="health.allergyStatus"][value="yes"]')`, 'structured health intake');
+  await cdp.evaluate(`(() => {
+    const status=document.querySelector('input[name="health.allergyStatus"][value="yes"]');
+    status.checked=true; status.dispatchEvent(new Event('change',{bubbles:true}));
+    const milk=document.querySelector('input[data-array-path="health.allergyItems"][value="milk"]');
+    const other=document.querySelector('input[data-array-path="health.allergyItems"][value="other"]');
+    milk.checked=true; milk.dispatchEvent(new Event('change',{bubbles:true}));
+    other.checked=true; other.dispatchEvent(new Event('change',{bubbles:true}));
+    const detail=document.querySelector('input[name="health.allergyOther"]');
+    detail.value='mostarda'; detail.dispatchEvent(new Event('input',{bubbles:true}));
+  })()`);
+  const structuredHealth = await cdp.evaluate(`JSON.parse(localStorage.getItem('vitaframe:v1:assessment'))`);
+  if (structuredHealth.meta.version !== 2) throw new Error(`Structured migration did not persist schema v2: ${structuredHealth.meta.version}`);
+  if (structuredHealth.health.allergyStatus !== 'yes' || !structuredHealth.health.allergyItems?.includes('milk') || !structuredHealth.health.allergyItems?.includes('other') || structuredHealth.health.allergyOther !== 'mostarda') {
+    throw new Error(`Structured allergy persistence failed: ${JSON.stringify(structuredHealth.health)}`);
+  }
+  await assertAX(cdp, 'structured health intake');
+  await screenshot(cdp, 'structured-health-mobile');
+
+  await cdp.send('Page.navigate', { url: `${origin}/index.html#assessment?step=4` });
+  await waitForPage(cdp, `!!document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="skip"]')`, 'structured diet intake');
+  await cdp.evaluate(`(() => {
+    const common=document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="bread-eggs"]');
+    common.checked=true; common.dispatchEvent(new Event('change',{bubbles:true}));
+    const skip=document.querySelector('input[data-array-path="currentDiet.breakfastChoices"][value="skip"]');
+    skip.checked=true; skip.dispatchEvent(new Event('change',{bubbles:true}));
+  })()`);
+  const breakfastChoices = await cdp.evaluate(`JSON.parse(localStorage.getItem('vitaframe:v1:assessment')).currentDiet.breakfastChoices`);
+  if (JSON.stringify(breakfastChoices) !== JSON.stringify(['skip'])) throw new Error(`Exclusive meal choice failed: ${JSON.stringify(breakfastChoices)}`);
+  await assertAX(cdp, 'structured diet intake');
+  await screenshot(cdp, 'structured-diet-mobile');
+
   await cdp.send('Page.navigate', { url: `${origin}/advanced.html` });
   await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#adaptiveList .adaptive-item')`, 'advanced adaptive list');
   await assertAX(cdp, 'advanced center');
@@ -237,8 +270,43 @@ try {
   await waitForPage(cdp, `document.querySelectorAll('#historyList .history-row').length===1`, 'history snapshot');
   await screenshot(cdp, 'advanced-mobile');
 
+  // Isolate the branching assertion from state left by earlier E2E scenarios.
+  // All higher/equal-priority contextual gaps are completed so alcohol is the
+  // only pending adaptive question being tested here.
+  await cdp.evaluate(`(() => {
+    const key='vitaframe:v1:assessment';
+    const s=JSON.parse(localStorage.getItem(key));
+    s.body.bodyFatSource ||= 'bioimpedance-home';
+    s.body.bodyFatDate ||= new Date().toISOString().slice(0,10);
+    s.training.time ||= '18:00';
+    s.training.experience ||= 'intermediate';
+    s.recovery.sleepHours ||= '7';
+    s.lifestyle ||= {};
+    delete s.lifestyle.alcoholUse;
+    delete s.lifestyle.alcoholFrequency;
+    s.meta ||= {};
+    s.meta.adaptiveSkipped ||= {};
+    delete s.meta.adaptiveSkipped['lifestyle.alcoholUse'];
+    delete s.meta.adaptiveSkipped['lifestyle.alcoholFrequency'];
+    localStorage.setItem(key, JSON.stringify(s));
+  })()`);
+
   await cdp.send('Page.navigate', { url: `${origin}/adaptive.html` });
-  await waitForPage(cdp, `document.readyState==='complete' && document.querySelector('#questionHost h2')?.textContent.includes('bebida alcoólica')`, 'adaptive alcohol question');
+  await waitForPage(cdp, `document.readyState==='complete' && !!document.querySelector('#questionHost h2')`, 'adaptive first question');
+  const adaptiveTraversal = await cdp.evaluate(`(async () => {
+    const seen=[];
+    for (let i=0;i<10;i+=1) {
+      const title=document.querySelector('#questionHost h2')?.textContent?.trim() || '';
+      seen.push(title);
+      if (title.includes('bebida alcoólica')) return {found:true,seen};
+      const skip=document.querySelector('#skipQuestion');
+      if (!skip) return {found:false,seen,reason:'skip unavailable'};
+      skip.click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    return {found:false,seen,reason:'limit reached'};
+  })()`);
+  if (!adaptiveTraversal.found) throw new Error(`Adaptive alcohol question not reached: ${JSON.stringify(adaptiveTraversal)}`);
   await assertAX(cdp, 'adaptive interview');
   await screenshot(cdp, 'adaptive-mobile');
   await cdp.evaluate(`(() => { const select=document.querySelector('#adaptiveAnswer'); select.value='no'; document.querySelector('#adaptiveForm').requestSubmit(); })()`);

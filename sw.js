@@ -1,4 +1,4 @@
-const CACHE = 'vitaframe-v1.3.0';
+const CACHE = 'vitaframe-v1.4.0';
 const ASSETS = [
   './',
   './index.html',
@@ -26,6 +26,7 @@ const ASSETS = [
   './assets/brand/og-image.png',
   './src/app.mjs',
   './src/catalog.mjs',
+  './src/question-options.mjs',
   './src/logic.mjs',
   './src/storage.mjs',
   './src/local-metrics.mjs',

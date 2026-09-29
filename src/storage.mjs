@@ -1,3 +1,5 @@
+import { migrateStructuredState } from './question-options.mjs';
+
 export const STORAGE_KEY = 'vitaframe:v1:assessment';
 export const CONSENT_KEY = 'vitaframe:v1:consent';
 export const THEME_KEY = 'vitaframe:v1:theme';
@@ -33,7 +35,8 @@ export function loadState(fallback) {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    return { ...fallback, ...parsed, meta: { ...fallback.meta, ...(parsed.meta ?? {}) } };
+    const merged = { ...fallback, ...parsed, meta: { ...fallback.meta, ...(parsed.meta ?? {}) } };
+    return migrateStructuredState(merged);
   } catch {
     return fallback;
   }
@@ -42,10 +45,10 @@ export function loadState(fallback) {
 export function saveState(state) {
   if (!hasConsent()) return false;
   try {
-    const payload = {
+    const payload = migrateStructuredState({
       ...state,
       meta: { ...(state.meta ?? {}), updatedAt: new Date().toISOString() }
-    };
+    });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     return true;
   } catch {

@@ -59,3 +59,18 @@ CodeQL executa em PR, `main` e agendamento; Actions são fixadas por SHA; CSP é
 ## Critério
 
 Teste verde significa **“o requisito implementado passou sua verificação”**, não “o produto comercial foi validado”. A cobertura da especificação fica em [`../product/requirements.md`](../product/requirements.md) e a auditoria independente em [`../audits/prompt-v1.md`](../audits/prompt-v1.md).
+
+
+## Structured-answer regression coverage
+
+A suíte deve cobrir:
+- migração v1 → v2 sem perda de texto legado;
+- diferenciação entre `none`, `unsure` e `prefer-not`;
+- seleção múltipla e exclusividade de respostas como “não costumo”;
+- `Outro` + complemento e limpeza de valor obsoleto;
+- conditional reveal;
+- persistência/reload/export/import;
+- fluxo mobile de saúde, alimentação, treino e recuperação;
+- orçamento de `question-options.mjs` no runtime principal.
+
+A matriz de perguntas auditada está em [question-ux-v2.md](../audits/question-ux-v2.md).

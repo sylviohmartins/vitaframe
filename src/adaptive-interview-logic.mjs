@@ -21,7 +21,7 @@ export function adaptiveQuestions(state = {}) {
   });
   if (body.bodyFatPct && !body.bodyFatSource && !skipped(state, 'body.bodyFatSource')) q.push({
     field: 'body.bodyFatSource', domain: 'Corpo', priority: 1, type: 'select', label: 'De onde veio sua estimativa de gordura corporal?', help: 'A origem altera o grau de confiança do valor.', options: [
-      ['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['other','Outro método']
+      ['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['unsure','Não sei / não lembro'],['other','Outro método']
     ]
   });
   if (body.bodyFatPct && !body.bodyFatDate && !skipped(state, 'body.bodyFatDate')) q.push({

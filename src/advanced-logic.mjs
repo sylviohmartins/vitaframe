@@ -106,7 +106,7 @@ export function localMetrics(state = {}, history = []) {
 
 export function validateImportObject(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return { ok: false, reason: 'Arquivo não contém um objeto de avaliação.' };
-  if (Number(value.meta?.version) !== 1) return { ok: false, reason: 'Versão de avaliação incompatível com a V1.' };
+  if (![1, 2].includes(Number(value.meta?.version))) return { ok: false, reason: 'Versão de avaliação incompatível com esta versão do VitaFrame.' };
   if (!value.goal || !value.body || !value.health) return { ok: false, reason: 'Estrutura mínima da avaliação não foi encontrada.' };
   return { ok: true, reason: '' };
 }

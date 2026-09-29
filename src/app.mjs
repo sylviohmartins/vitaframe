@@ -1,5 +1,18 @@
 import { foodCatalog, preferenceScale, references } from './catalog.mjs';
 import {
+  activityOptions,
+  allergyOptions,
+  cardioOptions,
+  intoleranceOptions,
+  limitationAreaOptions,
+  mealQuickOptions,
+  statusOptions,
+  supplementOptions,
+  trainingSplitOptions,
+  migrateStructuredState,
+  weekendOptions,
+} from './question-options.mjs';
+import {
   calculateBMI,
   calculateBMR,
   completeness,
@@ -28,36 +41,51 @@ const themeToggle = document.querySelector('#themeToggle');
 const privacyButton = document.querySelector('#privacyButton');
 
 const initialState = {
-  meta: { version: 1, createdAt: new Date().toISOString(), lastStep: 1 },
+  meta: { version: 2, createdAt: new Date().toISOString(), lastStep: 1 },
   goal: { primary: '', pace: '', notes: '' },
   body: {
     age: '', sex: '', heightCm: '', weightKg: '', usualWeightKg: '', waistCm: '',
-    bodyFatPct: '', bodyFatSource: '', bodyFatDate: '', goalWeightKg: ''
+    bodyFatPct: '', bodyFatSource: '', bodyFatSourceOther: '', bodyFatDate: '', goalWeightKg: ''
   },
   health: {
-    answered: false, allergies: '', intolerances: '', conditions: '', medications: '', surgeries: '', pain: '',
+    answered: false,
+    allergies: '', allergyStatus: '', allergyItems: [], allergyOther: '',
+    intolerances: '', intoleranceStatus: '', intoleranceItems: [], intoleranceOther: '',
+    conditions: '', conditionStatus: '', medications: '', medicationStatus: '',
+    surgeries: '', surgeryStatus: '', pain: '', painStatus: '', painAreas: [], painOther: '',
+    attentionStatus: '',
     medicalFollowup: false, chestPain: false, eatingDisorder: false, rapidWeightChange: false,
     pregnancy: false, kidneyDisease: false, diabetesMedication: false, acuteInjury: false
   },
   currentDiet: {
-    answered: false, breakfast: '', lunch: '', snack: '', dinner: '', supper: '', drinks: '', sweets: '',
-    deliveryPerWeek: '', eatOutPerWeek: '', waterLiters: '', weekendDiff: ''
+    answered: false,
+    breakfast: '', breakfastChoices: [], breakfastOther: '',
+    lunch: '', lunchChoices: [], lunchOther: '',
+    snack: '', snackChoices: [], snackOther: '',
+    dinner: '', dinnerChoices: [], dinnerOther: '',
+    supper: '', supperChoices: [], supperOther: '',
+    drinks: '', drinksChoices: [], drinksOther: '',
+    sweets: '', sweetsChoices: [], sweetsOther: '',
+    deliveryPerWeek: '', eatOutPerWeek: '', waterLiters: '',
+    weekendDiff: '', weekendChoices: [], weekendOther: ''
   },
   foodPreferences: {},
   foodNotes: { mustKeep: '', avoid: '', controlRisk: '', other: '' },
   routine: {
-    answered: false, wakeTime: '', sleepTime: '', workMode: '', workHours: '', commute: '', cook: '',
-    mealPrep: '', fridgeMicrowave: '', budget: '', preferredMeals: '', hungerPeriod: '', notes: ''
+    answered: false, wakeTime: '', sleepTime: '', workMode: '', workModeOther: '', workHours: '', commute: '',
+    cook: '', mealPrep: '', fridgeMicrowave: '', budget: '', preferredMeals: '', hungerPeriod: '', notes: ''
   },
   training: {
-    answered: false, daysPerWeek: '', durationMin: '', intensity: '', split: '', time: '', experience: '',
-    cardio: '', cardioFrequency: '', steps: '', otherActivity: '', limitations: ''
+    answered: false, daysPerWeek: '', durationMin: '', intensity: '', split: '', splitOther: '', time: '', experience: '',
+    cardio: '', cardioModalities: [], cardioOther: '', cardioDurationMin: '', cardioFrequency: '', steps: '',
+    otherActivity: '', activityTypes: [], activityOther: '', limitations: '', limitationStatus: '',
+    limitationAreas: [], limitationOther: '', exerciseSelections: [], exerciseOther: ''
   },
   recovery: {
     answered: false, sleepHours: '', sleepQuality: '', stress: '', hydration: '', hungerNight: '',
-    emotionalEating: '', supplements: '', notes: ''
+    emotionalEating: '', supplements: '', supplementStatus: '', supplementTypes: [], supplementOther: '', notes: ''
   }
-};
+}
 
 let state = loadState(structuredClone(initialState));
 let currentStep = Number(state?.meta?.lastStep || 1);
@@ -131,6 +159,38 @@ function select({ label, name, value = '', options, help = '' }) {
 
 function checkbox({ label, name, checked = false, help = '' }) {
   return `<label class="check"><input type="checkbox" name="${esc(name)}" ${checked ? 'checked' : ''}><span><strong>${esc(label)}</strong>${help ? `<small>${esc(help)}</small>` : ''}</span></label>`;
+}
+
+function setPathValue(object, path, value) {
+  const parts = path.split('.');
+  let cursor = object;
+  for (let i = 0; i < parts.length - 1; i += 1) cursor = cursor[parts[i]] ??= {};
+  cursor[parts.at(-1)] = value;
+}
+
+function radioChoices({ legend, name, value = '', options, help = '', otherName = '', otherValue = '', otherLabel = 'Descreva' }) {
+  const choices = options.map(([id, label]) =>
+    `<label class="structured-option"><input type="radio" name="${esc(name)}" value="${esc(id)}" ${String(value) === String(id) ? 'checked' : ''}><span>${esc(label)}</span></label>`
+  ).join('');
+  const other = otherName
+    ? `<label class="field conditional-other"><span>${esc(otherLabel)}</span><input name="${esc(otherName)}" type="text" value="${esc(otherValue)}" maxlength="160"></label>`
+    : '';
+  return `<fieldset class="structured-group"><legend>${esc(legend)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div>${other}</fieldset>`;
+}
+
+function multiChoices({ legend, name, values = [], options, help = '', otherName = '', otherValue = '', otherLabel = 'Outro — descreva', exclusive = [] }) {
+  const selected = Array.isArray(values) ? values : [];
+  const choices = options.map(([id, label]) =>
+    `<label class="structured-option"><input type="checkbox" name="${esc(name)}" data-array-path="${esc(name)}" value="${esc(id)}" ${selected.includes(id) ? 'checked' : ''} ${exclusive.includes(id) ? 'data-exclusive="true"' : ''}><span>${esc(label)}</span></label>`
+  ).join('');
+  const other = otherName
+    ? `<label class="field conditional-other"><span>${esc(otherLabel)}</span><input name="${esc(otherName)}" type="text" value="${esc(otherValue)}" maxlength="180"></label>`
+    : '';
+  return `<fieldset class="structured-group"><legend>${esc(legend)}</legend>${help ? `<p class="structured-help">${esc(help)}</p>` : ''}<div class="structured-options">${choices}</div>${other}</fieldset>`;
+}
+
+function statusWithText({ legend, statusName, statusValue, textName, textValue, textLabel, help = '', placeholder = '' }) {
+  return `<div class="conditional-block">${radioChoices({ legend, name: statusName, value: statusValue, options: statusOptions, help })}<label class="field field-wide conditional-yes"><span>${esc(textLabel)}</span><textarea name="${esc(textName)}" rows="3" placeholder="${esc(placeholder)}" maxlength="800">${esc(textValue)}</textarea></label></div>`;
 }
 
 function pageHeader(eyebrow, title, copy) {
@@ -220,7 +280,8 @@ function step2() {
       ${field({ label:'Peso habitual (kg)', name:'body.usualWeightKg', value:state.body.usualWeightKg, type:'number', step:'0.01', inputmode:'decimal' })}
       ${field({ label:'Cintura / abdômen (cm)', name:'body.waistCm', value:state.body.waistCm, type:'number', step:'0.1', inputmode:'decimal' })}
       ${field({ label:'Gordura corporal estimada (%)', name:'body.bodyFatPct', value:state.body.bodyFatPct, type:'number', min:'3', max:'70', step:'0.1', inputmode:'decimal' })}
-      ${select({ label:'Origem da estimativa de gordura', name:'body.bodyFatSource', value:state.body.bodyFatSource, options:[['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['other','Outro método']] })}
+      ${select({ label:'Origem da estimativa de gordura', name:'body.bodyFatSource', value:state.body.bodyFatSource, options:[['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['unsure','Não sei / não lembro'],['other','Outro método']] })}
+      <label class="field conditional-bodyfat-other"><span>Qual outro método?</span><input name="body.bodyFatSourceOther" type="text" maxlength="120" value="${esc(state.body.bodyFatSourceOther)}" placeholder="Ex.: ultrassom, estimativa de profissional…"></label>
       ${field({ label:'Data da medição', name:'body.bodyFatDate', value:state.body.bodyFatDate, type:'date' })}
       ${field({ label:'Peso objetivo, se houver (kg)', name:'body.goalWeightKg', value:state.body.goalWeightKg, type:'number', step:'0.1', inputmode:'decimal' })}
     </div>
@@ -232,44 +293,58 @@ function step2() {
 }
 
 function step3() {
-  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Esses campos servem para identificar quando uma futura recomendação deve ser revisada por profissional habilitado. Não fazemos diagnóstico.</p></div>
-    <div class="form-grid">
-      ${textarea({ label:'Alergias alimentares', name:'health.allergies', value:state.health.allergies, placeholder:'Se não houver, deixe em branco.' })}
-      ${textarea({ label:'Intolerâncias ou alimentos que causam desconforto', name:'health.intolerances', value:state.health.intolerances })}
-      ${textarea({ label:'Condições de saúde relevantes', name:'health.conditions', value:state.health.conditions })}
-      ${textarea({ label:'Medicamentos de uso regular', name:'health.medications', value:state.health.medications })}
-      ${textarea({ label:'Cirurgias ou histórico importante', name:'health.surgeries', value:state.health.surgeries })}
-      ${textarea({ label:'Dores, lesões ou limitações atuais', name:'health.pain', value:state.health.pain })}
+  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Selecione o que reconhecer. “Não”, “não sei” e “prefiro não informar” são respostas diferentes; texto aparece apenas quando acrescenta contexto. Não fazemos diagnóstico.</p></div>
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui alguma alergia conhecida?', name:'health.allergyStatus', value:state.health.allergyStatus, options:statusOptions, help:'Alergia é diferente de intolerância ou desconforto alimentar.' })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'Quais alergias você reconhece?', name:'health.allergyItems', values:state.health.allergyItems, options:allergyOptions, help:'Selecione todas que se aplicam. Os atalhos alimentares priorizam os principais grupos reconhecidos pela Anvisa/ASBAI.', otherName:'health.allergyOther', otherValue:state.health.allergyOther })}
+      </div>
     </div>
-    <fieldset class="check-panel"><legend>Situações que pedem atenção profissional</legend>
-      ${checkbox({ label:'Tenho condição que exige acompanhamento médico ou nutricional', name:'health.medicalFollowup', checked:state.health.medicalFollowup })}
-      ${checkbox({ label:'Tenho dor no peito, desmaio ou sintomas cardiovasculares relacionados ao exercício', name:'health.chestPain', checked:state.health.chestPain })}
-      ${checkbox({ label:'Tenho histórico ou suspeita de transtorno alimentar', name:'health.eatingDisorder', checked:state.health.eatingDisorder })}
-      ${checkbox({ label:'Tive mudança rápida e não intencional de peso', name:'health.rapidWeightChange', checked:state.health.rapidWeightChange })}
-      ${checkbox({ label:'Estou em gestação ou amamentação', name:'health.pregnancy', checked:state.health.pregnancy })}
-      ${checkbox({ label:'Tenho doença renal', name:'health.kidneyDisease', checked:state.health.kidneyDisease })}
-      ${checkbox({ label:'Uso medicação para diabetes', name:'health.diabetesMedication', checked:state.health.diabetesMedication })}
-      ${checkbox({ label:'Tenho lesão aguda importante ou dor que limita movimento', name:'health.acuteInjury', checked:state.health.acuteInjury })}
-    </fieldset>`);
-}
-
-function step4() {
-  assessmentShell(`<div class="notice neutral"><strong>Descreva o real, não o ideal</strong><p>O objetivo é entender seu ponto de partida. Não existe resposta “certa” aqui.</p></div>
-    <div class="form-grid">
-      ${textarea({ label:'Café da manhã típico', name:'currentDiet.breakfast', value:state.currentDiet.breakfast })}
-      ${textarea({ label:'Almoço típico', name:'currentDiet.lunch', value:state.currentDiet.lunch })}
-      ${textarea({ label:'Lanches', name:'currentDiet.snack', value:state.currentDiet.snack })}
-      ${textarea({ label:'Jantar típico', name:'currentDiet.dinner', value:state.currentDiet.dinner })}
-      ${textarea({ label:'Ceia / madrugada', name:'currentDiet.supper', value:state.currentDiet.supper })}
-      ${textarea({ label:'Bebidas no dia a dia', name:'currentDiet.drinks', value:state.currentDiet.drinks })}
-      ${textarea({ label:'Doces e sobremesas', name:'currentDiet.sweets', value:state.currentDiet.sweets })}
-      ${field({ label:'Delivery por semana', name:'currentDiet.deliveryPerWeek', value:state.currentDiet.deliveryPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
-      ${field({ label:'Refeições fora por semana', name:'currentDiet.eatOutPerWeek', value:state.currentDiet.eatOutPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
-      ${field({ label:'Água aproximada por dia (L)', name:'currentDiet.waterLiters', value:state.currentDiet.waterLiters, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
-      ${textarea({ label:'O que muda no sábado/domingo?', name:'currentDiet.weekendDiff', value:state.currentDiet.weekendDiff })}
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui intolerância ou alimento/componente que costuma causar desconforto?', name:'health.intoleranceStatus', value:state.health.intoleranceStatus, options:statusOptions, help:'Isso registra o seu relato; não tenta diagnosticar a causa do desconforto.' })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'O que costuma causar desconforto?', name:'health.intoleranceItems', values:state.health.intoleranceItems, options:intoleranceOptions, otherName:'health.intoleranceOther', otherValue:state.health.intoleranceOther })}
+      </div>
+    </div>
+    ${statusWithText({ legend:'Possui alguma condição de saúde relevante para alimentação ou exercício?', statusName:'health.conditionStatus', statusValue:state.health.conditionStatus, textName:'health.conditions', textValue:state.health.conditions, textLabel:'Qual condição?', help:'Evito uma lista fechada porque condições clínicas têm grande cauda longa e uma seleção curta poderia induzir classificação incorreta.', placeholder:'Ex.: hipertensão acompanhada, diabetes, condição gastrointestinal…' })}
+    ${statusWithText({ legend:'Usa medicamentos de forma regular?', statusName:'health.medicationStatus', statusValue:state.health.medicationStatus, textName:'health.medications', textValue:state.health.medications, textLabel:'Quais medicamentos?', help:'Informe apenas se souber. O VitaFrame não interpreta doses nem interações.', placeholder:'Nome do medicamento; dose/frequência somente se considerar útil' })}
+    ${statusWithText({ legend:'Possui cirurgia ou histórico de saúde importante para contextualizar?', statusName:'health.surgeryStatus', statusValue:state.health.surgeryStatus, textName:'health.surgeries', textValue:state.health.surgeries, textLabel:'Qual histórico?', placeholder:'Descreva apenas o que for relevante para o seu contexto atual' })}
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Possui dor, lesão ou limitação atual que afeta movimento ou treino?', name:'health.painStatus', value:state.health.painStatus, options:statusOptions })}
+      <div class="conditional-yes">
+        ${multiChoices({ legend:'Em quais regiões ou tipos de limitação?', name:'health.painAreas', values:state.health.painAreas, options:limitationAreaOptions, otherName:'health.painOther', otherValue:state.health.painOther, otherLabel:'Detalhe a limitação apenas se necessário' })}
+      </div>
+    </div>
+    <div class="conditional-block">
+      ${radioChoices({ legend:'Alguma das situações de atenção profissional abaixo se aplica?', name:'health.attentionStatus', value:state.health.attentionStatus, options:[['none','Nenhuma das situações'],['yes','Sim, uma ou mais'],['prefer-not','Prefiro não responder']], help:'Marcar uma situação não gera diagnóstico; apenas mantém um alerta explícito para revisão profissional.' })}
+      <fieldset class="check-panel conditional-yes"><legend>Selecione somente o que você já sabe ou reconhece no seu histórico</legend>
+        ${checkbox({ label:'Tenho condição que exige acompanhamento médico ou nutricional', name:'health.medicalFollowup', checked:state.health.medicalFollowup })}
+        ${checkbox({ label:'Tenho dor no peito, desmaio ou sintomas cardiovasculares relacionados ao exercício', name:'health.chestPain', checked:state.health.chestPain })}
+        ${checkbox({ label:'Tenho histórico ou suspeita de transtorno alimentar', name:'health.eatingDisorder', checked:state.health.eatingDisorder })}
+        ${checkbox({ label:'Tive mudança rápida e não intencional de peso', name:'health.rapidWeightChange', checked:state.health.rapidWeightChange })}
+        ${checkbox({ label:'Estou em gestação ou amamentação', name:'health.pregnancy', checked:state.health.pregnancy })}
+        ${checkbox({ label:'Tenho doença renal', name:'health.kidneyDisease', checked:state.health.kidneyDisease })}
+        ${checkbox({ label:'Uso medicação para diabetes', name:'health.diabetesMedication', checked:state.health.diabetesMedication })}
+        ${checkbox({ label:'Tenho lesão aguda importante ou dor que limita movimento', name:'health.acuteInjury', checked:state.health.acuteInjury })}
+      </fieldset>
     </div>`);
 }
-
+function step4() {
+  assessmentShell(`<div class="notice neutral"><strong>Reconheça primeiro; escreva só se faltar algo</strong><p>Marque combinações que aparecem no seu dia típico. “Outro” abre um complemento curto. Para detalhar por horário e quantidade, use também o mapa alimentar.</p><p><a href="./meals.html">Abrir meu dia alimentar →</a></p></div>
+    ${multiChoices({ legend:'Café da manhã típico', name:'currentDiet.breakfastChoices', values:state.currentDiet.breakfastChoices, options:mealQuickOptions.breakfast, otherName:'currentDiet.breakfastOther', otherValue:state.currentDiet.breakfastOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Almoço típico', name:'currentDiet.lunchChoices', values:state.currentDiet.lunchChoices, options:mealQuickOptions.lunch, otherName:'currentDiet.lunchOther', otherValue:state.currentDiet.lunchOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Lanches mais comuns', name:'currentDiet.snackChoices', values:state.currentDiet.snackChoices, options:mealQuickOptions.snack, otherName:'currentDiet.snackOther', otherValue:state.currentDiet.snackOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Jantar típico', name:'currentDiet.dinnerChoices', values:state.currentDiet.dinnerChoices, options:mealQuickOptions.dinner, otherName:'currentDiet.dinnerOther', otherValue:state.currentDiet.dinnerOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Ceia / madrugada', name:'currentDiet.supperChoices', values:state.currentDiet.supperChoices, options:mealQuickOptions.supper, otherName:'currentDiet.supperOther', otherValue:state.currentDiet.supperOther, exclusive:['skip'] })}
+    ${multiChoices({ legend:'Bebidas no dia a dia', name:'currentDiet.drinksChoices', values:state.currentDiet.drinksChoices, options:mealQuickOptions.drinks, otherName:'currentDiet.drinksOther', otherValue:state.currentDiet.drinksOther })}
+    ${multiChoices({ legend:'Doces e sobremesas', name:'currentDiet.sweetsChoices', values:state.currentDiet.sweetsChoices, options:mealQuickOptions.sweets, otherName:'currentDiet.sweetsOther', otherValue:state.currentDiet.sweetsOther, exclusive:['rare-none'] })}
+    <div class="form-grid top-gap">
+      ${field({ label:'Delivery por semana', name:'currentDiet.deliveryPerWeek', value:state.currentDiet.deliveryPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric', help:'Digite apenas o número aproximado; zero é uma resposta válida.' })}
+      ${field({ label:'Refeições fora por semana', name:'currentDiet.eatOutPerWeek', value:state.currentDiet.eatOutPerWeek, type:'number', min:'0', max:'21', inputmode:'numeric' })}
+      ${field({ label:'Água aproximada por dia (L)', name:'currentDiet.waterLiters', value:state.currentDiet.waterLiters, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
+    </div>
+    ${multiChoices({ legend:'O que costuma mudar no sábado/domingo?', name:'currentDiet.weekendChoices', values:state.currentDiet.weekendChoices, options:weekendOptions, otherName:'currentDiet.weekendOther', otherValue:state.currentDiet.weekendOther, exclusive:['similar'] })}`);
+}
 function step5() {
   const search = `<label class="search-field"><span>Buscar alimento</span><input id="foodSearch" type="search" placeholder="Digite banana, arroz, pizza…" autocomplete="off"></label>`;
   const catalog = foodCatalog.map(category => `<section class="food-category" data-category="${category.id}"><div class="category-head"><h2>${esc(category.label)}</h2><span>${category.items.length} opções</span></div><div class="food-list">${category.items.map(item => foodItem(item)).join('')}</div></section>`).join('');
@@ -303,48 +378,58 @@ function step6() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Horário em que costuma acordar', name:'routine.wakeTime', value:state.routine.wakeTime, type:'time' })}
     ${field({ label:'Horário em que costuma dormir', name:'routine.sleepTime', value:state.routine.sleepTime, type:'time' })}
-    ${select({ label:'Modalidade de trabalho/estudo', name:'routine.workMode', value:state.routine.workMode, options:[['remote','Remoto'],['hybrid','Híbrido'],['onsite','Presencial'],['variable','Variável / turnos'],['other','Outro']] })}
-    ${field({ label:'Horário de trabalho/estudo', name:'routine.workHours', value:state.routine.workHours, placeholder:'Ex.: 9h–18h' })}
-    ${field({ label:'Tempo de deslocamento em dia presencial', name:'routine.commute', value:state.routine.commute, placeholder:'Ex.: 45 min por trecho' })}
+  </div>
+  ${radioChoices({ legend:'Modalidade de trabalho/estudo', name:'routine.workMode', value:state.routine.workMode, options:[['remote','Remoto'],['hybrid','Híbrido'],['onsite','Presencial'],['variable','Variável / turnos'],['na','Não se aplica'],['other','Outro']], otherName:'routine.workModeOther', otherValue:state.routine.workModeOther })}
+  <div class="form-grid top-gap">
+    ${field({ label:'Horário de trabalho/estudo', name:'routine.workHours', value:state.routine.workHours, placeholder:'Ex.: 9h–18h', help:'Mantido como texto curto porque escalas, plantões e horários quebrados não cabem bem em uma lista única.' })}
+    ${select({ label:'Tempo de deslocamento em dia presencial', name:'routine.commute', value:state.routine.commute, options:[['none','Sem deslocamento'],['up30','Até 30 min no total'],['31-60','31–60 min no total'],['61-90','61–90 min no total'],['91-120','91–120 min no total'],['120+','Mais de 2 h no total'],['variable','Varia muito']] })}
     ${select({ label:'Facilidade para cozinhar', name:'routine.cook', value:state.routine.cook, options:[['easy','Cozinho com facilidade'],['some','Consigo, mas quero praticidade'],['low','Tenho pouca disponibilidade'],['none','Não costumo cozinhar']] })}
     ${select({ label:'Preparar várias refeições de uma vez', name:'routine.mealPrep', value:state.routine.mealPrep, options:[['yes','Sim'],['maybe','Talvez'],['no','Prefiro não']] })}
     ${select({ label:'Geladeira e micro-ondas quando está fora', name:'routine.fridgeMicrowave', value:state.routine.fridgeMicrowave, options:[['both','Tenho os dois'],['fridge','Só geladeira'],['microwave','Só micro-ondas'],['none','Nenhum'],['na','Não se aplica']] })}
     ${select({ label:'Faixa de custo desejada', name:'routine.budget', value:state.routine.budget, options:[['economic','Econômica'],['balanced','Intermediária'],['flexible','Custo não é prioridade']] })}
     ${select({ label:'Quantidade de refeições preferida', name:'routine.preferredMeals', value:state.routine.preferredMeals, options:[['3','3 maiores'],['4','4 refeições'],['5','5 refeições'],['flexible','Sem preferência']] })}
-    ${select({ label:'Período em que sente mais fome', name:'routine.hungerPeriod', value:state.routine.hungerPeriod, options:[['morning','Manhã'],['lunch','Almoço'],['afternoon','Tarde'],['night','Noite'],['late','Madrugada'],['varies','Varia muito']] })}
-    ${textarea({ label:'Detalhes importantes da rotina', name:'routine.notes', value:state.routine.notes })}
+    ${select({ label:'Período em que sente mais fome', name:'routine.hungerPeriod', value:state.routine.hungerPeriod, options:[['morning','Manhã'],['lunch','Almoço'],['afternoon','Tarde'],['night','Noite'],['late','Madrugada'],['varies','Varia muito'],['unsure','Não sei perceber um padrão']] })}
+    ${textarea({ label:'Detalhes importantes da rotina', name:'routine.notes', value:state.routine.notes, help:'Campo aberto mantido apenas para contexto que não cabe nas alternativas acima.' })}
   </div>`);
 }
-
 function step7() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Musculação por semana (dias)', name:'training.daysPerWeek', value:state.training.daysPerWeek, type:'number', min:'0', max:'7', inputmode:'numeric' })}
     ${field({ label:'Duração média do treino (min)', name:'training.durationMin', value:state.training.durationMin, type:'number', min:'0', max:'240', inputmode:'numeric' })}
-    ${select({ label:'Intensidade percebida', name:'training.intensity', value:state.training.intensity, options:[['light','Leve'],['moderate','Moderada'],['high','Alta'],['unsure','Não sei']] })}
-    ${field({ label:'Divisão do treino', name:'training.split', value:state.training.split, placeholder:'Ex.: ABC, upper/lower…' })}
+    ${select({ label:'Intensidade percebida', name:'training.intensity', value:state.training.intensity, options:[['light','Leve'],['moderate','Moderada'],['high','Alta'],['unsure','Não sei avaliar']] })}
     ${field({ label:'Horário habitual', name:'training.time', value:state.training.time, type:'time' })}
     ${select({ label:'Experiência com musculação', name:'training.experience', value:state.training.experience, options:[['beginner','Menos de 1 ano'],['intermediate','1–3 anos'],['experienced','Mais de 3 anos'],['returning','Retornando após pausa']] })}
-    ${textarea({ label:'Cardio: modalidade e duração', name:'training.cardio', value:state.training.cardio })}
     ${field({ label:'Cardio por semana', name:'training.cardioFrequency', value:state.training.cardioFrequency, type:'number', min:'0', max:'14', inputmode:'numeric' })}
+    ${field({ label:'Duração média do cardio (min)', name:'training.cardioDurationMin', value:state.training.cardioDurationMin, type:'number', min:'0', max:'300', inputmode:'numeric' })}
     ${field({ label:'Passos aproximados por dia', name:'training.steps', value:state.training.steps, type:'number', min:'0', max:'50000', inputmode:'numeric' })}
-    ${textarea({ label:'Outras atividades físicas', name:'training.otherActivity', value:state.training.otherActivity })}
-    ${textarea({ label:'Limitações, dores, fisioterapia ou restrições para exercício', name:'training.limitations', value:state.training.limitations })}
+  </div>
+  ${radioChoices({ legend:'Como costuma dividir a musculação?', name:'training.split', value:state.training.split, options:trainingSplitOptions, otherName:'training.splitOther', otherValue:state.training.splitOther })}
+  ${multiChoices({ legend:'Quais modalidades de cardio costuma fazer?', name:'training.cardioModalities', values:state.training.cardioModalities, options:cardioOptions, otherName:'training.cardioOther', otherValue:state.training.cardioOther })}
+  ${multiChoices({ legend:'Outras atividades físicas que fazem parte da rotina', name:'training.activityTypes', values:state.training.activityTypes, options:activityOptions, otherName:'training.activityOther', otherValue:state.training.activityOther })}
+  <div class="conditional-block">
+    ${radioChoices({ legend:'Possui limitação, dor, fisioterapia ou restrição que interfere no exercício?', name:'training.limitationStatus', value:state.training.limitationStatus, options:statusOptions })}
+    <div class="conditional-yes">
+      ${multiChoices({ legend:'Onde ou em que tipo de limitação?', name:'training.limitationAreas', values:state.training.limitationAreas, options:limitationAreaOptions, otherName:'training.limitationOther', otherValue:state.training.limitationOther, otherLabel:'Detalhe apenas o necessário para contextualizar o treino' })}
+    </div>
   </div>`);
 }
-
 function step8() {
   assessmentShell(`<div class="form-grid">
     ${field({ label:'Horas de sono por noite', name:'recovery.sleepHours', value:state.recovery.sleepHours, type:'number', min:'0', max:'16', step:'0.5', inputmode:'decimal' })}
-    ${select({ label:'Qualidade percebida do sono', name:'recovery.sleepQuality', value:state.recovery.sleepQuality, options:[['poor','Ruim'],['fair','Regular'],['good','Boa'],['great','Muito boa']] })}
-    ${select({ label:'Estresse no dia a dia', name:'recovery.stress', value:state.recovery.stress, options:[['low','Baixo'],['moderate','Moderado'],['high','Alto'],['very-high','Muito alto']] })}
+    ${select({ label:'Qualidade percebida do sono', name:'recovery.sleepQuality', value:state.recovery.sleepQuality, options:[['poor','Ruim'],['fair','Regular'],['good','Boa'],['great','Muito boa'],['unsure','Não sei avaliar']] })}
+    ${select({ label:'Estresse no dia a dia', name:'recovery.stress', value:state.recovery.stress, options:[['low','Baixo'],['moderate','Moderado'],['high','Alto'],['very-high','Muito alto'],['prefer-not','Prefiro não responder']] })}
     ${field({ label:'Água aproximada por dia (L)', name:'recovery.hydration', value:state.recovery.hydration, type:'number', min:'0', max:'10', step:'0.1', inputmode:'decimal' })}
-    ${select({ label:'Fome forte à noite', name:'recovery.hungerNight', value:state.recovery.hungerNight, options:[['never','Raramente'],['sometimes','Às vezes'],['often','Frequentemente']] })}
-    ${select({ label:'Comer por tédio, estresse ou ansiedade', name:'recovery.emotionalEating', value:state.recovery.emotionalEating, options:[['never','Raramente'],['sometimes','Às vezes'],['often','Frequentemente']] })}
-    ${textarea({ label:'Suplementos que usa hoje', name:'recovery.supplements', value:state.recovery.supplements, placeholder:'Produto, dose e frequência se souber.' })}
-    ${textarea({ label:'Outras informações de recuperação', name:'recovery.notes', value:state.recovery.notes })}
+    ${select({ label:'Fome forte à noite', name:'recovery.hungerNight', value:state.recovery.hungerNight, options:[['never','Raramente / nunca'],['sometimes','Às vezes'],['often','Frequentemente'],['unsure','Não sei avaliar']] })}
+    ${select({ label:'Comer por tédio, estresse ou ansiedade', name:'recovery.emotionalEating', value:state.recovery.emotionalEating, options:[['never','Raramente / nunca'],['sometimes','Às vezes'],['often','Frequentemente'],['prefer-not','Prefiro não responder']] })}
+    ${textarea({ label:'Outras informações de recuperação', name:'recovery.notes', value:state.recovery.notes, help:'Use somente para algo relevante que não esteja representado nas alternativas.' })}
+  </div>
+  <div class="conditional-block">
+    ${radioChoices({ legend:'Usa suplementos atualmente?', name:'recovery.supplementStatus', value:state.recovery.supplementStatus, options:statusOptions, help:'Vitaminas e suplementos entram apenas como contexto declarado; o VitaFrame não recomenda uso.' })}
+    <div class="conditional-yes">
+      ${multiChoices({ legend:'Quais tipos?', name:'recovery.supplementTypes', values:state.recovery.supplementTypes, options:supplementOptions, otherName:'recovery.supplementOther', otherValue:state.recovery.supplementOther, otherLabel:'Outro suplemento — nome/dose somente se souber' })}
+    </div>
   </div>`);
 }
-
 function step9() {
   const c = completeness(state);
   const issues = dataQualityIssues(state);
@@ -446,25 +531,104 @@ function bindForm() {
   form.addEventListener('change', handleFieldChange);
 }
 
+function clearConditionalValue(statusValue, paths) {
+  if (statusValue === 'yes') return;
+  for (const [path, empty] of paths) setPathValue(state, path, structuredClone(empty));
+}
+
 function handleFieldChange(event) {
   const target = event.target;
   if (!target?.name) return;
+
   if (target.name.startsWith('preference.')) {
     const id = target.name.split('.')[1];
     state.foodPreferences[id] = target.value === 'n' ? 'n' : Number(target.value);
-  } else {
-    const [group, key] = target.name.split('.');
-    if (!state[group]) return;
-    state[group][key] = target.type === 'checkbox' ? target.checked : target.value;
-    if (group === 'health') state.health.answered = true;
-    if (group === 'currentDiet') state.currentDiet.answered = true;
-    if (group === 'routine') state.routine.answered = true;
-    if (group === 'training') state.training.answered = true;
-    if (group === 'recovery') state.recovery.answered = true;
+    persist();
+    return;
   }
+
+  const arrayPath = target.dataset.arrayPath;
+  let selectedValues = null;
+  if (arrayPath) {
+    const group = target.closest('.structured-group');
+    if (target.checked && target.dataset.exclusive === 'true') {
+      group?.querySelectorAll('[data-array-path]').forEach(input => {
+        if (input !== target) input.checked = false;
+      });
+    } else if (target.checked) {
+      group?.querySelectorAll('[data-array-path][data-exclusive="true"]').forEach(input => { input.checked = false; });
+    }
+    selectedValues = [...(group?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
+    setPathValue(state, arrayPath, selectedValues);
+  } else {
+    setPathValue(state, target.name, target.type === 'checkbox' ? target.checked : target.value);
+  }
+
+  const root = target.name.split('.')[0];
+  if (['health','currentDiet','routine','training','recovery'].includes(root)) state[root].answered = true;
+
+  const statusClears = {
+    'health.allergyStatus': [['health.allergyItems', []], ['health.allergyOther', '']],
+    'health.intoleranceStatus': [['health.intoleranceItems', []], ['health.intoleranceOther', '']],
+    'health.conditionStatus': [['health.conditions', '']],
+    'health.medicationStatus': [['health.medications', '']],
+    'health.surgeryStatus': [['health.surgeries', '']],
+    'health.painStatus': [['health.painAreas', []], ['health.painOther', '']],
+    'training.limitationStatus': [['training.limitationAreas', []], ['training.limitationOther', '']],
+    'recovery.supplementStatus': [['recovery.supplementTypes', []], ['recovery.supplementOther', '']],
+  };
+  if (statusClears[target.name]) clearConditionalValue(target.value, statusClears[target.name]);
+
+  if (target.type === 'radio' && target.closest('.conditional-block') && target.value !== 'yes') {
+    target.closest('.conditional-block').querySelectorAll('.conditional-yes input, .conditional-yes textarea, .conditional-yes select').forEach(control => {
+      if (control.type === 'checkbox' || control.type === 'radio') control.checked = false;
+      else control.value = '';
+    });
+  }
+
+  if (target.type === 'radio' && target.value !== 'other') {
+    const otherInput = target.closest('.structured-group')?.querySelector('.conditional-other input, .conditional-other textarea');
+    if (otherInput) otherInput.value = '';
+  }
+
+  const otherByArray = {
+    'health.allergyItems': 'health.allergyOther',
+    'health.intoleranceItems': 'health.intoleranceOther',
+    'health.painAreas': 'health.painOther',
+    'currentDiet.breakfastChoices': 'currentDiet.breakfastOther',
+    'currentDiet.lunchChoices': 'currentDiet.lunchOther',
+    'currentDiet.snackChoices': 'currentDiet.snackOther',
+    'currentDiet.dinnerChoices': 'currentDiet.dinnerOther',
+    'currentDiet.supperChoices': 'currentDiet.supperOther',
+    'currentDiet.drinksChoices': 'currentDiet.drinksOther',
+    'currentDiet.sweetsChoices': 'currentDiet.sweetsOther',
+    'currentDiet.weekendChoices': 'currentDiet.weekendOther',
+    'training.cardioModalities': 'training.cardioOther',
+    'training.activityTypes': 'training.activityOther',
+    'training.limitationAreas': 'training.limitationOther',
+    'recovery.supplementTypes': 'recovery.supplementOther',
+  };
+  if (arrayPath && otherByArray[arrayPath] && !selectedValues?.includes('other')) {
+    setPathValue(state, otherByArray[arrayPath], '');
+    const otherInput = target.closest('.structured-group')?.querySelector('.conditional-other input, .conditional-other textarea');
+    if (otherInput) otherInput.value = '';
+  }
+
+  if (target.name === 'health.attentionStatus' && target.value !== 'yes') {
+    for (const key of ['medicalFollowup','chestPain','eatingDisorder','rapidWeightChange','pregnancy','kidneyDisease','diabetesMedication','acuteInjury']) {
+      state.health[key] = false;
+    }
+  }
+  if (target.name === 'body.bodyFatSource' && target.value !== 'other') {
+    state.body.bodyFatSourceOther = '';
+    const otherInput = document.querySelector('[name="body.bodyFatSourceOther"]');
+    if (otherInput) otherInput.value = '';
+  }
+  if (target.name === 'routine.workMode' && target.value !== 'other') state.routine.workModeOther = '';
+  if (target.name === 'training.split' && target.value !== 'other') state.training.splitOther = '';
+
   persist();
 }
-
 function nextStep() {
   if (currentStep < steps.length) {
     currentStep += 1;
@@ -500,7 +664,7 @@ async function importFile(event) {
   try {
     const parsed = JSON.parse(await file.text());
     if (!parsed || parsed?.meta?.format && parsed.meta.format !== 'vitaframe-v1') throw new Error('Formato incompatível');
-    state = { ...structuredClone(initialState), ...parsed, meta: { ...initialState.meta, ...(parsed.meta ?? {}) } };
+    state = migrateStructuredState({ ...structuredClone(initialState), ...parsed, meta: { ...initialState.meta, ...(parsed.meta ?? {}) } });
     persist('Dados importados.');
     profileView();
   } catch {
