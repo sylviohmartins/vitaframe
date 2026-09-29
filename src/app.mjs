@@ -532,6 +532,11 @@ function bindForm() {
   form.addEventListener('change', handleFieldChange);
 }
 
+function clearConditionalValue(statusPath, statusValue, paths) {
+  if (statusValue === 'yes') return;
+  for (const [path, empty] of paths) setPathValue(state, path, structuredClone(empty));
+}
+
 function handleFieldChange(event) {
   const target = event.target;
   if (!target?.name) return;
@@ -544,6 +549,7 @@ function handleFieldChange(event) {
   }
 
   const arrayPath = target.dataset.arrayPath;
+  let selectedValues = null;
   if (arrayPath) {
     const group = target.closest('.structured-group');
     if (target.checked && target.dataset.exclusive === 'true') {
@@ -553,8 +559,8 @@ function handleFieldChange(event) {
     } else if (target.checked) {
       group?.querySelectorAll('[data-array-path][data-exclusive="true"]').forEach(input => { input.checked = false; });
     }
-    const values = [...(group?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
-    setPathValue(state, arrayPath, values);
+    selectedValues = [...(group?.querySelectorAll('[data-array-path]:checked') ?? [])].map(input => input.value);
+    setPathValue(state, arrayPath, selectedValues);
   } else {
     setPathValue(state, target.name, target.type === 'checkbox' ? target.checked : target.value);
   }
@@ -562,15 +568,48 @@ function handleFieldChange(event) {
   const root = target.name.split('.')[0];
   if (['health','currentDiet','routine','training','recovery'].includes(root)) state[root].answered = true;
 
+  const statusClears = {
+    'health.allergyStatus': [['health.allergyItems', []], ['health.allergyOther', '']],
+    'health.intoleranceStatus': [['health.intoleranceItems', []], ['health.intoleranceOther', '']],
+    'health.conditionStatus': [['health.conditions', '']],
+    'health.medicationStatus': [['health.medications', '']],
+    'health.surgeryStatus': [['health.surgeries', '']],
+    'health.painStatus': [['health.painAreas', []], ['health.painOther', '']],
+    'training.limitationStatus': [['training.limitationAreas', []], ['training.limitationOther', '']],
+    'recovery.supplementStatus': [['recovery.supplementTypes', []], ['recovery.supplementOther', '']],
+  };
+  if (statusClears[target.name]) clearConditionalValue(target.name, target.value, statusClears[target.name]);
+
+  const otherByArray = {
+    'health.allergyItems': 'health.allergyOther',
+    'health.intoleranceItems': 'health.intoleranceOther',
+    'health.painAreas': 'health.painOther',
+    'currentDiet.breakfastChoices': 'currentDiet.breakfastOther',
+    'currentDiet.lunchChoices': 'currentDiet.lunchOther',
+    'currentDiet.snackChoices': 'currentDiet.snackOther',
+    'currentDiet.dinnerChoices': 'currentDiet.dinnerOther',
+    'currentDiet.supperChoices': 'currentDiet.supperOther',
+    'currentDiet.drinksChoices': 'currentDiet.drinksOther',
+    'currentDiet.sweetsChoices': 'currentDiet.sweetsOther',
+    'currentDiet.weekendChoices': 'currentDiet.weekendOther',
+    'training.cardioModalities': 'training.cardioOther',
+    'training.activityTypes': 'training.activityOther',
+    'training.limitationAreas': 'training.limitationOther',
+    'recovery.supplementTypes': 'recovery.supplementOther',
+  };
+  if (arrayPath && otherByArray[arrayPath] && !selectedValues?.includes('other')) setPathValue(state, otherByArray[arrayPath], '');
+
   if (target.name === 'health.attentionStatus' && target.value !== 'yes') {
     for (const key of ['medicalFollowup','chestPain','eatingDisorder','rapidWeightChange','pregnancy','kidneyDisease','diabetesMedication','acuteInjury']) {
       state.health[key] = false;
     }
   }
+  if (target.name === 'body.bodyFatSource' && target.value !== 'other') state.body.bodyFatSourceOther = '';
+  if (target.name === 'routine.workMode' && target.value !== 'other') state.routine.workModeOther = '';
+  if (target.name === 'training.split' && target.value !== 'other') state.training.splitOther = '';
 
   persist();
 }
-
 function nextStep() {
   if (currentStep < steps.length) {
     currentStep += 1;
