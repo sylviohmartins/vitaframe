@@ -116,7 +116,7 @@ async function assertBudgets() {
   const sizes = {};
   for (const file of [
     'index.html','advanced.html','adaptive.html','meals.html','assets/styles.css','assets/navigation.css','assets/editorial.css','assets/advanced.css','assets/adaptive.css','assets/meals.css',
-    'src/app.mjs','src/local-metrics.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
+    'src/app.mjs','src/local-metrics.mjs','src/prompt-compliance.mjs','src/question-options.mjs','src/advanced.mjs','src/advanced-logic.mjs','src/adaptive-interview.mjs','src/adaptive-interview-logic.mjs','src/meals.mjs'
   ]) sizes[file] = (await stat(file)).size;
 
   const assertions = [
@@ -124,7 +124,7 @@ async function assertBudgets() {
     [sizes['advanced.html'] <= 50_000, 'advanced.html exceeds 50 KB'],
     [sizes['adaptive.html'] <= 50_000, 'adaptive.html exceeds 50 KB'],
     [sizes['meals.html'] <= 50_000, 'meals.html exceeds 50 KB'],
-    [sizes['src/app.mjs'] + sizes['src/local-metrics.mjs'] <= 150_000, 'main JS exceeds 150 KB'],
+    [sizes['src/app.mjs'] + sizes['src/local-metrics.mjs'] + sizes['src/prompt-compliance.mjs'] + sizes['src/question-options.mjs'] <= 180_000, 'main JS exceeds 180 KB'],
     [sizes['src/advanced.mjs'] + sizes['src/advanced-logic.mjs'] <= 150_000, 'advanced JS exceeds 150 KB'],
     [sizes['src/adaptive-interview.mjs'] + sizes['src/adaptive-interview-logic.mjs'] <= 100_000, 'adaptive JS exceeds 100 KB'],
     [sizes['src/meals.mjs'] <= 80_000, 'meal JS exceeds 80 KB'],
