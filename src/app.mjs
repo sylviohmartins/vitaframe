@@ -10,6 +10,7 @@ import {
   statusOptions,
   supplementOptions,
   trainingSplitOptions,
+  migrateStructuredState,
   weekendOptions,
 } from './question-options.mjs';
 import {
@@ -281,6 +282,7 @@ function step2() {
       ${field({ label:'Cintura / abdômen (cm)', name:'body.waistCm', value:state.body.waistCm, type:'number', step:'0.1', inputmode:'decimal' })}
       ${field({ label:'Gordura corporal estimada (%)', name:'body.bodyFatPct', value:state.body.bodyFatPct, type:'number', min:'3', max:'70', step:'0.1', inputmode:'decimal' })}
       ${select({ label:'Origem da estimativa de gordura', name:'body.bodyFatSource', value:state.body.bodyFatSource, options:[['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['other','Outro método']] })}
+      <label class="field conditional-bodyfat-other"><span>Qual outro método?</span><input name="body.bodyFatSourceOther" type="text" maxlength="120" value="${esc(state.body.bodyFatSourceOther)}" placeholder="Ex.: ultrassom, estimativa de profissional…"></label>
       ${field({ label:'Data da medição', name:'body.bodyFatDate', value:state.body.bodyFatDate, type:'date' })}
       ${field({ label:'Peso objetivo, se houver (kg)', name:'body.goalWeightKg', value:state.body.goalWeightKg, type:'number', step:'0.1', inputmode:'decimal' })}
     </div>
@@ -604,7 +606,7 @@ async function importFile(event) {
   try {
     const parsed = JSON.parse(await file.text());
     if (!parsed || parsed?.meta?.format && parsed.meta.format !== 'vitaframe-v1') throw new Error('Formato incompatível');
-    state = { ...structuredClone(initialState), ...parsed, meta: { ...initialState.meta, ...(parsed.meta ?? {}) } };
+    state = migrateStructuredState({ ...structuredClone(initialState), ...parsed, meta: { ...initialState.meta, ...(parsed.meta ?? {}) } });
     persist('Dados importados.');
     profileView();
   } catch {
