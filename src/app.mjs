@@ -280,7 +280,7 @@ function step2() {
       ${field({ label:'Peso habitual (kg)', name:'body.usualWeightKg', value:state.body.usualWeightKg, type:'number', step:'0.01', inputmode:'decimal' })}
       ${field({ label:'Cintura / abdômen (cm)', name:'body.waistCm', value:state.body.waistCm, type:'number', step:'0.1', inputmode:'decimal' })}
       ${field({ label:'Gordura corporal estimada (%)', name:'body.bodyFatPct', value:state.body.bodyFatPct, type:'number', min:'3', max:'70', step:'0.1', inputmode:'decimal' })}
-      ${select({ label:'Origem da estimativa de gordura', name:'body.bodyFatSource', value:state.body.bodyFatSource, options:[['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['other','Outro método']] })}
+      ${select({ label:'Origem da estimativa de gordura', name:'body.bodyFatSource', value:state.body.bodyFatSource, options:[['bioimpedance-home','Balança de bioimpedância doméstica'],['bioimpedance-pro','Bioimpedância profissional'],['skinfold','Dobras cutâneas'],['dexa','DEXA'],['unsure','Não sei / não lembro'],['other','Outro método']] })}
       <label class="field conditional-bodyfat-other"><span>Qual outro método?</span><input name="body.bodyFatSourceOther" type="text" maxlength="120" value="${esc(state.body.bodyFatSourceOther)}" placeholder="Ex.: ultrassom, estimativa de profissional…"></label>
       ${field({ label:'Data da medição', name:'body.bodyFatDate', value:state.body.bodyFatDate, type:'date' })}
       ${field({ label:'Peso objetivo, se houver (kg)', name:'body.goalWeightKg', value:state.body.goalWeightKg, type:'number', step:'0.1', inputmode:'decimal' })}
