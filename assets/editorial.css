@@ -343,8 +343,18 @@ body {
 }
 
 @media (max-width: 640px) {
+  .topbar .privacy-chip {
+    gap: 0;
+    font-size: 0;
+  }
+
   .hero {
     padding-bottom: 64px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 10vw, 46px);
+    line-height: 1.03;
   }
 
   .principles {
