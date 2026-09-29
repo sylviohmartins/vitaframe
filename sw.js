@@ -1,4 +1,4 @@
-const CACHE = 'vitaframe-v1.2.1';
+const CACHE = 'vitaframe-v1.3.0';
 const ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
   './assets/advanced.css',
   './assets/meals.css',
   './assets/adaptive.css',
+  './assets/editorial.css',
   './assets/brand/logo.svg',
   './assets/brand/logo-dark.svg',
   './assets/brand/logo-compact.svg',
