@@ -293,7 +293,7 @@ function step2() {
 }
 
 function step3() {
-  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Selecione o que reconhecer. “Não”, “não sei” e “prefiro não informar” são respostas diferentes; texto aparece apenas quando acrescenta contexto.</p></div>
+  assessmentShell(`<div class="notice neutral"><strong>Você controla o que responde</strong><p>Selecione o que reconhecer. “Não”, “não sei” e “prefiro não informar” são respostas diferentes; texto aparece apenas quando acrescenta contexto. Não fazemos diagnóstico.</p></div>
     <div class="conditional-block">
       ${radioChoices({ legend:'Possui alguma alergia conhecida?', name:'health.allergyStatus', value:state.health.allergyStatus, options:statusOptions, help:'Alergia é diferente de intolerância ou desconforto alimentar.' })}
       <div class="conditional-yes">
