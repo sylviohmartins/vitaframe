@@ -298,8 +298,30 @@ export function migrateStructuredState(input) {
   }
 
   if (!state.routine.workModeOther) state.routine.workModeOther = '';
+  if (state.routine.commute && !['none','up30','31-60','61-90','91-120','120+','variable'].includes(state.routine.commute)) {
+    const minutes = Number(String(state.routine.commute).match(/\d+/)?.[0]);
+    if (Number.isFinite(minutes)) {
+      state.routine.commute = minutes <= 30 ? 'up30' : minutes <= 60 ? '31-60' : minutes <= 90 ? '61-90' : minutes <= 120 ? '91-120' : '120+';
+    } else {
+      state.routine.commute = 'variable';
+    }
+  }
   if (!state.body) state.body = {};
   if (!state.body.bodyFatSourceOther) state.body.bodyFatSourceOther = '';
+
+  if (state.training.split && !trainingSplitOptions.some(([id]) => id === state.training.split)) {
+    const normalizedSplit = String(state.training.split).toLowerCase().replaceAll(' ', '');
+    const known = normalizedSplit === 'abc' ? 'abc'
+      : normalizedSplit === 'ab' ? 'ab'
+      : normalizedSplit.includes('upper') && normalizedSplit.includes('lower') ? 'upper-lower'
+      : normalizedSplit.includes('push') && normalizedSplit.includes('pull') ? 'ppl'
+      : '';
+    if (known) state.training.split = known;
+    else {
+      state.training.splitOther = state.training.split;
+      state.training.split = 'other';
+    }
+  }
 
   if (!Array.isArray(state.training.cardioModalities) && state.training.cardio) {
     state.training.cardioModalities = ['other'];
@@ -317,6 +339,11 @@ export function migrateStructuredState(input) {
   if (!Array.isArray(state.training.exerciseSelections) && state.training.exercises) {
     state.training.exerciseSelections = ['other'];
     state.training.exerciseOther = state.training.exercises;
+  }
+
+  if (!state.health.attentionStatus) {
+    const attentionKeys = ['medicalFollowup','chestPain','eatingDisorder','rapidWeightChange','pregnancy','kidneyDisease','diabetesMedication','acuteInjury'];
+    if (attentionKeys.some(key => state.health[key] === true)) state.health.attentionStatus = 'yes';
   }
 
   if (!state.recovery.supplementStatus && state.recovery.supplements) state.recovery.supplementStatus = 'yes';
